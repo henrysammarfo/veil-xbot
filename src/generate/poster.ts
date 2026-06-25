@@ -4,7 +4,9 @@ import { join } from "node:path";
 import { requireEnv, DATA_DIR, assertDataDir } from "../config.js";
 import { brandVoice, type BrandKey } from "../brands.js";
 import { tasteSystemSuffix } from "../taste.js";
-import { newId, saveGraphic, type GraphicAsset } from "../store.js";
+import { newId, saveGraphic, listLearnings, type GraphicAsset } from "../store.js";
+import { stylePrompt, type PosterDesignStyle } from "../studio/design-styles.js";
+import { hasFal, generateFalImage } from "../integrations/fal.js";
 
 export type PosterKind = "poster" | "quote-card" | "thread-header" | "announcement";
 
@@ -27,59 +29,66 @@ async function buildImagePrompt(opts: {
   kind: PosterKind;
   topic: string;
   headline?: string;
+  designStyle: PosterDesignStyle;
 }): Promise<string> {
   const voice = brandVoice(opts.brand);
+  const learnings = listLearnings().slice(0, 3);
   const openai = new OpenAI({ apiKey: requireEnv("OPENAI_API_KEY") });
   const res = await openai.chat.completions.create({
     model: "gpt-4o-mini",
-    temperature: 0.6,
+    temperature: 0.55,
     messages: [
       {
         role: "system",
         content:
-          "You write DALL-E image prompts for premium social graphics. Dark #0a0a0a Veil aesthetic. No crypto slop. One paragraph only." +
+          "You write image prompts for premium launch posters (Canva Pro / editorial / film poster level). NOT generic dark UI boxes. One paragraph." +
           tasteSystemSuffix(),
       },
       {
         role: "user",
         content: `Brand: ${voice.name}
+Design style: ${opts.designStyle} — ${stylePrompt(opts.designStyle)}
 Kind: ${opts.kind}
 Topic: ${opts.topic}
-Headline text on image: ${opts.headline || "auto from topic"}
-Pillars: ${voice.pillars.join("; ")}
-Style: Veil dashboard — #0a0a0a background, off-white type, thin borders, minimal. NO gold coins, neon cities, AI faces.`,
+Headline on image: ${opts.headline || "minimal"}
+Learnings: ${learnings.map((l) => l.analysis.textOverlays).join("; ")}
+NO: gold coins, neon crypto city, stock handshake, generic dashboard screenshot as whole image`,
       },
     ],
   });
-  return res.choices[0]?.message?.content?.trim() || `${voice.name} ${opts.kind} ${opts.topic}`;
+  return res.choices[0]?.message?.content?.trim() || `${voice.name} ${opts.designStyle} ${opts.topic}`;
 }
 
-/** Generate poster / quote card / thread header PNG via OpenAI Images. */
 export async function generatePoster(opts: {
   brand: BrandKey;
   kind?: PosterKind;
   topic: string;
   headline?: string;
+  designStyle?: PosterDesignStyle;
 }): Promise<GraphicAsset> {
   const kind = opts.kind ?? "poster";
-  const imagePrompt = await buildImagePrompt({ ...opts, kind });
-  const openai = new OpenAI({ apiKey: requireEnv("OPENAI_API_KEY") });
-
-  const res = await openai.images.generate({
-    model: "dall-e-3",
-    prompt: imagePrompt,
-    n: 1,
-    size: SIZES[kind],
-    response_format: "b64_json",
-  });
-
-  const b64 = res.data?.[0]?.b64_json;
-  if (!b64) throw new Error("No image returned from OpenAI");
+  const designStyle = opts.designStyle ?? "editorial-serif";
+  const imagePrompt = await buildImagePrompt({ brand: opts.brand, kind, topic: opts.topic, headline: opts.headline, designStyle });
 
   const id = newId("gfx");
-  const filename = `${id}.png`;
-  const localPath = join(graphicsDir(), filename);
-  writeFileSync(localPath, Buffer.from(b64, "base64"));
+  let localPath: string;
+
+  if (hasFal()) {
+    localPath = await generateFalImage(imagePrompt);
+  } else {
+    const openai = new OpenAI({ apiKey: requireEnv("OPENAI_API_KEY") });
+    const res = await openai.images.generate({
+      model: "dall-e-3",
+      prompt: imagePrompt,
+      n: 1,
+      size: SIZES[kind],
+      response_format: "b64_json",
+    });
+    const b64 = res.data?.[0]?.b64_json;
+    if (!b64) throw new Error("No image returned");
+    localPath = join(graphicsDir(), `${id}.png`);
+    writeFileSync(localPath, Buffer.from(b64, "base64"));
+  }
 
   const asset: GraphicAsset = {
     id,

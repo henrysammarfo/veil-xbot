@@ -12,6 +12,7 @@ import { discoverTrending } from "../discover/trending.js";
 import { autoLearn } from "../discover/auto-learn.js";
 import { hasTinyfish } from "../research/tinyfish.js";
 import { isBrandKey } from "../projects/registry.js";
+import { tierReport } from "../studio/tiers.js";
 
 export interface OpsRun {
   id: string;
@@ -82,7 +83,11 @@ export async function runGrowthOps(projectId: string): Promise<OpsRun> {
   }
 
   sections.push(
-    "## TODAY (you paste manually)",
+    "## STUDIO",
+    tierReport(),
+    "",
+    "Run: npm run sandbox " + projectId + " → fix bugs → npm run produce " + projectId + " trailer",
+    "",
     "1. Record UGC shot list above",
     "2. `npm run edit recording.mp4 " + projectId + "`",
     "3. Post video → `npm run qa " + projectId + ' "question"` for replies',

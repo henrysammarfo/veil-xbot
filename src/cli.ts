@@ -37,6 +37,11 @@ import { answerQuestion, formatQA } from "./teams/qa.js";
 import { generateCreative, formatCreative } from "./teams/creative.js";
 import { buildCampaign, formatCampaign } from "./teams/marketing.js";
 import { listProjects } from "./projects/registry.js";
+import { produceTrailer, formatTrailer } from "./studio/trailer.js";
+import { CONTENT_PHASES, launchWeekPlan } from "./studio/phases.js";
+import { tierReport } from "./studio/tiers.js";
+import { runSandbox, formatSandboxReport } from "./qa/sandbox.js";
+import type { ContentPhase } from "./studio/phases.js";
 
 function usage(): void {
   console.log(`
@@ -48,6 +53,10 @@ Veil X Bot — Growth OS (marketing · GTM · distribution · Q&A)
   ugc <project> [topic]                      Realistic UGC shot list
   clip <project>                             42s clip brief + b-roll URLs
   qa <project> "<question>"                  Q&A reply draft
+  sandbox <project>                          Test app + screenshots all viewports
+  produce <project> <phase> [feature]        Trailer/teaser/intro production brief
+  phases                                     Content mix (intro → teaser → launch)
+  tier                                       Free vs paid media quality report
 
   discover [top] [category|all] [brand]        What's winning — any niche
   categories                                   List trend categories
@@ -106,6 +115,31 @@ async function main(): Promise<void> {
   }
 
   switch (cmd) {
+    case "tier": {
+      console.log(tierReport());
+      break;
+    }
+    case "phases": {
+      for (const p of CONTENT_PHASES) {
+        console.log(`${p.id.padEnd(12)} ${p.label}\n  Hook: ${p.exampleHook}\n  End: ${p.ending}\n`);
+      }
+      console.log("Week plan:", launchWeekPlan("veil").join(" → "));
+      break;
+    }
+    case "produce": {
+      const project = rest[0] || "veil";
+      const phase = (rest[1] as ContentPhase) || "trailer";
+      const feature = rest.slice(2).join(" ");
+      const prod = await produceTrailer({ project, phase, feature: feature || undefined });
+      console.log(formatTrailer(prod));
+      break;
+    }
+    case "sandbox": {
+      const project = rest[0] || "veil";
+      const report = await runSandbox(project);
+      console.log(formatSandboxReport(report));
+      break;
+    }
     case "ops": {
       const project = rest[0] || "veil";
       const run = await runGrowthOps(project);

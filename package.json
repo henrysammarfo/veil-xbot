@@ -2,28 +2,21 @@
   "name": "veil-xbot",
   "private": true,
   "type": "module",
-  "version": "0.2.0",
-  "description": "Self-learning X content bot for Veil + Magmos — manual post only",
+  "version": "0.3.0",
+  "description": "Growth OS + studio for Veil, Magmos, future projects",
   "scripts": {
     "start": "tsx src/cli.ts",
     "serve": "tsx src/cli.ts serve",
     "typecheck": "tsc --noEmit",
-    "discover": "tsx src/cli.ts discover",
-    "trends": "tsx src/cli.ts trends",
-    "autolearn": "tsx src/cli.ts autolearn",
-    "engage-batch": "tsx src/cli.ts engage-batch",
-    "draft": "tsx src/cli.ts draft",
-    "poster": "tsx src/cli.ts poster",
-    "first-post": "tsx src/cli.ts first-post",
-    "launch": "tsx src/cli.ts launch",
-    "clips": "tsx src/cli.ts clips",
-    "hashtags": "tsx src/cli.ts hashtags",
-    "music": "tsx src/cli.ts music",
     "ops": "tsx src/cli.ts ops",
-    "campaign": "tsx src/cli.ts campaign",
-    "ugc": "tsx src/cli.ts ugc",
-    "qa": "tsx src/cli.ts qa",
-    "projects": "tsx src/cli.ts projects"
+    "sandbox": "tsx src/cli.ts sandbox",
+    "produce": "tsx src/cli.ts produce",
+    "phases": "tsx src/cli.ts phases",
+    "tier": "tsx src/cli.ts tier",
+    "autolearn": "tsx src/cli.ts autolearn",
+    "launch": "tsx src/cli.ts launch",
+    "engage-batch": "tsx src/cli.ts engage-batch",
+    "edit": "tsx src/cli.ts edit"
   },
   "dependencies": {
     "@hono/node-server": "^1.14.4",
@@ -35,6 +28,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.20.0",
+    "playwright": "^1.61.1",
     "tsx": "^4.20.3",
     "typescript": "^5.9.2"
   }

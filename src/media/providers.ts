@@ -41,7 +41,7 @@ export function queueHeyGen(prompt: string): MediaJob {
     prompt,
     status: env("HEYGEN_API_KEY") ? "queued" : "manual",
     instructions:
-      "HeyGen free tier: avatar video at app.heygen.com — use prompt as script. Export 9:16 for X.",
+      "SKIP for X (watermark). Use screen recording + Pexels b-roll from npm run clips.",
     createdAt: Date.now(),
   };
   saveJob(job);
@@ -55,7 +55,7 @@ export function queueKling(prompt: string): MediaJob {
     prompt,
     status: env("KLING_API_KEY") ? "queued" : "manual",
     instructions:
-      "Kling AI: text-to-video b-roll at klingai.com free credits — 5s clips for dashboard screen overlays.",
+      "SKIP for X posts (watermark). Use npm run clips → Pexels. Prompt saved for reference only.",
     createdAt: Date.now(),
   };
   saveJob(job);

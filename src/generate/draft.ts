@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import { requireEnv } from "../config.js";
 import { brandVoice, brandLink, VEIL_VOICE, type BrandKey } from "../brands.js";
+import { xAlgorithmPromptBlock } from "../algorithm/x-signals.js";
 import { tasteSystemSuffix } from "../taste.js";
 import { listLearnings, newId, readPlaybook, saveDraft, type PostDraft } from "../store.js";
 
@@ -57,7 +58,7 @@ Return JSON:
     messages: [
       {
         role: "system",
-        content: `You write viral build-in-public X posts. Output JSON only. Follow taste.md strictly.${tasteSystemSuffix()}`,
+        content: `You write viral build-in-public X posts. Output JSON only. Follow taste.md strictly.${tasteSystemSuffix()}\n\n${xAlgorithmPromptBlock()}`,
       },
       { role: "user", content: user },
     ],

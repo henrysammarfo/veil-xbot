@@ -8,7 +8,8 @@ import { tasteSystemSuffix } from "../taste.js";
 import type { BrandKey } from "../brands.js";
 import { styleForBrand, type EditStyleId } from "./styles.js";
 import { SFX_CATALOG } from "./sfx.js";
-import { queueKling, queueHyperframes, queueSunoMusic } from "../media/providers.js";
+import { discoverClips } from "../discover/clips.js";
+import { queueSunoMusic } from "../media/providers.js";
 
 export interface CutPoint {
   atSec: number;
@@ -27,7 +28,7 @@ export interface BrollSlot {
   atSec: number;
   durationSec: number;
   prompt: string;
-  provider: "kling" | "hyperframes" | "anime-stock";
+  provider: "pexels" | "pixabay" | "screen" | "kling-ref";
 }
 
 export interface CaptionBeat {
@@ -105,16 +106,16 @@ function fallbackManifest(
     broll.push({
       atSec: 4,
       durationSec: 2,
-      prompt: `${brand} dashboard UI dark mode terminal zoom`,
-      provider: "kling",
+      prompt: `${brand} dashboard UI dark mode — use Pexels clip or screen`,
+      provider: "pexels",
     });
   }
   if (style.id === "anime-hype") {
     broll.push({
       atSec: 1.2,
       durationSec: 0.4,
-      prompt: "anime speed lines motion overlay abstract",
-      provider: "hyperframes",
+      prompt: "abstract motion lines vertical — Pexels",
+      provider: "pexels",
     });
   }
 
@@ -219,17 +220,23 @@ SFX must land ON cuts. Hook caption under 1.5s for anime-hype. Min 8 cuts for an
     createdAt: Date.now(),
   };
   saveManifest(manifest);
-  queueMediaFromManifest(manifest);
+  await queueMediaFromManifest(manifest);
   return manifest;
 }
 
-export function queueMediaFromManifest(m: EditManifest): void {
+export async function queueMediaFromManifest(m: EditManifest): Promise<void> {
   queueSunoMusic(m.musicPrompt);
-  for (const b of m.broll) {
-    if (b.provider === "kling") queueKling(b.prompt);
-    else if (b.provider === "hyperframes") queueHyperframes(b.prompt);
-    else queueKling(`anime style: ${b.prompt}`);
-  }
+  const clips = await discoverClips({
+    niche: m.brand === "veil" ? "trading screen dark" : "technology abstract",
+    limit: m.broll.length || 3,
+  });
+  assertDataDir();
+  const dir = join(DATA_DIR, "clips");
+  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+  writeFileSync(
+    join(dir, "manifest-broll.json"),
+    JSON.stringify({ manifestId: m.id, clips, note: "Download to assets/broll/ — NO Kling watermark" }, null, 2),
+  );
 }
 
 export function saveManifest(m: EditManifest): string {

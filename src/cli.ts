@@ -16,7 +16,12 @@ import { tinyfishSearch, hasTinyfish } from "./research/tinyfish.js";
 import { discoverTrending, autoLearn } from "./discover/auto-learn.js";
 import { autoEdit, planEdit, formatManifestForHuman } from "./edit/pipeline.js";
 import { EDIT_STYLES } from "./edit/styles.js";
+import { buildLaunchPack } from "./generate/launch-pack.js";
 import { buildFirstPostPack, formatFirstPostPack } from "./generate/first-post.js";
+import { discoverClips } from "./discover/clips.js";
+import { discoverHashtags } from "./discover/hashtags.js";
+import { getMusicPlan, formatMusicPlan } from "./generate/music.js";
+import { renderTeaser } from "./edit/teaser.js";
 import type { BrandKey } from "./brands.js";
 import { TREND_CATEGORIES, listCategoryIds, type TrendCategory } from "./discover/categories.js";
 import { generatePoster, type PosterKind } from "./generate/poster.js";
@@ -42,6 +47,11 @@ Veil X Bot — self-learning drafts + auto-edit (manual X post only)
   edit-plan <brand> [style] [topic]        Timeline: cuts, SFX, b-roll (no video)
   styles                                     List edit styles
   first-post <veil|magmos> [style]           Full 1k launch pack
+  launch <veil|magmos> [style]               EVERYTHING — read data/launch/LAUNCH.md
+  clips [niche] [limit]                      Bot finds Pexels/Pixabay b-roll URLs
+  hashtags <veil|magmos>                   Trending tags (max 2 on post)
+  music [style]                              Seasoned editor music plan + Suno
+  teaser <recording.mp4> <brand>             12s hook clip for communities
   watch <url> [--notes "…"]     Analyze one link → learnings DB
   watch-batch <url> [url…]      Analyze multiple URLs + rebuild playbook
   playbook                        Rebuild MASTER.md from learnings
@@ -179,6 +189,46 @@ async function main(): Promise<void> {
       const m = await planEdit(brand, style, topic || undefined);
       console.log(formatManifestForHuman(m));
       console.log(`\nSaved: data/exports/${m.id}-manifest.json`);
+      break;
+    }
+    case "launch": {
+      const brand = (rest[0] as BrandKey) || "veil";
+      const style = rest[1];
+      const pack = await buildLaunchPack(brand, style);
+      console.log(pack.markdown);
+      console.log("\n→ Saved: data/launch/LAUNCH.md");
+      break;
+    }
+    case "clips": {
+      if (!hasTinyfish()) throw new Error("Set TINYFISH_API_KEY");
+      const niche = rest[0] ?? "crypto technology dark";
+      const limit = Number(rest[1] ?? 10);
+      const clips = await discoverClips({ niche, limit });
+      for (const c of clips) {
+        console.log(`[${c.source}] ${c.title}\n  ${c.url}\n  ${c.downloadHint}\n`);
+      }
+      break;
+    }
+    case "hashtags": {
+      if (!hasTinyfish()) throw new Error("Set TINYFISH_API_KEY");
+      const brand = (rest[0] as BrandKey) || "veil";
+      const t = await discoverHashtags(brand);
+      console.log("Post (max 2):", t.hashtags.slice(0, 2).join(" "));
+      console.log("Engage:", t.tags.join(" "));
+      break;
+    }
+    case "music": {
+      const plan = getMusicPlan(rest[0] as import("./edit/styles.js").EditStyleId | undefined);
+      console.log(formatMusicPlan(plan));
+      break;
+    }
+    case "teaser": {
+      const input = rest[0];
+      const brand = (rest[1] as BrandKey) || "veil";
+      if (!input) throw new Error("Usage: teaser recording.mp4 veil");
+      const job = await renderTeaser(input, brand);
+      console.log(`Teaser: ${job.outputPath} (${job.status})`);
+      console.log(`Hook: ${job.hookText}`);
       break;
     }
     case "first-post": {

@@ -43,7 +43,7 @@ export async function buildFirstPostPack(brand: BrandKey, style?: string): Promi
     durationSec: 42,
     topic,
   });
-  queueMediaFromManifest(manifest);
+  await queueMediaFromManifest(manifest);
 
   let engageCount = 0;
   const targets: Array<{ title: string; url: string }> = [];

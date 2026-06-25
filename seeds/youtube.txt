@@ -1,0 +1,5 @@
+# Seed URLs — high-signal build-in-public / crypto edit references
+# Run: npm run xbot watch-batch $(cat tools/x-bot/seeds/youtube.txt)
+
+# Add your niche winners (one URL per line):
+# https://www.youtube.com/watch?v=EXAMPLE

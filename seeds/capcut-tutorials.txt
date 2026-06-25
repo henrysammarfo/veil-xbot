@@ -1,0 +1,5 @@
+# CapCut / short-form edit tutorials — add YouTube URLs (one per line)
+# npm run xbot watch-batch $(Get-Content tools/x-bot/seeds/capcut-tutorials.txt)
+
+https://www.youtube.com/results?search_query=capcut+viral+edit+tutorial
+# Replace with specific tutorial URLs after npm run xbot search "capcut crypto edit tutorial"

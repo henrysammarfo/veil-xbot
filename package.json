@@ -1,0 +1,31 @@
+{
+  "name": "veil-xbot",
+  "private": true,
+  "type": "module",
+  "version": "0.2.0",
+  "description": "Self-learning X content bot for Veil + Magmos — manual post only",
+  "scripts": {
+    "start": "tsx src/cli.ts",
+    "serve": "tsx src/cli.ts serve",
+    "typecheck": "tsc --noEmit",
+    "discover": "tsx src/cli.ts discover",
+    "trends": "tsx src/cli.ts trends",
+    "autolearn": "tsx src/cli.ts autolearn",
+    "engage-batch": "tsx src/cli.ts engage-batch",
+    "draft": "tsx src/cli.ts draft",
+    "poster": "tsx src/cli.ts poster"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.14.4",
+    "dotenv": "^16.6.1",
+    "hono": "^4.8.5",
+    "openai": "^5.12.2",
+    "youtube-transcript": "^1.2.1",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.0",
+    "tsx": "^4.20.3",
+    "typescript": "^5.9.2"
+  }
+}

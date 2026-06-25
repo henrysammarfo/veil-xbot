@@ -27,7 +27,10 @@ export function hasOpenAI(): boolean {
 }
 
 export function assertDataDir(): void {
-  for (const sub of ["learnings", "drafts", "media", "playbook", "improve", "exports", "graphics", "engage"]) {
+  for (const sub of [
+    "learnings", "drafts", "media", "playbook", "improve", "exports", "graphics", "engage",
+    "qa", "creative", "ops", "marketing", "launch", "clips", "tags",
+  ]) {
     const p = join(DATA_DIR, sub);
     if (!existsSync(p)) mkdirSync(p, { recursive: true });
   }

@@ -19,7 +19,11 @@
     "clips": "tsx src/cli.ts clips",
     "hashtags": "tsx src/cli.ts hashtags",
     "music": "tsx src/cli.ts music",
-    "teaser": "tsx src/cli.ts teaser"
+    "ops": "tsx src/cli.ts ops",
+    "campaign": "tsx src/cli.ts campaign",
+    "ugc": "tsx src/cli.ts ugc",
+    "qa": "tsx src/cli.ts qa",
+    "projects": "tsx src/cli.ts projects"
   },
   "dependencies": {
     "@hono/node-server": "^1.14.4",

@@ -31,11 +31,23 @@ import {
   formatEngageForCopy,
   type EngageType,
 } from "./generate/engage.js";
-import { listEngage, listGraphics } from "./store.js";
+import { listEngage, listGraphics, listQA, listCreative } from "./store.js";
+import { runGrowthOps } from "./teams/ops.js";
+import { answerQuestion, formatQA } from "./teams/qa.js";
+import { generateCreative, formatCreative } from "./teams/creative.js";
+import { buildCampaign, formatCampaign } from "./teams/marketing.js";
+import { listProjects } from "./projects/registry.js";
 
 function usage(): void {
   console.log(`
-Veil X Bot — self-learning drafts + auto-edit (manual X post only)
+Veil X Bot — Growth OS (marketing · GTM · distribution · Q&A)
+
+  ops <veil|magmos>                          Full team run → data/ops/TODAY.md
+  projects                                   List projects
+  campaign <project>                         Marketing brief
+  ugc <project> [topic]                      Realistic UGC shot list
+  clip <project>                             42s clip brief + b-roll URLs
+  qa <project> "<question>"                  Q&A reply draft
 
   discover [top] [category|all] [brand]        What's winning — any niche
   categories                                   List trend categories
@@ -94,6 +106,51 @@ async function main(): Promise<void> {
   }
 
   switch (cmd) {
+    case "ops": {
+      const project = rest[0] || "veil";
+      const run = await runGrowthOps(project);
+      console.log(`Growth ops done → ${run.outputPath}`);
+      console.log(`Phases: ${run.phases.join(" → ")}`);
+      break;
+    }
+    case "projects": {
+      for (const p of listProjects()) console.log(`- ${p}`);
+      console.log("\nAdd future: knowledge/<id>.md + src/projects/registry.ts");
+      break;
+    }
+    case "campaign": {
+      const project = rest[0] || "veil";
+      const c = await buildCampaign(project, rest.slice(1).join(" "));
+      console.log(formatCampaign(c));
+      break;
+    }
+    case "ugc": {
+      const project = rest[0] || "veil";
+      const topic = rest.slice(1).join(" ");
+      const b = await generateCreative({ project, kind: "ugc", topic: topic || undefined });
+      console.log(formatCreative(b));
+      break;
+    }
+    case "clip": {
+      const project = rest[0] || "veil";
+      const b = await generateCreative({ project, kind: "clip" });
+      console.log(formatCreative(b));
+      break;
+    }
+    case "avatar": {
+      const project = rest[0] || "veil";
+      const b = await generateCreative({ project, kind: "avatar" });
+      console.log(formatCreative(b));
+      break;
+    }
+    case "qa": {
+      const project = rest[0] || "veil";
+      const q = rest.slice(1).join(" ").replace(/^["']|["']$/g, "");
+      if (!q) throw new Error('qa veil "why is stake $5 not $25?"');
+      const a = await answerQuestion({ project, question: q, channel: "reply" });
+      console.log(formatQA(a));
+      break;
+    }
     case "categories": {
       for (const c of TREND_CATEGORIES) {
         console.log(`${c.id.padEnd(10)} ${c.label}`);
@@ -285,7 +342,7 @@ async function main(): Promise<void> {
     }
     case "list": {
       console.log(
-        `Drafts: ${listDrafts().length}, Learnings: ${listLearnings().length}, Graphics: ${listGraphics().length}, Engage: ${listEngage().length}`,
+        `Drafts: ${listDrafts().length}, Learnings: ${listLearnings().length}, Graphics: ${listGraphics().length}, Engage: ${listEngage().length}, QA: ${listQA().length}, Creative: ${listCreative().length}`,
       );
       break;
     }

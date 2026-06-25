@@ -72,6 +72,38 @@ export interface EngageDraft {
   status: "draft" | "posted" | "skipped";
 }
 
+export interface QAResponse {
+  id: string;
+  projectId: string;
+  question: string;
+  channel: "reply" | "dm" | "quote" | "community";
+  primary: string;
+  short: string;
+  alternates: string[];
+  shouldLink: boolean;
+  link?: string;
+  escalate?: string;
+  createdAt: number;
+  status: "draft" | "posted";
+}
+
+export interface CreativeBrief {
+  id: string;
+  projectId: string;
+  kind: "ugc" | "clip" | "avatar" | "teaser";
+  concept: string;
+  shotList: string[];
+  hookOnScreen: string;
+  voiceover?: string;
+  sfxBeats: string[];
+  musicMood: string;
+  doNot?: string[];
+  brollSearch?: string;
+  realisticCheck: string;
+  clipUrls: string[];
+  createdAt: number;
+}
+
 function readJson<T>(path: string): T | null {
   if (!existsSync(path)) return null;
   return JSON.parse(readFileSync(path, "utf8")) as T;
@@ -161,6 +193,38 @@ export function updateEngageStatus(id: string, status: EngageDraft["status"]): b
   d.status = status;
   writeJson(path, d);
   return true;
+}
+
+export function saveQA(q: QAResponse): void {
+  assertDataDir();
+  writeJson(join(DATA_DIR, "qa", `${q.id}.json`), q);
+}
+
+export function listQA(): QAResponse[] {
+  assertDataDir();
+  const dir = join(DATA_DIR, "qa");
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir)
+    .filter((f) => f.endsWith(".json"))
+    .map((f) => readJson<QAResponse>(join(dir, f))!)
+    .filter(Boolean)
+    .sort((a, b) => b.createdAt - a.createdAt);
+}
+
+export function saveCreative(c: CreativeBrief): void {
+  assertDataDir();
+  writeJson(join(DATA_DIR, "creative", `${c.id}.json`), c);
+}
+
+export function listCreative(): CreativeBrief[] {
+  assertDataDir();
+  const dir = join(DATA_DIR, "creative");
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir)
+    .filter((f) => f.endsWith(".json"))
+    .map((f) => readJson<CreativeBrief>(join(dir, f))!)
+    .filter(Boolean)
+    .sort((a, b) => b.createdAt - a.createdAt);
 }
 
 export function savePlaybook(md: string): void {

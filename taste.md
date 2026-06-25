@@ -86,6 +86,29 @@ Before generating copy:
 
 ---
 
+## UGC / avatar / clips (realistic only)
+
+**UGC**
+- Founder at desk, phone showing **real app**, screen POV
+- Imperfect lighting OK — perfection reads as AI
+- NO "AI UGC girl/guy" — instant credibility death
+
+**Avatar**
+- Default: **no face** — hook text on screen over dashboard recording
+- Optional: real founder 5s clip (you record once)
+- NEVER: watermarked HeyGen/Kling synthetic spokesperson
+
+**Clips / b-roll**
+- Real UI recording is hero — Pexels only for 1–2s cutaways
+- Nothing "displaced": no NYC skyline for a Sui dashboard product
+- SFX on beat — see `npm run music <style>`
+
+**Q&A**
+- Answer from `knowledge/<project>.md` truth — no invented features
+- Short replies, link in reply not spam main post
+
+---
+
 ## Edit this file
 
 When something posts well or flops, add a line under **Notes**:

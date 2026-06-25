@@ -1,7 +1,28 @@
-# Veil X Bot
+# Veil X Bot — Growth OS
 
-Standalone repo — self-learning drafts, graphics, quote/replies for **Veil** + **Magmos**.  
-**Manual post only.** Dashboard uses Veil design (`#0a0a0a`, Inter + Instrument Serif).
+**Marketing · GTM · Distribution · Q&A · Creative** for Veil, Magmos, and future projects.
+
+See **[GROWTH-OS.md](./GROWTH-OS.md)** for the full playbook.
+
+## Daily
+
+```bash
+npm run ops veil       # all teams → data/ops/TODAY.md
+npm run serve          # dashboard
+```
+
+## Teams
+
+| Team | Command |
+|------|---------|
+| Marketing | `npm run campaign veil` |
+| GTM | `npm run launch veil` |
+| Distribution | `npm run engage-batch 5 veil` |
+| Creative UGC | `npm run ugc veil` |
+| Clips | `npm run clip veil` → `npm run edit demo.mp4 veil` |
+| Q&A | `npm run qa veil "why $5 stake?"` |
+
+**Keys:** OpenAI + TinyFish only. **Media:** realistic screen POV + Pexels — no watermarked AI avatars.
 
 ## Setup
 

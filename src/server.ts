@@ -9,22 +9,28 @@ import {
   listLearnings,
   listGraphics,
   listEngage,
+  listQA,
+  listCreative,
   readPlaybook,
   updateDraftStatus,
   updateEngageStatus,
 } from "./store.js";
 import { formatDraftForCopy } from "./generate/draft.js";
 import { formatEngageForCopy } from "./generate/engage.js";
+import { formatQA } from "./teams/qa.js";
+import { formatCreative } from "./teams/creative.js";
 import { readTaste } from "./taste.js";
 
 const app = new Hono();
 
 const NAV = [
+  { href: "/ops", label: "Ops", key: "ops" },
   { href: "/", label: "Drafts", key: "drafts" },
-  { href: "/engage", label: "Quote / Reply", key: "engage" },
+  { href: "/engage", label: "Distribute", key: "engage" },
+  { href: "/creative", label: "Creative", key: "creative" },
+  { href: "/qa", label: "Q&A", key: "qa" },
   { href: "/graphics", label: "Graphics", key: "graphics" },
-  { href: "/learn", label: "Learnings", key: "learn" },
-  { href: "/playbook", label: "Playbook", key: "playbook" },
+  { href: "/learn", label: "Learn", key: "learn" },
   { href: "/taste", label: "Taste", key: "taste" },
 ] as const;
 
@@ -39,7 +45,8 @@ function shell(active: (typeof NAV)[number]["key"], title: string, eyebrow: stri
       <div class="stat"><div class="stat-n">${listDrafts().length}</div><div class="stat-l">Drafts</div></div>
       <div class="stat"><div class="stat-n">${listEngage().length}</div><div class="stat-l">Engage</div></div>
       <div class="stat"><div class="stat-n">${listGraphics().length}</div><div class="stat-l">Graphics</div></div>
-      <div class="stat"><div class="stat-n">${listLearnings().length}</div><div class="stat-l">Learnings</div></div>
+      <div class="stat"><div class="stat-n">${listQA().length}</div><div class="stat-l">Q&A</div></div>
+      <div class="stat"><div class="stat-n">${listCreative().length}</div><div class="stat-l">Creative</div></div>
     </div>`;
 
   return `<!DOCTYPE html>
@@ -86,6 +93,41 @@ app.get("/", (c) => {
     .join("");
   const body = `<p class="lead">Copy → paste on X. No auto-post.</p>${cards || '<p class="lead">No drafts. Run: <code>npm run draft veil</code></p>'}`;
   return c.html(shell("drafts", "Post drafts", "Manual publish", body));
+});
+
+app.get("/ops", (c) => {
+  const p = join(XBOT_ROOT, "data", "ops", "TODAY.md");
+  const md = existsSync(p) ? readFileSync(p, "utf8") : "Run: npm run ops veil";
+  const body = `<p class="lead">Full marketing + GTM + distribution run.</p><div class="playbook"><pre>${escapeHtml(md)}</pre></div>`;
+  return c.html(shell("ops", "Today's ops", "Growth OS", body));
+});
+
+app.get("/creative", (c) => {
+  const items = listCreative();
+  const cards = items
+    .map(
+      (b) => `<article class="card">
+        <div class="card-meta">${b.kind} · ${b.projectId}</div>
+        <strong>${escapeHtml(b.concept)}</strong>
+        <pre class="copy-block">${escapeHtml(formatCreative(b))}</pre>
+      </article>`,
+    )
+    .join("");
+  return c.html(shell("creative", "Creative briefs", "UGC · clips", cards || "<p class='lead'>npm run ugc veil</p>"));
+});
+
+app.get("/qa", (c) => {
+  const items = listQA();
+  const cards = items
+    .map(
+      (q) => `<article class="card">
+        <div class="card-meta">${q.projectId} · ${q.channel}</div>
+        <pre class="copy-block" id="q-${q.id}">${escapeHtml(formatQA(q))}</pre>
+        <button class="btn btn-primary" onclick="navigator.clipboard.writeText(document.getElementById('q-${q.id}').innerText)">Copy</button>
+      </article>`,
+    )
+    .join("");
+  return c.html(shell("qa", "Q&A", "Support replies", cards || "<p class='lead'>npm run qa veil \"question\"</p>"));
 });
 
 app.get("/engage", (c) => {
@@ -151,7 +193,7 @@ app.get("/learn", (c) => {
 app.get("/playbook", (c) => {
   const md = readPlaybook() || "Run: npm run playbook";
   const body = `<div class="playbook"><pre>${escapeHtml(md)}</pre></div>`;
-  return c.html(shell("playbook", "Master playbook", "Aggregated patterns", body));
+  return c.html(shell("learn", "Master playbook", "Aggregated patterns", body));
 });
 
 app.get("/taste", (c) => {

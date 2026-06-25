@@ -13,7 +13,9 @@
     "autolearn": "tsx src/cli.ts autolearn",
     "engage-batch": "tsx src/cli.ts engage-batch",
     "draft": "tsx src/cli.ts draft",
-    "poster": "tsx src/cli.ts poster"
+    "poster": "tsx src/cli.ts poster",
+    "first-post": "tsx src/cli.ts first-post",
+    "edit-plan": "tsx src/cli.ts edit-plan"
   },
   "dependencies": {
     "@hono/node-server": "^1.14.4",

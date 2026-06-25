@@ -38,7 +38,9 @@ Return JSON:
   "stealablePatterns": ["concrete pattern 1", "pattern 2"],
   "veilAngles": ["how Veil could use this"],
   "suggestedSunoPrompt": "one line Suno prompt for bg music",
-  "suggestedBroll": ["shot idea 1", "shot idea 2"]
+  "suggestedBroll": ["shot idea 1", "shot idea 2"],
+  "sfxOnCuts": ["whoosh at 0s on hook", "bass-hit on reveal"],
+  "bpmFeel": 120
 }`;
 
   const res = await openai.chat.completions.create({

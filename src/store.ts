@@ -26,6 +26,8 @@ export interface VideoAnalysis {
   veilAngles: string[];
   suggestedSunoPrompt?: string;
   suggestedBroll?: string[];
+  sfxOnCuts?: string[];
+  bpmFeel?: number;
 }
 
 export interface PostDraft {

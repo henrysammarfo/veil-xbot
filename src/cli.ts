@@ -14,7 +14,9 @@ import { listLearnings, listDrafts } from "./store.js";
 import { startServer } from "./server.js";
 import { tinyfishSearch, hasTinyfish } from "./research/tinyfish.js";
 import { discoverTrending, autoLearn } from "./discover/auto-learn.js";
-import { autoEdit } from "./edit/pipeline.js";
+import { autoEdit, planEdit, formatManifestForHuman } from "./edit/pipeline.js";
+import { EDIT_STYLES } from "./edit/styles.js";
+import { buildFirstPostPack, formatFirstPostPack } from "./generate/first-post.js";
 import type { BrandKey } from "./brands.js";
 import { TREND_CATEGORIES, listCategoryIds, type TrendCategory } from "./discover/categories.js";
 import { generatePoster, type PosterKind } from "./generate/poster.js";
@@ -36,7 +38,10 @@ Veil X Bot — self-learning drafts + auto-edit (manual X post only)
   engage quote|reply <brand> --under "…"       Quote/reply under a viral post
   engage-batch [top] [brand]                   Top trends → quote + reply drafts
   poster <brand> [kind] "<topic>"              AI poster / quote card / header
-  edit <screen-recording.mp4> [--brand veil]   Auto-render 9:16 clip (ffmpeg)
+  edit <recording.mp4> <brand> [style]     Render — anime-hype, loss-receipt, etc.
+  edit-plan <brand> [style] [topic]        Timeline: cuts, SFX, b-roll (no video)
+  styles                                     List edit styles
+  first-post <veil|magmos> [style]           Full 1k launch pack
   watch <url> [--notes "…"]     Analyze one link → learnings DB
   watch-batch <url> [url…]      Analyze multiple URLs + rebuild playbook
   playbook                        Rebuild MASTER.md from learnings
@@ -161,11 +166,35 @@ async function main(): Promise<void> {
       console.log(`Saved ${drafts.length} engage drafts. Dashboard: npm run xbot:serve`);
       break;
     }
+    case "styles": {
+      for (const s of EDIT_STYLES) {
+        console.log(`${s.id.padEnd(16)} ${s.label}\n  ${s.description}\n`);
+      }
+      break;
+    }
+    case "edit-plan": {
+      const brand = (rest[0] as BrandKey) || "veil";
+      const style = rest[1] as import("./edit/styles.js").EditStyleId | undefined;
+      const topic = rest.slice(2).join(" ");
+      const m = await planEdit(brand, style, topic || undefined);
+      console.log(formatManifestForHuman(m));
+      console.log(`\nSaved: data/exports/${m.id}-manifest.json`);
+      break;
+    }
+    case "first-post": {
+      const brand = (rest[0] as BrandKey) || "veil";
+      const style = rest[1];
+      const pack = await buildFirstPostPack(brand, style);
+      console.log(formatFirstPostPack(pack));
+      console.log("\nSaved: data/launch/latest-first-post.md");
+      break;
+    }
     case "edit": {
-      const input = rest.find((a) => !a.startsWith("--"));
-      if (!input) throw new Error("Usage: edit path/to/recording.mp4 [--brand veil]");
-      const brand = (argFlag(rest, "--brand") ?? "veil") as BrandKey;
-      const job = autoEdit(input, brand);
+      const input = rest[0];
+      if (!input) throw new Error("Usage: edit recording.mp4 veil [anime-hype]");
+      const brand = (rest[1] as BrandKey) || "veil";
+      const style = rest[2] as import("./edit/styles.js").EditStyleId | undefined;
+      const job = await autoEdit(input, brand, style);
       console.log(job.log);
       console.log(`Status: ${job.status}`);
       break;

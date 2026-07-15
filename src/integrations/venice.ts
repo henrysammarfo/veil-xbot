@@ -175,7 +175,7 @@ export async function veniceTextToSpeech(
     body: JSON.stringify({
       model,
       input: text,
-      voice: opts?.voice ?? "af_sarah",
+      voice: opts?.voice ?? env("VENICE_TTS_VOICE", "am_michael"),
     }),
   });
   if (!res.ok) throw new Error(`Venice TTS ${res.status}: ${(await res.text()).slice(0, 200)}`);

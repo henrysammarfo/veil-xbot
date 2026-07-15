@@ -19,7 +19,7 @@
 | `HEYGEN_API_KEY` | `heygen` CLI + `HEYGEN_AUTO=1` on produce |
 | HeyGen MCP OAuth | `.cursor/mcp.json` → Connect in Settings → MCP |
 | `HYPERFRAMES_AUTO=1` | Trailer scaffold → `data/exports/hyperframes-*` |
-| `FLOCKAI_*` / `QVAC_*` | Locked prompts via `src/ai/router.ts` |
+| `FLOCKAI_*` | Locked prompts via `src/ai/router.ts` |
 | `SUI_NETWORK` + sandbox | Wallet + testnet faucet before demo videos |
 
 See **INTEGRATIONS.md** for real endpoints (v3 video-agents, HyperFrames CLI, MCP URL).

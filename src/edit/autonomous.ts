@@ -27,6 +27,8 @@ import { selfEvalRender, formatSelfEval } from "./self-eval.js";
 import { hasVoicebox } from "../integrations/voicebox.js";
 import { join } from "node:path";
 import type { AutoEditOptions, EditJob } from "./pipeline.js";
+import { learn } from "../brain/self-learn.js";
+import { smartCritique } from "../brain/smart.js";
 
 export interface AutonomousEditOptions extends AutoEditOptions {
   beatSync?: boolean;
@@ -139,12 +141,44 @@ export async function autonomousEdit(
     formatSelfEval(evalResult),
   ].join("\n");
 
+  const status: EditJob["status"] =
+    render.status === "done" && evalResult.ok
+      ? "done"
+      : render.status === "done"
+        ? "done"
+        : "failed";
+  const projectId = opts?.projectId ?? brand;
+  learn({
+    projectId,
+    feature: "edit-auto",
+    outcome: status === "done" ? (evalResult.ok ? "success" : "partial") : "fail",
+    summary: `edit-auto ${status} · selfEval=${evalResult.ok} · style=${manifest.style}`,
+    errors: evalResult.ok ? undefined : [formatSelfEval(evalResult).slice(0, 400)],
+    lessons: [
+      evalResult.ok
+        ? "Beat-sync + VO + music path is production-ready for this footage"
+        : "Self-eval flagged issues — revise manifest before upload",
+      useVeniceBroll ? "Venice b-roll mixed in — check spend ledger" : "B-roll off or Venice missing",
+    ],
+    meta: { id: render.id, style: manifest.style },
+  });
+  try {
+    await smartCritique({
+      projectId,
+      feature: "edit-auto",
+      artifactSummary: log.slice(0, 2500),
+      errors: evalResult.ok ? undefined : [formatSelfEval(evalResult)],
+    });
+  } catch {
+    /* best-effort */
+  }
+
   return {
     id: render.id,
     inputPath,
     outputPath: render.outputPath,
     manifest,
-    status: render.status === "done" && evalResult.ok ? "done" : render.status === "done" ? "done" : "failed",
+    status,
     log,
     analysisPath: workDir,
     voiceoverScript,

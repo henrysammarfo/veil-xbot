@@ -1,12 +1,12 @@
 /**
- * Product walkthrough pipeline — HyperFrames + presenter PiP (Russo pattern).
+ * Product walkthrough pipeline — HyperFrames + smart capture (Russo pattern).
  *
- * inspect → script/storyboard/timing → Playwright capture → presenter PiP
+ * inspect → script/storyboard/timing → SMART Playwright capture → screen + VO
  * → HyperFrames compose → validate → render 1080p MP4
  *
- * Presenter backends (keep the flow; swap keys):
- *   1. Venice character still + TTS (default when VENICE_API_KEY set)
- *   2. Optional HeyGen if HEYGEN_API_KEY + HEYGEN_AUTO=1
+ * Presenter defaults to OFF (product-is-the-content). Optional:
+ *   WALKTHROUGH_AVATAR=1 + PRESENTER_VIDEO=1 → Venice T2V talking-head PiP
+ *   (still+TTS faces are never used — they look fake)
  *
  * Refs: https://github.com/heygen-com/hyperframes
  */
@@ -17,15 +17,26 @@ import { DATA_DIR, assertDataDir, env } from "../config.js";
 import { newId } from "../store.js";
 import { getProject } from "../projects/registry.js";
 import { chatCompletion } from "../ai/router.js";
-import { hasHeyGen, runVideoAgent } from "../integrations/heygen.js";
 import { produceVenicePresenter } from "./venice-presenter.js";
-import { hasVenice } from "../integrations/venice.js";
+import { hasVenice, veniceTextToSpeech } from "../integrations/venice.js";
+import { hasVoicebox, voiceboxTextToSpeech } from "../integrations/voicebox.js";
 import {
   HYPERFRAMES_REPO,
   renderHyperframes,
   type HyperframesJob,
 } from "../integrations/hyperframes.js";
 import { probeDuration, runFfmpeg, hasFfmpeg, hasAudioStream } from "../edit/ffmpeg-util.js";
+import { CaptureTimeline } from "../qa/capture-events.js";
+import { waitForPageReady } from "../qa/smart-wait.js";
+import {
+  loadCaptureRecipe,
+  resolveCaptureGeometry,
+  evaluateBeat,
+  applySmartAction,
+  rememberCaptureOutcome,
+} from "../qa/smart-capture-brain.js";
+import { learn } from "../brain/self-learn.js";
+import { smartCritique } from "../brain/smart.js";
 
 export interface WalkthroughBeat {
   sec: number;
@@ -90,11 +101,11 @@ Return JSON ONLY:
     {"sec":0,"durationSec":5,"onScreen":"…","narration":"…","captureAction":"goto landing","urlPath":"/"}
   ],
   "cta":"…",
-  "avatarPrompt":"HeyGen presenter prompt — calm founder explaining the product while UI plays"
+  "avatarPrompt":"optional Venice T2V talking-head only — never a static selfie still"
 }
-Timing plan is the contract between presenter, screen recording, captions, animation, sound.
-5–8 beats. Live product proof. No logo open.`,
-      { context: projectId },
+Timing plan is the contract between VO, screen recording, captions, animation, sound.
+5–8 beats. Live product proof. Product is the content — no logo open.`,
+      { context: projectId, projectId, feature: "walkthrough", failover: true },
     );
     const parsed = JSON.parse(llm.content.replace(/```json|```/g, "").trim()) as WalkthroughBrief;
     if (parsed.beats?.length) return parsed;
@@ -145,35 +156,128 @@ Timing plan is the contract between presenter, screen recording, captions, anima
   };
 }
 
-/** Playwright record of the live product URL (scripted — no QuickTime). */
+/** Smart awareness recorder — geometry-locked 16:9 + LLM beat critique + learnings. */
 export async function captureProductWalkthrough(
   projectId: string,
   brief: WalkthroughBrief,
   outPath: string,
-): Promise<string> {
+): Promise<{ path: string; eventsPath?: string; criticalErrors: string[]; geometry: string }> {
   const project = getProject(projectId);
   const base = project.primaryUrl.replace(/\/$/, "");
   const headed = env("SANDBOX_HEADED", "1") !== "0";
+  const smartCapture = env("SMART_CAPTURE", "1") === "1";
+  const timeline = smartCapture ? new CaptureTimeline(base) : undefined;
+  let recipe = loadCaptureRecipe(projectId);
+  const geo = resolveCaptureGeometry(recipe);
+  recipe = {
+    ...recipe,
+    viewport: {
+      width: geo.width,
+      height: geo.height,
+      deviceScaleFactor: geo.deviceScaleFactor,
+      zoom: geo.zoom,
+    },
+  };
+  const criticalErrors: string[] = [];
+  const geometry = `${geo.width}x${geo.height} @${geo.deviceScaleFactor}x zoom=${geo.zoom} aspect=16:9${geo.aspectOk ? "" : " (corrected)"}`;
 
   const browser = await chromium.launch({
     headless: !headed,
-    args: ["--autoplay-policy=no-user-gesture-required"],
+    args: [
+      "--autoplay-policy=no-user-gesture-required",
+      "--disable-blink-features=AutomationControlled",
+      `--force-device-scale-factor=${geo.deviceScaleFactor}`,
+    ],
   });
   const context = await browser.newContext({
-    viewport: { width: 1920, height: 1080 },
-    recordVideo: { dir: join(DATA_DIR, "sandbox", "walkthrough-tmp"), size: { width: 1920, height: 1080 } },
+    viewport: { width: geo.width, height: geo.height },
+    deviceScaleFactor: geo.deviceScaleFactor,
+    recordVideo: {
+      dir: join(DATA_DIR, "sandbox", "walkthrough-tmp"),
+      size: { width: geo.width, height: geo.height },
+    },
+    userAgent:
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
   });
   const page = await context.newPage();
+  // Hard lock browser zoom to 100% — prevents "tiny UI / weird ratio" recordings
+  await page.evaluate((z) => {
+    (document.body.style as unknown as { zoom?: string }).zoom = String(z);
+  }, geo.zoom).catch(() => undefined);
+  await page.addInitScript((z: number) => {
+    Object.defineProperty(window, "devicePixelRatio", { get: () => z });
+  }, geo.deviceScaleFactor);
 
   try {
     for (const beat of brief.beats) {
       const path = beat.urlPath || "/";
       const url = path.startsWith("http") ? path : `${base}${path.startsWith("/") ? path : `/${path}`}`;
+      if (recipe.knownBadUrls.some((b) => url.includes(b))) {
+        criticalErrors.push(`Skipped known-bad URL from prior learning: ${url}`);
+        timeline?.log("error", `known-bad ${url}`);
+        continue;
+      }
+      timeline?.log("navigate", beat.onScreen || beat.captureAction, { url });
       await page.goto(url, { waitUntil: "domcontentloaded", timeout: 90_000 });
-      await page.waitForTimeout(Math.min(beat.durationSec * 1000, 12_000));
-      // Light interaction so capture isn't frozen
-      await page.mouse.wheel(0, 400).catch(() => undefined);
-      await page.waitForTimeout(800);
+      await page.evaluate(() => {
+        document.body.style.zoom = "1";
+      }).catch(() => undefined);
+
+      if (smartCapture) {
+        const ready = await waitForPageReady(page, {
+          timeline,
+          note: beat.onScreen || beat.captureAction,
+          settleMs: 900,
+        });
+        if (!ready.ok) {
+          criticalErrors.push(`Page not ready: ${ready.errors.join("; ") || beat.onScreen}`);
+          timeline?.log("error", ready.errors.join("; ") || "page not ready", { url });
+        }
+
+        // LLM / heuristic: is the beat actually true on screen?
+        let decision = await evaluateBeat({
+          projectId,
+          beatGoal: beat.onScreen,
+          narration: beat.narration,
+          page,
+          recipe,
+          timeline,
+        });
+
+        // One recovery attempt for click/wait/goto/scroll
+        for (let attempt = 0; attempt < 2 && decision.action !== "ok" && decision.action !== "fail"; attempt++) {
+          const applied = await applySmartAction(page, decision, timeline);
+          if (applied.fatal) criticalErrors.push(applied.fatal);
+          await waitForPageReady(page, { timeline, note: `retry ${beat.onScreen}`, settleMs: 600 });
+          decision = await evaluateBeat({
+            projectId,
+            beatGoal: beat.onScreen,
+            narration: beat.narration,
+            page,
+            recipe,
+            timeline,
+          });
+        }
+
+        if (decision.action === "fail") {
+          criticalErrors.push(`BEAT FAIL [${beat.onScreen}]: ${decision.reason}`);
+          recipe = rememberCaptureOutcome(recipe, {
+            errors: criticalErrors,
+            lessons: [`Beat "${beat.onScreen}" failed: ${decision.reason}`],
+            badUrl: url.replace(base, ""),
+          });
+        } else if (decision.action === "ok") {
+          timeline?.log("scene", beat.narration.slice(0, 80), { url });
+          if (decision.reason.includes("click")) {
+            /* noop */
+          }
+        } else {
+          await applySmartAction(page, decision, timeline);
+        }
+      }
+
+      const holdMs = Math.min(Math.max(beat.durationSec * 1000, 2200), 10_000);
+      await page.waitForTimeout(holdMs);
     }
   } finally {
     const vid = page.video();
@@ -183,7 +287,10 @@ export async function captureProductWalkthrough(
       const tmp = await vid.path();
       if (tmp && existsSync(tmp)) {
         if (outPath.endsWith(".mp4") && !tmp.endsWith(".mp4") && hasFfmpeg()) {
-          runFfmpeg(["-y", "-i", tmp, "-c:v", "libx264", "-preset", "fast", "-crf", "20", "-c:a", "aac", outPath], "walkthrough-norm");
+          runFfmpeg(
+            ["-y", "-i", tmp, "-c:v", "libx264", "-preset", "fast", "-crf", "18", "-pix_fmt", "yuv420p", "-c:a", "aac", outPath],
+            "walkthrough-norm",
+          );
         } else {
           copyFileSync(tmp, outPath);
         }
@@ -191,7 +298,20 @@ export async function captureProductWalkthrough(
     }
   }
   if (!existsSync(outPath)) throw new Error("Walkthrough capture produced no video");
-  return outPath;
+
+  rememberCaptureOutcome(recipe, {
+    errors: criticalErrors,
+    lessons: criticalErrors.length
+      ? ["Next run must click real Connect/Forge and show on-screen proof before claiming it"]
+      : ["Capture geometry locked 16:9; smart brain passed beats"],
+  });
+
+  let eventsPath: string | undefined;
+  if (timeline) {
+    eventsPath = outPath.replace(/\.(mp4|webm)$/i, "") + "-events.json";
+    writeFileSync(eventsPath, JSON.stringify(timeline.toLog(), null, 2));
+  }
+  return { path: outPath, eventsPath, criticalErrors, geometry };
 }
 
 /** Compose screen + optional avatar PiP as HyperFrames HTML composition. */
@@ -227,7 +347,7 @@ export function scaffoldWalkthroughComposition(opts: {
 
   const avatarHtml = avatarRel
     ? `
-  <video class="clip" data-start="0" data-duration="${total}" data-track-index="2"
+  <video id="avatar-pip" class="clip" data-start="0" data-duration="${total}" data-track-index="2"
          src="${avatarRel}" muted playsinline
          style="position:absolute;right:3%;bottom:4%;width:280px;height:280px;object-fit:cover;border-radius:16px;border:2px solid #ffffff33;z-index:5;"></video>`
     : "";
@@ -242,16 +362,16 @@ export function scaffoldWalkthroughComposition(opts: {
 <body>
 <div id="stage" data-composition-id="walkthrough" data-start="0" data-width="1920" data-height="1080"
      data-duration="${total}" style="position:relative;width:1920px;height:1080px;overflow:hidden;background:#050505;">
-  <video class="clip" data-start="0" data-duration="${total}" data-track-index="0"
+  <video id="screen-main" class="clip" data-start="0" data-duration="${total}" data-track-index="0"
          src="${screenRel}" autoplay muted playsinline
-         style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;"></video>
-  <div class="clip" data-start="0" data-duration="2.2" data-track-index="1"
+         style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#050505;"></video>
+  <div id="hook-title" class="clip" data-start="0" data-duration="2.2" data-track-index="1"
        style="position:absolute;left:50%;top:18%;transform:translateX(-50%);font:800 64px/1 Inter,system-ui,sans-serif;color:#fff;letter-spacing:-0.02em;">
     ${escapeHtml(brief.hook)}
   </div>
   ${avatarHtml}
   ${captionClips}
-  <div class="clip" data-start="${Math.max(0, total - 4)}" data-duration="4" data-track-index="4"
+  <div id="cta-line" class="clip" data-start="${Math.max(0, total - 4)}" data-duration="4" data-track-index="4"
        style="position:absolute;left:6%;bottom:6%;font:600 36px Inter,system-ui,sans-serif;color:#f5f5f5;">
     ${escapeHtml(brief.cta)}
   </div>
@@ -299,7 +419,8 @@ export function scaffoldWalkthroughComposition(opts: {
 
 /**
  * Full Russo workflow for Magmos/Veil:
- * plan → capture live URL → Venice (or optional HeyGen) presenter → HyperFrames → render.
+ * plan → smart capture (OpenAI/Venice critic) → VO → HyperFrames → render.
+ * Failures are surfaced loudly and written into self-learn recipes.
  */
 export async function produceProductWalkthrough(opts: {
   projectId: string;
@@ -325,22 +446,72 @@ export async function produceProductWalkthrough(opts: {
 
   let capturePath = opts.screenPath;
   if (!opts.skipCapture && !capturePath) {
-    log.push("[2/6] Playwright capture of live product (no QuickTime)");
+    const smart = env("SMART_CAPTURE", "1") === "1";
+    log.push(`[2/6] ${smart ? "Smart awareness" : "Basic"} Playwright capture (no QuickTime)`);
     capturePath = join(dir, "screen.webm");
     try {
-      await captureProductWalkthrough(projectId, brief, capturePath);
+      const cap = await captureProductWalkthrough(projectId, brief, capturePath);
+      capturePath = cap.path;
+      log.push(`Geometry: ${cap.geometry}`);
+      if (cap.eventsPath) log.push(`Smart events: ${cap.eventsPath}`);
+      if (cap.criticalErrors.length) {
+        log.push(`CRITICAL CAPTURE ERRORS (${cap.criticalErrors.length}):`);
+        for (const err of cap.criticalErrors) log.push(`  ✗ ${err}`);
+      } else {
+        log.push("Smart brain: no critical beat failures");
+      }
       const mp4 = join(dir, "screen.mp4");
-      if (hasFfmpeg() && existsSync(capturePath)) {
+      if (hasFfmpeg() && existsSync(capturePath) && !capturePath.endsWith(".mp4")) {
         try {
-          runFfmpeg(["-y", "-i", capturePath, "-c:v", "libx264", "-preset", "fast", "-crf", "20", "-c:a", "aac", mp4], "screen-mp4");
+          runFfmpeg(
+            ["-y", "-i", capturePath, "-c:v", "libx264", "-preset", "fast", "-crf", "18", "-pix_fmt", "yuv420p", "-c:a", "aac", mp4],
+            "screen-mp4",
+          );
           if (existsSync(mp4)) capturePath = mp4;
         } catch {
           /* keep webm */
         }
       }
       log.push(`Capture: ${capturePath} (${probeDuration(capturePath).toFixed(1)}s)`);
+      // Persist capture errors onto result for honesty
+      writeFileSync(join(dir, "CAPTURE-ERRORS.json"), JSON.stringify(cap.criticalErrors, null, 2));
+      if (cap.criticalErrors.length >= 2) {
+        log.push("ABORTING compose — capture claimed beats it could not prove on screen. See CAPTURE-ERRORS.json");
+        const result: WalkthroughResult = {
+          id,
+          projectId,
+          status: "failed",
+          briefPath,
+          capturePath,
+          log,
+        };
+        writeFileSync(join(dir, "RESULT.json"), JSON.stringify(result, null, 2));
+        writeFileSync(join(dir, "RESULT.md"), formatWalkthrough(result));
+        learn({
+          projectId,
+          feature: "walkthrough",
+          outcome: "fail",
+          summary: `Abort: ${cap.criticalErrors.length} critical capture errors`,
+          errors: cap.criticalErrors,
+          lessons: [
+            "Do not compose when ≥2 beats fail screen proof",
+            "Fix live UI paths before re-running walkthrough",
+            "Use SMART_CAPTURE=1 + open wallet/forge for real proof moments",
+          ],
+          meta: { id, capturePath },
+        });
+        return result;
+      }
     } catch (e) {
       log.push(`Capture failed: ${e instanceof Error ? e.message : e}`);
+      learn({
+        projectId,
+        feature: "walkthrough",
+        outcome: "fail",
+        summary: "Capture threw",
+        errors: [e instanceof Error ? e.message : String(e)],
+        lessons: ["Capture must stay up for full walkthrough — check Playwright + SMART_CAPTURE"],
+      });
       return { id, projectId, status: "failed", briefPath, log };
     }
   } else {
@@ -350,41 +521,60 @@ export async function produceProductWalkthrough(opts: {
     return { id, projectId, status: "failed", briefPath, log: [...log, "No screen capture"] };
   }
 
-  let avatarPath: string | undefined;
   const narration = brief.beats.map((b) => b.narration).join(" ");
-  const wantPresenter = !opts.skipAvatar && env("WALKTHROUGH_AVATAR", "1") !== "0";
+  // Default OFF — product is the content. Still faces look fake. Moving T2V only if asked.
+  const wantFace =
+    !opts.skipAvatar &&
+    env("WALKTHROUGH_AVATAR", "0") === "1" &&
+    env("PRESENTER_VIDEO", "0") === "1";
 
-  if (wantPresenter && hasVenice()) {
-    log.push("[3/6] Venice presenter PiP (replaces HeyGen agent when no sub)");
+  let avatarPath: string | undefined;
+  let voicePath: string | undefined;
+
+  log.push("[3/6] Narration VO (Voicebox if set, else Venice TTS — no static face)");
+  try {
+    if (hasVoicebox()) {
+      const vb = await voiceboxTextToSpeech(narration, { outName: `walk-vo-${id}.mp3` });
+      voicePath = vb.path;
+      log.push(`Voicebox VO: ${voicePath}`);
+    } else if (hasVenice()) {
+      const voice = env("VENICE_TTS_VOICE", "am_michael");
+      const tts = await veniceTextToSpeech(narration, {
+        outName: `walk-vo-${id}.mp3`,
+        voice,
+        projectId,
+      });
+      voicePath = tts.path;
+      log.push(`Venice TTS voice=${voice}: ${voicePath}`);
+    } else {
+      log.push("No TTS configured — silent screen only");
+    }
+  } catch (e) {
+    log.push(`VO failed: ${e instanceof Error ? e.message : e}`);
+  }
+
+  if (wantFace && hasVenice()) {
+    log.push("[3b/6] Venice T2V talking-head PiP (PRESENTER_VIDEO=1)");
     try {
       const presenter = await produceVenicePresenter({
         narration,
         projectId,
         characterPrompt: brief.avatarPrompt,
         outDir: join(dir, "presenter"),
+        forceVideo: true,
       });
       log.push(...presenter.log);
-      if (presenter.avatarPath && existsSync(presenter.avatarPath)) {
+      if (presenter.mode === "t2v" && presenter.avatarPath && existsSync(presenter.avatarPath)) {
         avatarPath = presenter.avatarPath;
-        log.push(`Presenter avatar: ${avatarPath} (${presenter.mode}, ~$${presenter.usd.toFixed(2)})`);
+      } else {
+        log.push("T2V unavailable — keeping product-only (no still-face PiP)");
       }
+      if (!voicePath && presenter.voicePath) voicePath = presenter.voicePath;
     } catch (e) {
-      log.push(`Venice presenter failed: ${e instanceof Error ? e.message : e}`);
+      log.push(`T2V presenter skipped: ${e instanceof Error ? e.message : e}`);
     }
-  }
-
-  if (!avatarPath && wantPresenter && hasHeyGen() && env("HEYGEN_AUTO", "0") === "1") {
-    log.push("[3/6] HeyGen avatar fallback (optional key)");
-    try {
-      const prompt = `${brief.avatarPrompt}\n\nScript:\n${narration}`;
-      const result = await runVideoAgent(prompt, { download: true, maxWaitMs: 15 * 60_000 });
-      avatarPath = result.localPath;
-      log.push(`HeyGen avatar: ${avatarPath ?? result.videoUrl}`);
-    } catch (e) {
-      log.push(`HeyGen skipped: ${e instanceof Error ? e.message : e}`);
-    }
-  } else if (!avatarPath) {
-    log.push("[3/6] Presenter skipped (no Venice/HeyGen or WALKTHROUGH_AVATAR=0)");
+  } else {
+    log.push("[3b/6] Face PiP off (set WALKTHROUGH_AVATAR=1 PRESENTER_VIDEO=1 for moving avatar only)");
   }
 
   log.push("[4/6] HyperFrames compose (screen + PiP + captions)");
@@ -403,42 +593,64 @@ export async function produceProductWalkthrough(opts: {
     log.push("[5/6] hyperframes render → 1080p MP4");
     const rendered = await renderHyperframes(hfDir);
     log.push(rendered.log.slice(0, 800));
+    if (/media_missing_id|FROZEN|✗|error/i.test(rendered.log)) {
+      log.push("CRITICAL RENDER ERROR — HyperFrames reported media/id failures (video would freeze). Using ffmpeg fallback and marking partial.");
+    }
     outputPath = rendered.outputPath;
     if (!outputPath && hasFfmpeg()) {
-      // Fallback compose without CLI
+      // Fallback compose — screen + optional T2V PiP + narration VO
       const fallback = join(dir, "walkthrough_fallback.mp4");
       try {
-        if (avatarPath && existsSync(avatarPath)) {
-          runFfmpeg(
-            [
-              "-y",
-              "-i",
-              capturePath,
-              "-i",
-              avatarPath,
-              "-filter_complex",
-              "[0:v]scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2[base];[1:v]scale=280:280[pip];[base][pip]overlay=W-w-40:H-h-40",
-              "-t",
-              String(brief.totalSec),
-              "-c:v",
-              "libx264",
-              "-preset",
-              "fast",
-              "-crf",
-              "20",
-              "-c:a",
-              "aac",
-              "-shortest",
-              fallback,
-            ],
-            "walkthrough-pip-fallback",
+        const args: string[] = ["-y", "-i", capturePath];
+        if (avatarPath && existsSync(avatarPath)) args.push("-i", avatarPath);
+        if (voicePath && existsSync(voicePath)) args.push("-i", voicePath);
+
+        if (avatarPath && existsSync(avatarPath) && voicePath && existsSync(voicePath)) {
+          args.push(
+            "-filter_complex",
+            "[0:v]scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2[base];[1:v]scale=280:280[pip];[base][pip]overlay=W-w-40:H-h-40[vout]",
+            "-map",
+            "[vout]",
+            "-map",
+            "2:a:0",
+          );
+        } else if (avatarPath && existsSync(avatarPath)) {
+          args.push(
+            "-filter_complex",
+            "[0:v]scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2[base];[1:v]scale=280:280[pip];[base][pip]overlay=W-w-40:H-h-40[vout]",
+            "-map",
+            "[vout]",
+            "-map",
+            "0:a?",
+          );
+        } else if (voicePath && existsSync(voicePath)) {
+          args.push(
+            "-filter_complex",
+            "[0:v]scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2[vout]",
+            "-map",
+            "[vout]",
+            "-map",
+            "1:a:0",
           );
         } else {
-          runFfmpeg(
-            ["-y", "-i", capturePath, "-t", String(brief.totalSec), "-c:v", "libx264", "-preset", "fast", "-crf", "20", "-c:a", "aac", fallback],
-            "walkthrough-fallback",
-          );
+          args.push("-vf", "scale=1920:1080:force_original_aspect_ratio=decrease,pad=1920:1080:(ow-iw)/2:(oh-ih)/2");
         }
+
+        args.push(
+          "-t",
+          String(brief.totalSec),
+          "-c:v",
+          "libx264",
+          "-preset",
+          "fast",
+          "-crf",
+          "20",
+          "-c:a",
+          "aac",
+          "-shortest",
+          fallback,
+        );
+        runFfmpeg(args, "walkthrough-fallback");
         if (existsSync(fallback)) outputPath = fallback;
       } catch (e) {
         log.push(`Fallback compose: ${e instanceof Error ? e.message : e}`);
@@ -474,14 +686,46 @@ export async function produceProductWalkthrough(opts: {
   };
   writeFileSync(join(dir, "RESULT.json"), JSON.stringify(result, null, 2));
   writeFileSync(join(dir, "RESULT.md"), formatWalkthrough(result));
+
+  const critical = result.log.filter((l) => /CRITICAL|✗|ABORTING|media_missing/i.test(l));
+  learn({
+    projectId,
+    feature: "walkthrough",
+    outcome: status === "done" ? "success" : status === "partial" ? "partial" : "fail",
+    summary: `walkthrough ${status} · out=${Boolean(outputPath)} · face=${Boolean(avatarPath)}`,
+    errors: critical,
+    lessons: [
+      status === "done"
+        ? "Product-only + smart capture + VO compose works — keep faces off unless T2V asked"
+        : "Inspect CAPTURE-ERRORS / HyperFrames media ids before next run",
+      "Geometry must stay 16:9; object-fit contain; never skip critical beat fails",
+      "Self-learn + Venice/OpenAI cascade drive next plan",
+    ],
+    meta: { id, outputPath, capturePath },
+  });
+  try {
+    await smartCritique({
+      projectId,
+      feature: "walkthrough",
+      artifactSummary: formatWalkthrough(result).slice(0, 2500),
+      errors: critical,
+    });
+  } catch {
+    /* best-effort */
+  }
+
   return result;
 }
 
 export function formatWalkthrough(r: WalkthroughResult): string {
+  const critical = r.log.filter((l) => /CRITICAL|✗|BEAT FAIL|ABORTING|media_missing/i.test(l));
   return [
     `# Product walkthrough — ${r.status}`,
     `Project: ${r.projectId} · ${r.id}`,
     "",
+    critical.length
+      ? ["## ⚠ ERRORS YOU NEED TO SEE", ...critical.map((c) => `- ${c}`), ""].join("\n")
+      : "",
     `Brief: ${r.briefPath}`,
     r.capturePath ? `Screen: ${r.capturePath}` : "",
     r.avatarPath ? `Avatar: ${r.avatarPath}` : "",
@@ -491,8 +735,9 @@ export function formatWalkthrough(r: WalkthroughResult): string {
     "## Log",
     ...r.log,
     "",
-    "Workflow: inspect → script → storyboard → capture → HeyGen → HyperFrames → validate → render",
+    "Workflow: inspect → script → smart capture (Venice→OpenAI + TinyFish) → VO → HyperFrames → validate → render",
     `Repo: ${HYPERFRAMES_REPO}`,
+    "Learnings: data/improve/SELF-LEARN.json + walkthrough-recipe-<project>.json",
   ]
     .filter(Boolean)
     .join("\n");

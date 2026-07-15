@@ -33,6 +33,8 @@
     "ad-maker": "tsx src/cli.ts ad-maker magmos",
     "grow": "tsx src/cli.ts grow",
     "brain": "tsx src/cli.ts brain seed",
+    "learn": "tsx src/cli.ts learn",
+    "smart": "tsx src/cli.ts smart status",
     "skills": "tsx src/cli.ts skills adopt",
     "shorts": "tsx src/cli.ts shorts",
     "goldmine": "tsx src/cli.ts goldmine",

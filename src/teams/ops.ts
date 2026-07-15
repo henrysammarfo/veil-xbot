@@ -18,6 +18,8 @@ import { adStyleForBrand } from "../edit/styles.js";
 import { buildPaidGrowthPack } from "../growth/paid-growth.js";
 import { seedGrowthBrain } from "../brain/seed.js";
 import { searchSkills, adoptSkillsIntoBrain, ensureGooseVendorLink } from "../skills/catalog.js";
+import { learn } from "../brain/self-learn.js";
+import { smartCritique, smartStatus } from "../brain/smart.js";
 
 export interface OpsRun {
   id: string;
@@ -141,6 +143,31 @@ export async function runGrowthOps(projectId: string): Promise<OpsRun> {
   const outputPath = join(dir, "TODAY.md");
   writeFileSync(outputPath, md);
   writeFileSync(join(dir, `${id}.json`), JSON.stringify({ id, projectId, at: Date.now(), phases }, null, 2));
+
+  const stack = smartStatus();
+  learn({
+    projectId,
+    feature: "ops",
+    outcome: "success",
+    summary: `ops phases: ${phases.join(",")}`,
+    lessons: [
+      "Ops should always seed brain + adopt skills before creatives",
+      stack.tinyfish
+        ? "TinyFish powered distribution/hashtags this run"
+        : "Add TINYFISH_API_KEY so ops can trend+engage live",
+      `LLM cascade: ${stack.order.join("→") || "none"} — keep Venice+OpenAI healthy`,
+    ],
+    meta: { id, phases, stack },
+  });
+  try {
+    await smartCritique({
+      projectId,
+      feature: "ops",
+      artifactSummary: md.slice(0, 2500),
+    });
+  } catch {
+    /* best-effort */
+  }
 
   return { id, projectId, at: Date.now(), phases, outputPath };
 }

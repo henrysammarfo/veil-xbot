@@ -1,6 +1,6 @@
 # Magmos Growth Brain
-_Updated 2026-07-15T09:59:56.754Z_
-_Entries: 84_
+_Updated 2026-07-15T11:47:28.700Z_
+_Entries: 85_
 
 ## [skill] Goose + agent skills catalog
 - id: `mem_mrlw6quw_v5iy2`
@@ -250,6 +250,15 @@ HTML→MP4 compose
 inspect → script/storyboard/timing contract → Playwright capture → presenter PiP
 → HyperFrames HTML compose → check/snapshot/inspect/render 1080p. Timing plan is the
 contract between VO, screen, captions, SFX.
+
+## [insight] learn:global:success
+- id: `mem_mrm0mpmk_2wdi5`
+- tags: self-learn, global, magmos, success
+- source: self-learn/global
+
+Manual seed — smart stack + self-learn armed
+Lessons: Every feature writes lessons to SELF-LEARN.json | Venice → OpenAI cascade via smartChat / failover | TinyFish is the live web truth for grow/ops/ad-maker
+
 
 ## [insight] Ad-maker run magmoslabs.vercel.app
 - id: `mem_mrlwsf9u_dqekh`

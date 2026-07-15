@@ -9,6 +9,8 @@ import { newId } from "../store.js";
 import { hasTinyfish, tinyfishFetchText, tinyfishSearch } from "../research/tinyfish.js";
 import { remember } from "../brain/memory.js";
 import { seedGrowthBrain } from "../brain/seed.js";
+import { learn } from "../brain/self-learn.js";
+import { smartCritique, smartStatus } from "../brain/smart.js";
 import { runAdMaker, formatAdMaker } from "../studio/ad-maker.js";
 import { buildPaidGrowthPack } from "./paid-growth.js";
 import { generateCreative } from "../teams/creative.js";
@@ -153,11 +155,38 @@ export async function growFromUrl(opts: {
   writeFileSync(outputPath, md);
   writeFileSync(join(dir, "RESULT.json"), JSON.stringify({ id, url, projectId, log }, null, 2));
 
+  const status: GrowFromUrlResult["status"] = adMakerOut || paid.outputPath ? "done" : "partial";
+  const stack = smartStatus();
+  const lessons = [
+    adMakerOut ? "Ad-maker stills ready — push to X static before paid video" : "Ad-maker empty — check Venice image + TinyFish domain",
+    stack.tinyfish ? "TinyFish live research worked for brand digest" : "Set TINYFISH_API_KEY for live site research",
+    `Smart stack: ${stack.order.join("→") || "none"}`,
+  ];
+  learn({
+    projectId,
+    feature: "grow",
+    outcome: status === "done" ? "success" : "partial",
+    summary: `grow ${url} → ads=${Boolean(adMakerOut)} paid=${Boolean(paid.outputPath)}`,
+    errors: log.filter((l) => /fail|warn/i.test(l)).slice(0, 8),
+    lessons,
+    meta: { id, url, stack },
+  });
+  try {
+    await smartCritique({
+      projectId,
+      feature: "grow",
+      artifactSummary: md.slice(0, 2500),
+      errors: log.filter((l) => /fail/i.test(l)),
+    });
+  } catch {
+    /* critique best-effort */
+  }
+
   return {
     id,
     url,
     projectId,
-    status: adMakerOut || paid.outputPath ? "done" : "partial",
+    status,
     outputPath,
     log,
   };

@@ -258,6 +258,9 @@ const TASK_SKILL_QUERIES: Record<string, string[]> = {
   launch: ["feature-launch", "campaign-brief", "paid-channel", "messaging"],
   manifest: ["mix-master", "ugc", "stitch-videos"],
   qa: ["brand-research", "landing-page"],
+  learn: ["brand-research", "ugc", "meta-ads", "social-listening"],
+  ops: ["campaign-brief", "feature-launch", "paid-channel", "ugc", "create-x-content"],
+  grow: ["brand-research", "ad-angle-miner", "meta-ads", "landing-page", "ugc"],
 };
 
 /** Compact skill shortlist injected into LLM prompts so the bot actually uses them. */

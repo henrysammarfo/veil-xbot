@@ -49,6 +49,8 @@ import { buildWebToAppPack } from "./mobile/web-to-app-pack.js";
 import { growFromUrl, formatGrow } from "./growth/grow-from-url.js";
 import { formatBrain, recall } from "./brain/memory.js";
 import { seedGrowthBrain } from "./brain/seed.js";
+import { formatSelfLearn, lessonsFor, learn } from "./brain/self-learn.js";
+import { formatSmartStatus, smartChat, smartResearch, smartCritique } from "./brain/smart.js";
 import {
   formatSkills,
   rebuildSkillCatalog,
@@ -124,6 +126,8 @@ Veil X Bot — Growth OS (marketing · GTM · distribution · Q&A)
   ad-maker [project] [domain]                Branda-style domain → still ads (TinyFish+Venice)
   grow <url> [project]                       ONE connected flow: research→ads→paid floors→UGC
   brain [seed|search <q>]                    Unified growth memory (OSS/UGC/ads/insights)
+  learn [show|seed] [project]                Project-wide self-learn store (data/improve/SELF-LEARN*)
+  smart [status|research <q>|critique <feature>]  Venice→OpenAI cascade + TinyFish
   skills [list|search <q>|show <slug>|adopt] Goose+HyperFrames skill runtime the bot uses
   shorts <recording.mp4>                     OpenShorts viral moments → 9:16 clips
   goldmine                                   22 lab OSS repos catalog
@@ -638,7 +642,7 @@ async function main(): Promise<void> {
       const result = await produceProductWalkthrough({
         projectId: project,
         screenPath,
-        skipAvatar: env("WALKTHROUGH_AVATAR", "1") === "0",
+        skipAvatar: env("WALKTHROUGH_AVATAR", "0") !== "1",
         skipCapture: Boolean(screenPath),
       });
       console.log(formatWalkthrough(result));
@@ -670,6 +674,60 @@ async function main(): Promise<void> {
       } else {
         seedGrowthBrain();
         console.log(formatBrain(30));
+      }
+      break;
+    }
+    case "learn": {
+      const sub = rest[0] || "show";
+      const project = rest[1] || "magmos";
+      if (sub === "seed") {
+        learn({
+          projectId: project,
+          feature: "global",
+          outcome: "success",
+          summary: "Manual seed — smart stack + self-learn armed",
+          lessons: [
+            "Every feature writes lessons to SELF-LEARN.json",
+            "Venice → OpenAI cascade via smartChat / failover",
+            "TinyFish is the live web truth for grow/ops/ad-maker",
+          ],
+        });
+        console.log(`Seeded self-learn for ${project}`);
+      }
+      console.log(formatSelfLearn(25));
+      if (sub === "project" || rest[0] === project) {
+        console.log("\n## Lessons for project\n" + lessonsFor({ projectId: project }).map((l) => `- ${l}`).join("\n"));
+      }
+      break;
+    }
+    case "smart": {
+      const sub = rest[0] || "status";
+      if (sub === "status") {
+        console.log(await formatSmartStatus());
+        console.log("\n" + llmStatus());
+      } else if (sub === "research") {
+        const q = rest.slice(1).join(" ");
+        if (!q) throw new Error('Usage: smart research "magmos forge"');
+        const r = await smartResearch({ query: q, projectId: rest.includes("--project") ? "magmos" : "magmos", fetchTop: true });
+        console.log(`Hits: ${r.hits.length}`);
+        for (const h of r.hits) console.log(`- ${h.title}\n  ${h.url}`);
+        if (r.notes) console.log("\n---\n" + r.notes.slice(0, 1200));
+      } else if (sub === "critique") {
+        const feature = (rest[1] || "global") as "grow" | "walkthrough" | "ad-maker" | "ops" | "edit-auto" | "engage" | "global";
+        const project = rest[2] || "magmos";
+        const out = await smartCritique({
+          projectId: project,
+          feature,
+          artifactSummary: `Manual critique for ${feature}/${project}`,
+        });
+        console.log(JSON.stringify(out, null, 2));
+      } else if (sub === "chat") {
+        const prompt = rest.slice(1).join(" ") || "Say hello and confirm cascade.";
+        const res = await smartChat("ops", prompt, { projectId: "magmos", feature: "ops" });
+        console.log(`via ${res.provider} (tried ${res.attempted.join("→")})\n\n${res.content}`);
+      } else {
+        console.log(await formatSmartStatus());
+        console.log("\n" + llmStatus());
       }
       break;
     }

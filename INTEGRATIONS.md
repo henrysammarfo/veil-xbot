@@ -65,14 +65,12 @@ Location: `veil-xbot/.agents/skills/` · lockfile: `skills-lock.json`
 
 ---
 
-## LLM router (OpenAI / FlockAI / QVAC)
+## LLM router (Venice / OpenAI / Flock)
 
-- `src/ai/router.ts` — **locked system prompts per task** so models don't drift
-- Env:
-  - `LLM_PROVIDER=openai|flockai|qvac` (auto picks first configured)
-  - `FLOCKAI_API_URL` + `FLOCKAI_API_KEY` + `FLOCKAI_MODEL`
-  - `QVAC_API_URL` + `QVAC_API_KEY` + `QVAC_MODEL`
-- Used by `produce` trailer briefs today; extend to draft/qa next
+- `src/ai/router.ts` — **locked system prompts per task** + self-learn injection
+- Cascade: Venice → OpenAI → Flock (optional)
+- Env: `VENICE_API_KEY`, `OPENAI_API_KEY`, optional `FLOCKAI_*`
+- Check: `npm run smart`
 
 ---
 

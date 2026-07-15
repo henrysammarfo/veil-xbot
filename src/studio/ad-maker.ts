@@ -14,6 +14,8 @@ import { hasVenice, veniceGenerateImage } from "../integrations/venice.js";
 import { generatePoster } from "../generate/poster.js";
 import { hasTinyfish, tinyfishFetchText, tinyfishSearch } from "../research/tinyfish.js";
 import { remember } from "../brain/memory.js";
+import { learn } from "../brain/self-learn.js";
+import { smartCritique } from "../brain/smart.js";
 
 export const AD_MAKER_REPO = "https://github.com/context-dot-dev/ad-maker";
 
@@ -276,6 +278,40 @@ export async function runAdMaker(opts: {
   writeFileSync(outputPath, md);
   writeFileSync(join(dir, "RESULT.json"), JSON.stringify({ id, domain, concepts, images, log }, null, 2));
 
+  const status: AdMakerRun["status"] = images.length
+    ? images.length === concepts.length
+      ? "done"
+      : "partial"
+    : "failed";
+  learn({
+    projectId,
+    feature: "ad-maker",
+    outcome: status === "done" ? "success" : status === "partial" ? "partial" : "fail",
+    summary: `ad-maker ${domain}: ${images.length}/${concepts.length} images`,
+    errors: log.filter((l) => /fail/i.test(l)),
+    lessons: [
+      images.length
+        ? "Venice/TinyFish ad stills work — keep headlines product-first, no APY"
+        : "No images — ensure VENICE_API_KEY or poster fallback",
+      brand.backend !== "none"
+        ? `Research backend ${brand.backend} worked for ${domain}`
+        : "Wire TinyFish for domain research before concepts",
+    ],
+    meta: { id, domain, imageCount: images.length },
+  });
+  if (status !== "failed") {
+    try {
+      await smartCritique({
+        projectId,
+        feature: "ad-maker",
+        artifactSummary: md.slice(0, 2500),
+        errors: log.filter((l) => /fail/i.test(l)),
+      });
+    } catch {
+      /* best-effort */
+    }
+  }
+
   return {
     id,
     domain,
@@ -283,7 +319,7 @@ export async function runAdMaker(opts: {
     concepts,
     images,
     outputPath,
-    status: images.length ? (images.length === concepts.length ? "done" : "partial") : "failed",
+    status,
     log,
   };
 }

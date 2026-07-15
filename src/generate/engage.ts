@@ -1,10 +1,9 @@
-import OpenAI from "openai";
-import { requireEnv } from "../config.js";
 import { brandVoice, brandLink, type BrandKey } from "../brands.js";
-import { tasteSystemSuffix } from "../taste.js";
 import { listLearnings, newId, readPlaybook, saveEngage, type EngageDraft } from "../store.js";
 import type { TrendCategory } from "../discover/categories.js";
 import type { RankedTrend } from "../discover/trending.js";
+import { smartChat } from "../brain/smart.js";
+import { learn } from "../brain/self-learn.js";
 
 export type EngageType = "quote" | "reply" | "comment-thread";
 
@@ -22,7 +21,6 @@ export async function generateEngage(opts: {
   angle?: string;
 }): Promise<EngageDraft> {
   const voice = brandVoice(opts.brand);
-  const openai = new OpenAI({ apiKey: requireEnv("OPENAI_API_KEY") });
   const playbook = readPlaybook().slice(0, 2000);
   const learnings = listLearnings().slice(0, 4);
 
@@ -35,20 +33,7 @@ export async function generateEngage(opts: {
         ? "Single reply under a viral post: witty, helpful, not spammy. Max 200 chars."
         : "3-reply thread under a trending post: value first, CTA last.";
 
-  const res = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    temperature: 0.75,
-    response_format: { type: "json_object" },
-    messages: [
-      {
-        role: "system",
-        content:
-          "You write high-engagement X quote-tweets and replies. Ride trends — no spam. JSON only." +
-          tasteSystemSuffix(),
-      },
-      {
-        role: "user",
-        content: `${typeGuide}
+  const user = `${typeGuide}
 
 Brand: ${voice.name}
 Angle: ${opts.angle || "ride what's winning, tie to our product only if it fits"}
@@ -72,12 +57,14 @@ Return JSON:
   "thread": ["only if comment-thread type"],
   "graphicHeadline": "short text for optional quote card image",
   "whyItWorks": "one line"
-}`,
-      },
-    ],
-  });
+}`;
 
-  const raw = res.choices[0]?.message?.content;
+  const res = await smartChat("engage", user, {
+    projectId: opts.brand,
+    feature: "engage",
+  });
+  // engage task is json:false in router historically — force parse anyway
+  const raw = res.content.replace(/```json|```/g, "").trim();
   if (!raw) throw new Error("Empty engage draft");
   const parsed = JSON.parse(raw) as {
     primary: string;
@@ -103,6 +90,17 @@ Return JSON:
     status: "draft",
   };
   saveEngage(draft);
+  learn({
+    projectId: opts.brand,
+    feature: "engage",
+    outcome: "success",
+    summary: `${opts.type} under ${opts.context.title.slice(0, 80)} via ${res.provider}`,
+    lessons: [
+      parsed.whyItWorks || "Ride trends with product tie-in only when natural",
+      `Engage cascade hit: ${res.attempted.join("→")}`,
+    ],
+    meta: { type: opts.type, provider: res.provider },
+  });
   return draft;
 }
 

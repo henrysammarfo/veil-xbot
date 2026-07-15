@@ -39,13 +39,18 @@ export function queueHeyGen(prompt: string): MediaJob {
     id: newId("heygen"),
     provider: "heygen",
     prompt,
-    status: env("HEYGEN_API_KEY") ? "queued" : "manual",
-    instructions:
-      "SKIP for X (watermark). Use screen recording + Pexels b-roll from npm run clips.",
+    status: hasHeyGenKey() ? "queued" : "manual",
+    instructions: hasHeyGenKey()
+      ? "npm start heygen \"prompt\" — Video Agent v3 → data/exports/"
+      : "MCP OAuth: https://mcp.heygen.com/mcp/v1/ or set HEYGEN_API_KEY",
     createdAt: Date.now(),
   };
   saveJob(job);
   return job;
+}
+
+function hasHeyGenKey(): boolean {
+  return Boolean(env("HEYGEN_API_KEY"));
 }
 
 export function queueKling(prompt: string): MediaJob {
@@ -67,9 +72,9 @@ export function queueHyperframes(prompt: string): MediaJob {
     id: newId("hyperframes"),
     provider: "hyperframes",
     prompt,
-    status: env("HYPERFRAMES_API_KEY") ? "queued" : "manual",
+    status: "manual",
     instructions:
-      "Hyperframes: speed-ramp screen recordings / UI motion — use for demo walkthrough hype cuts.",
+      "OSS — npm start hyperframes \"title | body\" [--render]. Skill: npx skills add heygen-com/hyperframes",
     createdAt: Date.now(),
   };
   saveJob(job);

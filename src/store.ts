@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync, readdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { DATA_DIR, assertDataDir } from "./config.js";
+import type { BrandKey } from "./brands.js";
 
 export interface VideoLearning {
   id: string;
@@ -32,7 +33,7 @@ export interface VideoAnalysis {
 
 export interface PostDraft {
   id: string;
-  brand: "veil" | "magmos";
+  brand: BrandKey;
   createdAt: number;
   topic: string;
   hook: string;
@@ -46,7 +47,7 @@ export interface PostDraft {
 
 export interface GraphicAsset {
   id: string;
-  brand: "veil" | "magmos";
+  brand: BrandKey;
   kind: "poster" | "quote-card" | "thread-header" | "announcement";
   topic: string;
   headline?: string;
@@ -58,7 +59,7 @@ export interface GraphicAsset {
 
 export interface EngageDraft {
   id: string;
-  brand: "veil" | "magmos";
+  brand: BrandKey;
   type: "quote" | "reply" | "comment-thread";
   createdAt: number;
   contextTitle: string;

@@ -25,6 +25,7 @@ const app = new Hono();
 
 const NAV = [
   { href: "/ops", label: "Ops", key: "ops" },
+  { href: "/growth", label: "Growth", key: "growth" },
   { href: "/", label: "Drafts", key: "drafts" },
   { href: "/engage", label: "Distribute", key: "engage" },
   { href: "/creative", label: "Creative", key: "creative" },
@@ -91,13 +92,24 @@ app.get("/", (c) => {
       </article>`,
     )
     .join("");
-  const body = `<p class="lead">Copy → paste on X. No auto-post.</p>${cards || '<p class="lead">No drafts. Run: <code>npm run draft veil</code></p>'}`;
+  const body = `<p class="lead">Copy → paste on X. No auto-post.</p>${cards || '<p class="lead">No drafts. Run: <code>npm run draft magmos</code></p>'}`;
   return c.html(shell("drafts", "Post drafts", "Manual publish", body));
+});
+
+app.get("/growth", (c) => {
+  const profile = join(XBOT_ROOT, "data", "growth", "X-PROFILE.md");
+  const paid = join(XBOT_ROOT, "data", "growth", "PAID-GROWTH.md");
+  const profileMd = existsSync(profile) ? readFileSync(profile, "utf8") : "Run: npm run x-profile magmos";
+  const paidMd = existsSync(paid) ? readFileSync(paid, "utf8") : "Run: npm run growth-check magmos";
+  const body = `<p class="lead"><strong>1. Profile first</strong> → then ads. Creative: <code>npm run magmos-ad</code></p>
+    <h2>X profile</h2><div class="playbook"><pre>${escapeHtml(profileMd)}</pre></div>
+    <h2>Paid growth</h2><div class="playbook"><pre>${escapeHtml(paidMd)}</pre></div>`;
+  return c.html(shell("growth", "Profile + paid growth", "Magmos first", body));
 });
 
 app.get("/ops", (c) => {
   const p = join(XBOT_ROOT, "data", "ops", "TODAY.md");
-  const md = existsSync(p) ? readFileSync(p, "utf8") : "Run: npm run ops veil";
+  const md = existsSync(p) ? readFileSync(p, "utf8") : "Run: npm run ops magmos";
   const body = `<p class="lead">Full marketing + GTM + distribution run.</p><div class="playbook"><pre>${escapeHtml(md)}</pre></div>`;
   return c.html(shell("ops", "Today's ops", "Growth OS", body));
 });

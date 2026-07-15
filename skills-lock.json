@@ -1,0 +1,1613 @@
+{
+  "version": 1,
+  "skills": {
+    "ad-angle-miner": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/composites/ad-angle-miner/SKILL.md",
+      "computedHash": "da6ec25bcb369c14441c02fd2634758dd14f23e1191ea6c807c6f67d50ca107d"
+    },
+    "ad-campaign-analyzer": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/composites/ad-campaign-analyzer/SKILL.md",
+      "computedHash": "b51dbaff0997303e81e7b0d6482a31c16c09ce064e49678e8ce1cd079839fe79"
+    },
+    "ad-lead-quality-analyzer": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/composites/ad-lead-quality-analyzer/SKILL.md",
+      "computedHash": "2839f41a5432d38a9da33b8990b686b2a78b338e3795301483ff0742007982b0"
+    },
+    "ad-to-landing-page-auditor": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/composites/ad-to-landing-page-auditor/SKILL.md",
+      "computedHash": "ec922a5ad1616904c30172a4f5f5f0116a9278f5a7b94988aa9243346a2ff1f6"
+    },
+    "aeo": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/seo/capabilities/aeo/SKILL.md",
+      "computedHash": "1824c10c4d15f7217afb84fb39897100ac497f1301dcd9fdebb18b14f523c445"
+    },
+    "ai-video-calls-tavus": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research-tools/capabilities/ai-video-calls-tavus/SKILL.md",
+      "computedHash": "362e073d71431eccff147ec0d76d13ad89cdce0e800f6126eb4e741df013d545"
+    },
+    "ai-web-scraping-scrapegraph": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research-tools/capabilities/ai-web-scraping-scrapegraph/SKILL.md",
+      "computedHash": "9415ad86b28447b30ebdc4183640edd228c6129e93e78b3c0abf5e017724018a"
+    },
+    "amazon-search": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research-tools/capabilities/amazon-search/SKILL.md",
+      "computedHash": "d9f432c694eb01084072d7148e6b263551b682ccfeddc231785060ced8c74275"
+    },
+    "api-tester": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research-tools/capabilities/api-tester/SKILL.md",
+      "computedHash": "3e3b88fb058e9b7685b92e057d65d1519ebd0295e96eecdea928575401cc6e91"
+    },
+    "apollo-lead-finder": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/capabilities/apollo-lead-finder/SKILL.md",
+      "computedHash": "ead62410978a527a84c54ed89b2183e2e65e204c555ae6d1034dc1bffb7bb701"
+    },
+    "battlecard-generator": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/competitive-intel/composites/battlecard-generator/SKILL.md",
+      "computedHash": "a6bc26f69ed0e61138b5410e69b0c5fab67314f6f6b5d813edde284b03be6365"
+    },
+    "beat-sync-reel": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/design/packs/video-production/beat-sync-reel/SKILL.md",
+      "computedHash": "a6b0d4dddb55a4ae27d3f7caa68ef57c3931fca3e72e8870b6eb89eb6673cf12"
+    },
+    "blog-feed-monitor": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/monitoring/capabilities/blog-feed-monitor/SKILL.md",
+      "computedHash": "2d311a4cccbb89f8827f7b9809bf45bf2e9d88a236d416c0458972fe6f82a731"
+    },
+    "brand-intel-branddev": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/brand/capabilities/brand-intel-branddev/SKILL.md",
+      "computedHash": "821cb19cd053bfd8b73fbed73466de3940458afcbeb0aef1bdacb1dac4f9b374"
+    },
+    "brand-research": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/composites/brand-research/SKILL.md",
+      "computedHash": "26753566f29662d289179eaccb5aac2eafb70d3e7789b310dd08aae410b27958"
+    },
+    "brand-voice-extractor": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/brand/capabilities/brand-voice-extractor/SKILL.md",
+      "computedHash": "b32ab53b726fc1e97dd860651e0da5c2889fe625d11c18fd5b129d15a4724528"
+    },
+    "browser-automation-notte": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research-tools/capabilities/browser-automation-notte/SKILL.md",
+      "computedHash": "9812201f18e5e68c2e3fda575efdebc9289ba2bf25811c471970d8c671c3811f"
+    },
+    "buyer-persona-generator": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research/capabilities/buyer-persona-generator/SKILL.md",
+      "computedHash": "bf522ee38ebe87658fab193618e2111dde65bb1f86e8b23d037f7c13a1751c51"
+    },
+    "campaign-brief-generator": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/content/composites/campaign-brief-generator/SKILL.md",
+      "computedHash": "bd48d33eace3afdafc7a90bc27198b211227eb966173f2bb6aca5a3f04152204"
+    },
+    "champion-move-outreach": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/outreach/composites/champion-move-outreach/SKILL.md",
+      "computedHash": "683a7355e5b98232e0788eeee3b76e5f6c8ad1806724be136e86a57e7a59c568"
+    },
+    "champion-tracker": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/sales/capabilities/champion-tracker/SKILL.md",
+      "computedHash": "745b6c3208bb400a349218d06ce411d8a1d7d4b6752176fe4332b4749337dbe9"
+    },
+    "churn-risk-detector": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research/composites/churn-risk-detector/SKILL.md",
+      "computedHash": "10aec20451d5f2224a98e5d957c6dc0b61c7b5f312ffc554afa254ee426e78f7"
+    },
+    "cold-email-outreach": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/outreach/capabilities/cold-email-outreach/SKILL.md",
+      "computedHash": "a0506c294bf707d39de21024c00802f56cd0a8c6fe7b6f87c8c480b926c3da2b"
+    },
+    "community-signals": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/packs/lead-gen-devtools/community-signals/SKILL.md",
+      "computedHash": "ede9d18f28765d25ded70caff75db46e3adb4582a6b56647d851ee74e0244503"
+    },
+    "company-contact-finder": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/capabilities/company-contact-finder/SKILL.md",
+      "computedHash": "b95f7c0792374d432bc055c2a81f8758c4b4d72d3732971b9d3da66f812f207d"
+    },
+    "company-current-gtm-analysis": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/competitive-intel/composites/company-current-gtm-analysis/SKILL.md",
+      "computedHash": "e45f867f6f2d8a3e518a6f90b9b75de6ea656b63fa83ebd68e74d5b2ca1cf166"
+    },
+    "company-domain-lookup-logodev": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research-tools/capabilities/company-domain-lookup-logodev/SKILL.md",
+      "computedHash": "2ac80ad0fd1bbab5c11e238ac1352ee97c841b4630c6cf1af6b5c0f8535a4270"
+    },
+    "company-funding-search": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/capabilities/company-funding-search/SKILL.md",
+      "computedHash": "3ff2c3f57599156e7424853a1af7763436036507afe8f8651eb214884f4bc80b"
+    },
+    "company-intel": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/capabilities/company-intel/SKILL.md",
+      "computedHash": "6895d08e34ce95f4e2f36640d5b18f4e756777beed302a3e0294ce3fb402e033"
+    },
+    "competitive-pricing-intel": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/competitive-intel/composites/competitive-pricing-intel/SKILL.md",
+      "computedHash": "04c0b360e88d29bc506ac4064d176b5fc4475d985118571de59e82cc47c03ea8"
+    },
+    "competitor-ad-intelligence": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/composites/competitor-ad-intelligence/SKILL.md",
+      "computedHash": "ad65016988016eeca9f3313bf3c5da26cf00a46703f21f214305038d45a1e803"
+    },
+    "competitor-content-tracker": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/competitive-intel/composites/competitor-content-tracker/SKILL.md",
+      "computedHash": "e29163f476a5c04d864d9e6423e45f806b11eb21241490cf80f60e07a459c113"
+    },
+    "competitor-intel": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/competitive-intel/composites/competitor-intel/SKILL.md",
+      "computedHash": "af4bb4d4f3ec337dc62c328e5abaf10604f2d663485cc9de5210dfc56e28e15d"
+    },
+    "competitor-monitoring-system": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/competitive-intel/playbooks/competitor-monitoring-system/SKILL.md",
+      "computedHash": "9c931f89de82d26c5d7ff7901a4badb6bdb531c38eb074070b2da472fdc8f1c6"
+    },
+    "competitor-post-engagers": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/capabilities/competitor-post-engagers/SKILL.md",
+      "computedHash": "855336a1c85cdb2283314696bda330d416d1e12d88c69aabbcf2557ba8808491"
+    },
+    "competitor-research": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/competitive-intel/capabilities/competitor-research/SKILL.md",
+      "computedHash": "2115a9c429e9d615cadfb66bc565b395fd27c45ff7dfb7d362ccb57c674147fc"
+    },
+    "competitor-signals": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/packs/lead-gen-devtools/competitor-signals/SKILL.md",
+      "computedHash": "3faef3adbfd427e8bfa6c057318271265ff06ef82db7bbd9502215fea70538ff"
+    },
+    "comprehensive-enrichment": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/capabilities/comprehensive-enrichment/SKILL.md",
+      "computedHash": "caee4e6fa64ae44c693594221a99fd64137ddf691fceee763ec4d525a5b49f63"
+    },
+    "conference-speaker-scraper": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/capabilities/conference-speaker-scraper/SKILL.md",
+      "computedHash": "53596a48fed88dcba29cb710597be22d42e0ab11bb78f14674a69f239340eb43"
+    },
+    "contact-cache": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/capabilities/contact-cache/SKILL.md",
+      "computedHash": "47be8958c8175509564c75e1bc07442ee734ef875044abc9c0d9210ce9d06355"
+    },
+    "contact-finder-contactout": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/capabilities/contact-finder-contactout/SKILL.md",
+      "computedHash": "b7b4d3a01897fb8f0ab3382719c77780c8bcdf0362198697f1b14e12db7dc064"
+    },
+    "content-asset-creator": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/content/capabilities/content-asset-creator/SKILL.md",
+      "computedHash": "1d2c21009a545450e4655995e873480f33e5c7d3b977d3f6e01a05bcb1d20805"
+    },
+    "content-brief-factory": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/content/composites/content-brief-factory/SKILL.md",
+      "computedHash": "c43b83e4f5a87a6dae300fde116634b288acb4cd98fe8fa4867ac744da6df719"
+    },
+    "create-apple-notes-mockup": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/packs/video-ad-formats/create-apple-notes-mockup/SKILL.md",
+      "computedHash": "9ff027e97290ac4eaf4073fe5102cd132025c9a794f54982635ad561ddd3025c"
+    },
+    "create-chatgpt-mockup": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/packs/video-ad-formats/create-chatgpt-mockup/SKILL.md",
+      "computedHash": "5fb337aef10fe188059e003c39ada85f897d487c8d72d47c31673523d633ec68"
+    },
+    "create-dashboard": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/design/capabilities/create-dashboard/SKILL.md",
+      "computedHash": "7c0f3faf38fecda9f1f695c17c7fa980b587b0ed6e9b626fe681b37082f42ed6"
+    },
+    "create-html-carousel": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/design/capabilities/create-html-carousel/SKILL.md",
+      "computedHash": "9ff3e150f59642c814d0a88f3d9fb9ade6c4fbb5fdc0a0e6d655089499c5f64c"
+    },
+    "create-image-fal": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/capabilities/create-image-fal/SKILL.md",
+      "computedHash": "2da93ce8c321a21459a1b8064a9894250f03d223d30008083017420d7a61a1c2"
+    },
+    "create-image-gpt-image-fal": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/capabilities/create-image-gpt-image-fal/SKILL.md",
+      "computedHash": "89ab886b00b07f71e13e338ce157ab64155d3c5909667fdabc698cc97cafd73c"
+    },
+    "create-imessage-mockup": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/packs/video-ad-formats/create-imessage-mockup/SKILL.md",
+      "computedHash": "ee7a07f18cc6d2ca90464d4c645e31806638b0d3d09f1cb630e874e5b2a0d654"
+    },
+    "create-linkedin-content": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/content/capabilities/create-linkedin-content/SKILL.md",
+      "computedHash": "657903eafb9dd77bb3b813897a12b5d8a54a35d6220f4f95d78ac07a27fcb09c"
+    },
+    "create-music-elevenlabs": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/capabilities/create-music-elevenlabs/SKILL.md",
+      "computedHash": "5ac1753d229e16caf6cc87324524e9722e04685298442056a645612669320d52"
+    },
+    "create-video-fal": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/capabilities/create-video-fal/SKILL.md",
+      "computedHash": "ca2f5cdcbf74ede289c62b0b29be49c41fe1c2c2c2a884483fed60972e442dfd"
+    },
+    "create-video-seedance-2-fal": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/packs/ugc-video-formats/create-video-seedance-2-fal/SKILL.md",
+      "computedHash": "b35fe11db611a5367ddd316aceee6993c55ccb254725d5409d27350c12b3493a"
+    },
+    "create-vo-elevenlabs": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/capabilities/create-vo-elevenlabs/SKILL.md",
+      "computedHash": "ee751a3f8ca85235c91a733c336012d707df67f8fb1ceb117f8f51a3b325e82a"
+    },
+    "create-workflow-diagram": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/design/capabilities/create-workflow-diagram/SKILL.md",
+      "computedHash": "ead51f2bf9431fb1ba15758443c62acda51e84e92c84338f8f331a349a7c4ad2"
+    },
+    "create-x-content": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/content/capabilities/create-x-content/SKILL.md",
+      "computedHash": "42f48d773466df61a76767572a2615a4b4c798693abec1a368997f645bc9774f"
+    },
+    "customer-discovery": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research/capabilities/customer-discovery/SKILL.md",
+      "computedHash": "cbc82e2a9663cf67710c5e0dc7deabfb27a1c6cc440638a2aee5a13baddc3459"
+    },
+    "customer-story-builder": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/content/composites/customer-story-builder/SKILL.md",
+      "computedHash": "6259d486953f17780952ac7120d42af1e402a5cd0e3a2f0e26557bf869f284f1"
+    },
+    "customer-win-back-sequencer": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/outreach/composites/customer-win-back-sequencer/SKILL.md",
+      "computedHash": "3220dc2b8bb187111e676bf052ce6767e281e699b3572d4792899161951ede82"
+    },
+    "data-charts-tako": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/design/capabilities/data-charts-tako/SKILL.md",
+      "computedHash": "b8f38f4dc08be76187e5b945b025930a08c19592003312908290965fcab47b30"
+    },
+    "demo-builder": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/packs/lead-gen-devtools/demo-builder/SKILL.md",
+      "computedHash": "841a5a3f67531c389efdea950b8dca3486b2b2f1c4654fb3eaf7c303bd430f41"
+    },
+    "disqualification-handling": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/sales/composites/disqualification-handling/SKILL.md",
+      "computedHash": "2d0b81d0ef4d8c7dc16b085c2e94f25e6e5b1535eb58deeeb94a608d8d308e2e"
+    },
+    "ebay-search": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research-tools/capabilities/ebay-search/SKILL.md",
+      "computedHash": "52f64bfee1697e2951da12d004dc15b27f34fb2192cd59ddbb23d43b014fac32"
+    },
+    "email-campaign": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/outreach/capabilities/email-campaign/SKILL.md",
+      "computedHash": "0ff96d9a8edf53d2d2095797229c8ad534583953195968da10b6f0d77b3eec9f"
+    },
+    "email-drafting": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/outreach/capabilities/email-drafting/SKILL.md",
+      "computedHash": "015a0d627e9df8397fda999b7b9f6a1af4913fde49bcf77f1868a0d7775f8ebf"
+    },
+    "email-finder-hunter": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/capabilities/email-finder-hunter/SKILL.md",
+      "computedHash": "a25bbbae78b060652e41a2bb50c4a7078c41f005aef7376c6de053b6fa1dfa0e"
+    },
+    "email-finder-tomba": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/capabilities/email-finder-tomba/SKILL.md",
+      "computedHash": "5c77a85f022b8440f47611ccba8044cd7822d58d54e5d32f02037a689d0f4b80"
+    },
+    "embedded-captions": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/embedded-captions/SKILL.md",
+      "computedHash": "ae75bbf848019ae09db25c4d6d6020aad98b1994f9f83cee8bbe0c782199ed2e"
+    },
+    "enrichment-nyne": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/capabilities/enrichment-nyne/SKILL.md",
+      "computedHash": "eb7f4cfeea081288911c0f84e052e040cf7d68146cbeb15f46269d80f3e14e1f"
+    },
+    "event-prospecting-pipeline": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/playbooks/event-prospecting-pipeline/SKILL.md",
+      "computedHash": "8dbb457198ea389f46f5087469fbafeea1d00ea8e595322a0e34f46ef23e629c"
+    },
+    "event-signals": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/packs/lead-gen-devtools/event-signals/SKILL.md",
+      "computedHash": "225327d0335469342e0c774a7ac31005cce80133c3b67591f530ae441eb7c227"
+    },
+    "expansion-signal-spotter": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/sales/composites/expansion-signal-spotter/SKILL.md",
+      "computedHash": "216697a25b761ba9ef6b7b194cdc5c0beb5ae7db6dae6f0bc7869e4af3549dd7"
+    },
+    "extract-source-sample": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/composites/extract-source-sample/SKILL.md",
+      "computedHash": "1f8853e008c8de1efd8640a72259c875df3f165bb71430f82fd33119eb4fc7e9"
+    },
+    "extract-webpage-data": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research-tools/capabilities/extract-webpage-data/SKILL.md",
+      "computedHash": "d6d61b21c848bb87fd69c101553f17f20af376848eb3456145512aebcc29d01c"
+    },
+    "faceless-explainer": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/faceless-explainer/SKILL.md",
+      "computedHash": "8a0d54f5e1b8cc71adba40772932cc4417c3f725b34f90465a190dc9fa52a3a4"
+    },
+    "feature-launch-playbook": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/content/composites/feature-launch-playbook/SKILL.md",
+      "computedHash": "150eb8de7361a8b7d959ccefb985db96284dbacd9834f1e35c05894564323459"
+    },
+    "find-email-by-name": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/capabilities/find-email-by-name/SKILL.md",
+      "computedHash": "2824a7c7329b897e75c6d3deb54f7f4118e1693252442666b2e1bc003a4be308"
+    },
+    "find-skill": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research-tools/capabilities/find-skill/SKILL.md",
+      "computedHash": "b67ca752b58d9f8becc62661134838e1eba7b16e882a8d8d645dc4bf7b398424"
+    },
+    "find-twitter-influencers": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/social/capabilities/find-twitter-influencers/SKILL.md",
+      "computedHash": "170a063df78f3f7f7e409ddc90cf8e60daac7785c82806736e115fc507b7335c"
+    },
+    "frontend-slides": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/design/capabilities/create-html-slides/SKILL.md",
+      "computedHash": "46476559576cb915b3f19904fb80d611addbb3a21d15fa40a5d84b0f4fe96603"
+    },
+    "funding-signal-monitor": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/monitoring/composites/funding-signal-monitor/SKILL.md",
+      "computedHash": "66656f5db317b2ab0890774489c5128596bbb44071c6cc027e8bcf0a0f8a2454"
+    },
+    "funding-signal-outreach": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/outreach/composites/funding-signal-outreach/SKILL.md",
+      "computedHash": "a9aa3f0bcf792734755d3cf9551b902c9b8eba377c69eade2151005132e3af81"
+    },
+    "general-video": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/general-video/SKILL.md",
+      "computedHash": "4a51a019fe5b120f94a23ca0eceefa165e09966591f7832a5400fef39fff3433"
+    },
+    "generate-voice-guide": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/brand/capabilities/generate-voice-guide/SKILL.md",
+      "computedHash": "b242e3b5e8c938fb1739446e6cddb6833cd08cc70af428604167c08e0b78324d"
+    },
+    "get-brand-assets": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/brand/capabilities/get-brand-assets/SKILL.md",
+      "computedHash": "9d29e362a40cfd010e0a23a0474fdd1190a5a8df4de22278be75adeddae1e772"
+    },
+    "get-qualified-leads-from-luma": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/composites/get-qualified-leads-from-luma/SKILL.md",
+      "computedHash": "41e11c5a10afa69a007fb02ef6c10c9bd856d0734c031f98c79f01e841aee71f"
+    },
+    "github-repo-signals": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/packs/lead-gen-devtools/github-repo-signals/SKILL.md",
+      "computedHash": "ac01fde566fa8b47cbff5f4f9d9957f63bbb2e372dcd04646924eff85a4da586"
+    },
+    "google-ad-scraper": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/capabilities/google-ad-scraper/SKILL.md",
+      "computedHash": "773c2b61cfa5e77ba8cf6a5835ccbdd76c30f8c45960c4b73f7b4fd1dd9fb844"
+    },
+    "google-search-ads-builder": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/composites/google-search-ads-builder/SKILL.md",
+      "computedHash": "0ebb880e3482d5f524e542ae09cbf7307af5213fec00970191202a6a32ac52e1"
+    },
+    "goose-graphics": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/design/composites/goose-graphics/SKILL.md",
+      "computedHash": "644a3dc039bdf77d2a8f09a12b24b7576336784e659022bdb4074f4dbeaee59b"
+    },
+    "goose-graphics-create-format": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/design/composites/goose-graphics-create-format/SKILL.md",
+      "computedHash": "055d421e807b515e38fd3b84cc5a593c8213edefb39f8e461a20bf394ae3b401"
+    },
+    "goose-graphics-create-style": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/design/composites/goose-graphics-create-style/SKILL.md",
+      "computedHash": "7c878531c426935cfc4d4b4f0d57b630f5ba1058b83d3298a31c234b542ad343"
+    },
+    "graphic-overlays": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/graphic-overlays/SKILL.md",
+      "computedHash": "cd8f3d64ea81844921d2d24a11ff7c0744876d03bf2f583a144fb268110dc5c3"
+    },
+    "gtm-enrichment-deep": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/capabilities/gtm-enrichment-deep/SKILL.md",
+      "computedHash": "8b9f47b0009503d2bcf6d84a60c5c955be2e1a9854b2af1484e836f25ca656fe"
+    },
+    "gtm-enrichment-smart": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/capabilities/gtm-enrichment-smart/SKILL.md",
+      "computedHash": "2d19abdbc0f194ffd20c4975eebaa0ee0211f83f818bd39d3e258828d3173d51"
+    },
+    "hacker-news-scraper": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/monitoring/capabilities/hacker-news-scraper/SKILL.md",
+      "computedHash": "d15a9a01bb386cb7afca2af3cf0a329c3816f6c6723eb22823d8d1dcb85621da"
+    },
+    "help-center-article-generator": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/content/composites/help-center-article-generator/SKILL.md",
+      "computedHash": "d1b63975129f296dc30f26d4325860e1a7e5c46c3e6f44fec6ac25a93e019d93"
+    },
+    "heygen-avatar": {
+      "source": "heygen-com/skills",
+      "sourceType": "github",
+      "skillPath": "heygen-avatar/SKILL.md",
+      "computedHash": "e55d9acfb2a3db5f92bd10ae9e75b1bb4d9ac6e299d311834cdbb9a2e797428b"
+    },
+    "heygen-translate": {
+      "source": "heygen-com/skills",
+      "sourceType": "github",
+      "skillPath": "heygen-translate/SKILL.md",
+      "computedHash": "22478a03c78b5f1e64ae631df60a011c11558ef571499e59220137d4f7a1e5e7"
+    },
+    "heygen-video": {
+      "source": "heygen-com/skills",
+      "sourceType": "github",
+      "skillPath": "heygen-video/SKILL.md",
+      "computedHash": "8a49b3864ff6672c06e268582c4767cc29e47d6baabdd552d6f0b87f6990f29d"
+    },
+    "hiring-signal-outreach": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/outreach/composites/hiring-signal-outreach/SKILL.md",
+      "computedHash": "8a9ca07fb92d0fe848f1df0c3aa55d5bba60f5c5a5de8534762d3cb0928e02fd"
+    },
+    "hyperframes": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/hyperframes/SKILL.md",
+      "computedHash": "5bf0372dfef8aab1085816b3c733f860d2500fa8197d14d208e84464aa0d2b3c"
+    },
+    "hyperframes-animation": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/hyperframes-animation/SKILL.md",
+      "computedHash": "7cd2a2311bd44516937a615ddcd006d308461f4070d88c745195569e746f6f20"
+    },
+    "hyperframes-cli": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/hyperframes-cli/SKILL.md",
+      "computedHash": "59dcf8d01b5e21a101d6c1225411b487316436221170e7e1dc9b00bf5c27d359"
+    },
+    "hyperframes-core": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/hyperframes-core/SKILL.md",
+      "computedHash": "1219834bd5b514aa9c26a376d59453058693855adddaba1773999a902b2f73ed"
+    },
+    "hyperframes-creative": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/hyperframes-creative/SKILL.md",
+      "computedHash": "b803c42cece83e471e749b6c81b560a44784f3928f3be56f9876bfd1972efb0b"
+    },
+    "hyperframes-media": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/hyperframes-media/SKILL.md",
+      "computedHash": "154d150b92db8a574e21accb7cf7cd065e05e1e2bb96ca2e5e9ca406a5431bfa"
+    },
+    "hyperframes-registry": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/hyperframes-registry/SKILL.md",
+      "computedHash": "62984a677583cb55beebbb5784e1caeabf7ac3e5a09e66bb5dd7205d5ab411bf"
+    },
+    "hyperlocal-weather-precip": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research-tools/capabilities/hyperlocal-weather-precip/SKILL.md",
+      "computedHash": "6aaf9adcb1eb654719625f2ed173e3bd465f179b3751a33b6c69a89ab76a0211"
+    },
+    "icp-identification": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/capabilities/icp-identification/SKILL.md",
+      "computedHash": "7d8fa33f3b78496ad839bb033122f7bfad7a5cf0cbf528c3b0b83a60629dfb7f"
+    },
+    "icp-website-audit": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/composites/icp-website-audit/SKILL.md",
+      "computedHash": "233a9a339606f4e42eed681bb564acb76c660e882c52d36b01495d5b1f3709e4"
+    },
+    "icp-website-review": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/capabilities/icp-website-review/SKILL.md",
+      "computedHash": "a7ee532d53e400659c47c6b5c66a505439e6a5a275355aa340968c53879a836f"
+    },
+    "identity-verification-didit": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research-tools/capabilities/identity-verification-didit/SKILL.md",
+      "computedHash": "eedd1c0ce7cd4fd17b544ccd95046d76099b73e39ecf25562d2e13b3b603efa1"
+    },
+    "image-analyzer": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research-tools/capabilities/image-analyzer/SKILL.md",
+      "computedHash": "95f7896aef7c949bc6709d6d4a7a3d2c080e6d226c0b827072413423f4fb36d2"
+    },
+    "inbound-lead-enrichment": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/composites/inbound-lead-enrichment/SKILL.md",
+      "computedHash": "7d1858ccdb3a87b87b7434535850b4dabff6054fa466cd915e305d86f36c19df"
+    },
+    "inbound-lead-qualification": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/composites/inbound-lead-qualification/SKILL.md",
+      "computedHash": "cac3b820af38e365722aa56ab25525af358be82bd1cebb681628b97269180621"
+    },
+    "inbound-lead-triage": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/composites/inbound-lead-triage/SKILL.md",
+      "computedHash": "7af2f81d1c249ba1c1976f50b2e048a07e358ea4208303fe6ddf4b19f7692867"
+    },
+    "industry-scanner": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/competitive-intel/composites/industry-scanner/SKILL.md",
+      "computedHash": "a748bf85a92e0bc33d6a459fbce7fbaddc051bf7956bf5a58194ae3772397a8c"
+    },
+    "instagram-scraper": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/social/capabilities/instagram-scraper/SKILL.md",
+      "computedHash": "8835c7aa4af097538a784049906282aabf20db12481a0bb42519cda6ce2cd98e"
+    },
+    "investor-call-prep": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research/capabilities/investor-call-prep/SKILL.md",
+      "computedHash": "df8d45b6bca9f9074ef8eae90aff536330437810997b68475ad4a4cc9ff98a20"
+    },
+    "investor-research": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research/capabilities/investor-research/SKILL.md",
+      "computedHash": "de2ff69df79ea35c66097c3ca67dff3edd289cf9fc37d705eb34068423e23751"
+    },
+    "job-posting-intent": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/capabilities/job-posting-intent/SKILL.md",
+      "computedHash": "efd17ac69e3f345910409f9d815053be793b698ed78a63b5d0390975344f320f"
+    },
+    "job-scraper": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/capabilities/job-scraper/SKILL.md",
+      "computedHash": "14ee089dabe7a06ec772533aa4e2ce2da8ba03dd80a50897a503738f064647b9"
+    },
+    "job-search": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/capabilities/job-search/SKILL.md",
+      "computedHash": "72c9674fc718d5d1715ea3effa6e58aa58fe1a0564a9bd7446592940bbe7c358"
+    },
+    "kol-content-monitor": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/monitoring/composites/kol-content-monitor/SKILL.md",
+      "computedHash": "0b4e5c6e61a6a2b20059b35ea39cabb540dc5c151d03978c3b45ed993d6b0d5e"
+    },
+    "kol-discovery": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/social/capabilities/kol-discovery/SKILL.md",
+      "computedHash": "811107ae3879d103db2457b7c9c163646f44d4ddcb1b6d414392d5cce767a2d4"
+    },
+    "kol-engager-icp": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/capabilities/kol-engager-icp/SKILL.md",
+      "computedHash": "a2b9d67038f56b620b0515e358316366ed638ad6a3d7174c27f51b91abf1f917"
+    },
+    "landing-page-intel": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/competitive-intel/capabilities/landing-page-intel/SKILL.md",
+      "computedHash": "2bcd6f03ef7a3875023e8d3d320333a4b2c7ce50d411a691260d63d3488d1bef"
+    },
+    "launch-positioning-builder": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/brand/composites/launch-positioning-builder/SKILL.md",
+      "computedHash": "a9d498932e24930a994a8182b1ce20ca544b69eda530feb9cc9c9e04a7d9b071"
+    },
+    "lead-discovery": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/packs/lead-gen-devtools/lead-discovery/SKILL.md",
+      "computedHash": "bfeb7fed17961d0063c8f7317b2c02a16d83302b4d60772e4570776dbf69e0dc"
+    },
+    "lead-enrichment": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/capabilities/lead-enrichment/SKILL.md",
+      "computedHash": "5bdc4d7350b382e850ae8d0ecb99521ad5afb0e30f00ebc8b60ea9fb3cc8cd71"
+    },
+    "lead-enrichment-sixtyfour": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/capabilities/lead-enrichment-sixtyfour/SKILL.md",
+      "computedHash": "4b76a9da95d38c30b466b2a6c9e37fb26680528407f8d0fb03f322bfaaa789b6"
+    },
+    "lead-qualification": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/capabilities/lead-qualification/SKILL.md",
+      "computedHash": "6b1ebce37f53126a82bbb95d5c6c96b4b4a8f533b6e071cfb56b6aac73175bd2"
+    },
+    "leadership-change-outreach": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/outreach/composites/leadership-change-outreach/SKILL.md",
+      "computedHash": "c82e862f38c75aa50dc9b371e702f2ca9f75b0a7059861ebccefe790a9606b33"
+    },
+    "linkedin-commenter-extractor": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/capabilities/linkedin-commenter-extractor/SKILL.md",
+      "computedHash": "c56239af74e6e0c0dc3fc2b6b1108ceced0a4c04dc8eb1827ab091c14bf358da"
+    },
+    "linkedin-influencer-discovery": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/social/capabilities/linkedin-influencer-discovery/SKILL.md",
+      "computedHash": "0c6559d40869d81a622e4b82163a81c202de5a920e0f7a60367328ae6832c0c2"
+    },
+    "linkedin-job-scraper": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/capabilities/linkedin-job-scraper/SKILL.md",
+      "computedHash": "121e557df2416d3ec22d63dc6acbcdb41b4a6df1578357574dbd054a80351a06"
+    },
+    "linkedin-message-writer": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/outreach/capabilities/linkedin-message-writer/SKILL.md",
+      "computedHash": "557cb2980310fccc11b7f7b2bc798d397b3619690afef9219b734d833226d627"
+    },
+    "linkedin-outreach": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/outreach/capabilities/linkedin-outreach/SKILL.md",
+      "computedHash": "c371d99c0bab8b54cf31e3d3c27b6e94b689e93b2e9e10076862c3c100f779da"
+    },
+    "linkedin-post-research": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/social/capabilities/linkedin-post-research/SKILL.md",
+      "computedHash": "121621807ecc417b7e0b3fdaf4305894ac281d75cab6bf551ae58b0f73d92751"
+    },
+    "linkedin-profile-post-scraper": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/social/capabilities/linkedin-profile-post-scraper/SKILL.md",
+      "computedHash": "5f7915594e9372afdc5ceb36c2211b53f55de65adb30cb1de5353f7cc8019dcd"
+    },
+    "linkedin-scraper": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/social/capabilities/linkedin-scraper/SKILL.md",
+      "computedHash": "c2da0088af36c86f01731fff2560367e3d24f0c8645403e9278bc9d356fe4692"
+    },
+    "luma-event-attendees": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/capabilities/luma-event-attendees/SKILL.md",
+      "computedHash": "08a558be5d461e94ad13059622364e52ee83e4c0c25eda533221c3774ba4f812"
+    },
+    "market-research": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research/capabilities/market-research/SKILL.md",
+      "computedHash": "8bbc278079e723f009197fa5896fd4276330c6eb041b1d0c594d1a624b27bf7e"
+    },
+    "media-proxy": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/capabilities/media-proxy/SKILL.md",
+      "computedHash": "72e453a99a3f577d8ca0ab50c05191b97a909da8352c1af0d2cf68aa6db429a4"
+    },
+    "media-use": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/media-use/SKILL.md",
+      "computedHash": "a997fadf77b05964c30c195f341ceccae8e24d3fac5890a180e90323eed7c583"
+    },
+    "meeting-brief": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/sales/composites/meeting-brief/SKILL.md",
+      "computedHash": "a5e6417edac6a5abde57321bfef4fbd62b72e57670d0025b1303864ac9d92443"
+    },
+    "messaging-ab-tester": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/brand/composites/messaging-ab-tester/SKILL.md",
+      "computedHash": "09fe9daf812e538f1ff8750ed85df2024152c7bd6891baba662c6c34ff255341"
+    },
+    "meta-ad-policy-checker": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/composites/meta-ad-policy-checker/SKILL.md",
+      "computedHash": "6d4209f6cff77e3e17d3801026a5b7850e7fc30dbd4f4191f526254fce0660a0"
+    },
+    "meta-ad-scraper": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/capabilities/meta-ad-scraper/SKILL.md",
+      "computedHash": "9d76d421f83465ce3523a2a252f28a5a0833b297f0d2e3d35f5936cefe3480c6"
+    },
+    "meta-ads-analyzer": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/composites/meta-ads-analyzer/SKILL.md",
+      "computedHash": "f653b3a903198f33d5c407f7bb5eb886f5ca12d7bc19e0d6b793a2f6b213d1b5"
+    },
+    "meta-ads-campaign-builder": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/composites/meta-ads-campaign-builder/SKILL.md",
+      "computedHash": "0e79ad6b54b769a0b626510767734b42a7ce23ba2b8a7d17006360e28dba0232"
+    },
+    "mix-master": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/packs/video-ad-formats/mix-master/SKILL.md",
+      "computedHash": "76fb65be44133953dd902bd49d0e2f1bf92a8e038eeb30c3a633ce33c52112f9"
+    },
+    "motion-graphics": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/motion-graphics/SKILL.md",
+      "computedHash": "a45939078652dfb46c524875457afe140c9b42912fee75aa39f9dd4908ae46ff"
+    },
+    "multi-platform-search-searchapi": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research-tools/capabilities/multi-platform-search-searchapi/SKILL.md",
+      "computedHash": "8036d52acd75762935ef6539b177892eb9deaedb98e7b6324515f4e343587e20"
+    },
+    "music-to-video": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/music-to-video/SKILL.md",
+      "computedHash": "ee3d2780b78d94bc0486c6e8029356a02b0b48d6c36766fe90ff9a300157c3af"
+    },
+    "news-signal-outreach": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/outreach/composites/news-signal-outreach/SKILL.md",
+      "computedHash": "1a9d1ee6d52c36c7097fe8f80bf4b9cafa31fb32e1fb8d143493c99af6f37ab5"
+    },
+    "newsletter-monitor": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/monitoring/composites/newsletter-monitor/SKILL.md",
+      "computedHash": "0c0e260fbeb259b8bdaed14ce806c2d31ae56e70d052dc5df981a26f80b4276c"
+    },
+    "newsletter-signal-scanner": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/monitoring/composites/newsletter-signal-scanner/SKILL.md",
+      "computedHash": "3e911dc70acea4d476c03d96275012660cae85817728bf7d91d8355c7315f4ad"
+    },
+    "newsletter-sponsorship-finder": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/capabilities/newsletter-sponsorship-finder/SKILL.md",
+      "computedHash": "597753900b7660e6187a6133c0f5fa094936069da5cafb020098a24b97a06442"
+    },
+    "outbound-prospecting-engine": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/outreach/playbooks/outbound-prospecting-engine/SKILL.md",
+      "computedHash": "1e4b7ee0b22336a7c15a540cb602536078a6a9a166ba0000083269ffcc351fd2"
+    },
+    "paid-channel-prioritizer": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/composites/paid-channel-prioritizer/SKILL.md",
+      "computedHash": "a27a4a0c216127420c36d48539e861eac89a59ce8abc482dacb2da291efc8850"
+    },
+    "pain-language-engagers": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/capabilities/pain-language-engagers/SKILL.md",
+      "computedHash": "da90b9f79f4275c42aa1c0765adc983689b8699b9f7b0e9e5e0cd4cf4d77441f"
+    },
+    "pdf-processor": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research-tools/capabilities/pdf-processor/SKILL.md",
+      "computedHash": "dc2228e67327a63cd349b6c7949824a22e093bdfda8534f62f6a2fbeec314d46"
+    },
+    "people-company-search-fiber": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/capabilities/people-company-search-fiber/SKILL.md",
+      "computedHash": "96c50f1f72f566c3952af29e9050a2b61ed15889ab77bc04f286a5d923c9f2da"
+    },
+    "person-lookup": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/capabilities/person-lookup/SKILL.md",
+      "computedHash": "73fcb9d0f10da6a04a460346ce2d9d35d0dc3314140cc70750e3919ba95e9a58"
+    },
+    "phone-verification": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research-tools/capabilities/phone-verification/SKILL.md",
+      "computedHash": "198041fd526997c831c5756c39404f5255a040309126c7e8825351ae67613e5a"
+    },
+    "pipeline-review": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/sales/composites/pipeline-review/SKILL.md",
+      "computedHash": "1d20436a8a82792392192b7a99a448b5f6439857b16c9597cf27ceb32196f82f"
+    },
+    "pr-to-video": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/pr-to-video/SKILL.md",
+      "computedHash": "acae18bbce7aa611bb420bd56147fa3efdb6675d86fc975dec8f5ac356c59e6a"
+    },
+    "prediction-market-odds": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research-tools/capabilities/prediction-market-odds/SKILL.md",
+      "computedHash": "794482bb1099ba63d5154a756547f3f04cd393a750bec987315287ad48aba153"
+    },
+    "prediction-markets-dome": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research-tools/capabilities/prediction-markets-dome/SKILL.md",
+      "computedHash": "a7962594a90d1dac376d145d97dc75373aa59005e147e0c05887b028f09d1da8"
+    },
+    "product-hunt-scraper": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/monitoring/capabilities/product-hunt-scraper/SKILL.md",
+      "computedHash": "3d6136bb61cf5595c0361c4c1265d5fcb61148e2a84cb6fafbfb707dfed3f210"
+    },
+    "product-launch-video": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/product-launch-video/SKILL.md",
+      "computedHash": "89545f64622f6ff7975407b6698f7b70d1b21efe03e3b5ebb89ded83234ca1d1"
+    },
+    "product-reel-generator": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/design/packs/video-production/product-reel-generator/SKILL.md",
+      "computedHash": "88b31322bb629556b8d4f8496fd0769a1f4a62ede52d0df80d62f1dce5cbcdab"
+    },
+    "programmatic-seo-planner": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/seo/composites/programmatic-seo-planner/SKILL.md",
+      "computedHash": "217b46a9c1d7a7d87fceb2d7e769862a77efc259928ebde67b6fda622b21325d"
+    },
+    "programmatic-seo-spy": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/seo/composites/programmatic-seo-spy/SKILL.md",
+      "computedHash": "feb108d90b85f53f909cc6e4ab9b75f6a6e400e6f8d0f2eb14d9cfbc279dbb93"
+    },
+    "reddit-post-finder": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/monitoring/capabilities/reddit-post-finder/SKILL.md",
+      "computedHash": "cbd492548e1d21e4c2b34d5cd30433f719835d6c51ec6d5041ba557d2dc0208f"
+    },
+    "remix-graphic-ad-from-reference": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/composites/remix-graphic-ad-from-reference/SKILL.md",
+      "computedHash": "97b3050d744b43d452c34be1f98e742a6bb4554eab234320e34390601686564b"
+    },
+    "remotion-best-practices": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/design/capabilities/remotion-best-practices/SKILL.md",
+      "computedHash": "bbfba0435b110ff31cd8d4d3b279850e4dc81b1cc17cf093418f702475edcdff"
+    },
+    "remotion-to-hyperframes": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/remotion-to-hyperframes/SKILL.md",
+      "computedHash": "ee04c5eca6113d5a3a8aeee9e78792451da57f06450bd034486950142ee05766"
+    },
+    "render-3d-character-explainer": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/capabilities/render-3d-character-explainer/SKILL.md",
+      "computedHash": "9842b74855716602bc26c1bd8a9a980a2475ed99086a1a079653b795227290b4"
+    },
+    "render-absurdist-explainer": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/capabilities/render-absurdist-explainer/SKILL.md",
+      "computedHash": "8c12a21e0289945c8b4a6754bb3968e4f642ca5690dbb19285c08a4c140f81a0"
+    },
+    "render-airdrop-carousel": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/capabilities/render-airdrop-carousel/SKILL.md",
+      "computedHash": "ef66b20812640cb6b28c772eef7eee561e9bb04a60bde5f192e02f02629b75db"
+    },
+    "render-cgi-sizzle": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/capabilities/render-cgi-sizzle/SKILL.md",
+      "computedHash": "4b44fdf153668fc6ce0983c7759417dee497f41a716bbb2c08de3ac6c07f3bcd"
+    },
+    "render-chatgpt-chat": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/capabilities/render-chatgpt-chat/SKILL.md",
+      "computedHash": "2ae2b6e2a2b72293c47c042d1d2ca2558986311050719e316f62047118ea7605"
+    },
+    "render-flat-vector-explainer": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/capabilities/render-flat-vector-explainer/SKILL.md",
+      "computedHash": "4a2ae51cdb3306ccfd9602b61c1d8e67e84d4b7cf4aaa13e7c24010b2fd09800"
+    },
+    "render-hypermotion": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/capabilities/render-hypermotion/SKILL.md",
+      "computedHash": "46ebe1f851ae1250318854e80b2e754a4e20d943cb110ad233b945f3f7a5a733"
+    },
+    "render-imessage-cascade": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/capabilities/render-imessage-cascade/SKILL.md",
+      "computedHash": "cc311c7cd100a4895c022eec6622e3736f5775429243c75473dde0658c4819c7"
+    },
+    "render-imessage-chat": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/capabilities/render-imessage-chat/SKILL.md",
+      "computedHash": "dca1a0908a67c8ed336d400af2260c9514534ab3ae4e8e4d2554da84b8d278db"
+    },
+    "render-ios-keyboard": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/packs/video-ad-formats/render-ios-keyboard/SKILL.md",
+      "computedHash": "fd247695db3bef054d34a6c0eafee07f34b6691d7a92db9b735bd380d90031b8"
+    },
+    "render-model-comparison-grid": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/capabilities/render-model-comparison-grid/SKILL.md",
+      "computedHash": "a374b59fa7fb071e0697df8750a96d978c6c0af67a324458dc3e477636b63c00"
+    },
+    "render-multiworld": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/capabilities/render-multiworld/SKILL.md",
+      "computedHash": "3ff31e0aa002805c4af13c769a50938809fbcea8454cd0a37dedb338f0d5f1e4"
+    },
+    "render-myth-vs-fact": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/capabilities/render-myth-vs-fact/SKILL.md",
+      "computedHash": "ba26f6bc024131d111a213eda658df112b93c3e77f7111244d491368030832d4"
+    },
+    "render-offer-ad": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/capabilities/render-offer-ad/SKILL.md",
+      "computedHash": "e60cc93a567be2ed39e02752656c524d93941dea9dfcf81cc82163a912199feb"
+    },
+    "render-photo-grid-card": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/capabilities/render-photo-grid-card/SKILL.md",
+      "computedHash": "e464ce6a8756b397bf0ddbf87e65dec2534c23cc054eb9d724774ff8cb4d4384"
+    },
+    "render-proof-points-overlay": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/capabilities/render-proof-points-overlay/SKILL.md",
+      "computedHash": "92f5bddae74f6691d98752a4357f4b2fca8f1b9e7a21b0eb1798593625cc472d"
+    },
+    "render-song-mv": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/capabilities/render-song-mv/SKILL.md",
+      "computedHash": "25bcfae3c4502ed2ab7448b55d1955cdb6b03f5022475c25bdf0b2f7bd518294"
+    },
+    "render-value-prop": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/capabilities/render-value-prop/SKILL.md",
+      "computedHash": "f26f412e57b437b2163a6f74e18279be6779679a303e3d643ba7a9a7fbcac5cb"
+    },
+    "render-vignette": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/capabilities/render-vignette/SKILL.md",
+      "computedHash": "143628763f290d88c8f63b3dd296b000bee0de13cf9f312c84aaf3375af746c6"
+    },
+    "restaurant-booking": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research-tools/capabilities/restaurant-booking/SKILL.md",
+      "computedHash": "21368961bf329fb616adb48f9a438333b0673e6916654eb0fc612405424af090"
+    },
+    "review-intelligence-digest": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research/composites/review-intelligence-digest/SKILL.md",
+      "computedHash": "f28ecbae26409d654b0717c24169de7ae4f75ab7102d9948c37754e21b668317"
+    },
+    "review-scraper": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/monitoring/capabilities/review-scraper/SKILL.md",
+      "computedHash": "a925c5692085d3c1ccfa9be2dddffbba3545a2663def05c83db9b31a1f8fd4b3"
+    },
+    "review-site-scraper": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/monitoring/capabilities/review-site-scraper/SKILL.md",
+      "computedHash": "1eb0cd60febe9f5ade6f2d92852dd9f18fdbedfdb6fa4ae3fe9120ba9f61e0b5"
+    },
+    "review-ugc-render": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/packs/ugc-video-formats/review-ugc-render/SKILL.md",
+      "computedHash": "899367d5c99f7c1f7bf9cc022d6e14ec8291a8829f8d4fe9d6bb7f86a0bd6e13"
+    },
+    "sales-call-prep": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/sales/composites/sales-call-prep/SKILL.md",
+      "computedHash": "6ffec9877909d2daed9ade147aee40d7d5e7a87e04bc64cbcbd62fd3737920d7"
+    },
+    "sales-coaching": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/sales/composites/sales-coaching/SKILL.md",
+      "computedHash": "f2d86c1c6cbbcdb15c36c816265efd8f5655b3855171204bf4b67d69107e17a1"
+    },
+    "sales-prospecting": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/capabilities/sales-prospecting/SKILL.md",
+      "computedHash": "282b484102dbe8dddbf360c609a32d56b98c140b6335c1137ad95e124c935650"
+    },
+    "send-sms-textbelt": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/outreach/capabilities/send-sms-textbelt/SKILL.md",
+      "computedHash": "680ad8f020a4a5ea1043fa252d7f8dc25e0f3ff078b2f535bf945c90031b3580"
+    },
+    "seo-analyzer": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/seo/capabilities/seo-analyzer/SKILL.md",
+      "computedHash": "58fe2a4164a84a65ef144ce9b25aec4d1056c724d10b00d1f9c4db517540bf25"
+    },
+    "seo-content-audit": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/seo/composites/seo-content-audit/SKILL.md",
+      "computedHash": "404386bce259a7bd8942cb303875ec386c646c87dbac0a8ac685c0e4b39a639d"
+    },
+    "seo-content-engine": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/seo/playbooks/seo-content-engine/SKILL.md",
+      "computedHash": "a9c8fcee5445c477690f35b929c86582c12116efabf6e12d449bbcbb66e3b0de"
+    },
+    "seo-domain-analyzer": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/seo/capabilities/seo-domain-analyzer/SKILL.md",
+      "computedHash": "7d64cc380f882bc7d4a539f015333f3432ff073eeb8b5810f1fe3f9116224eae"
+    },
+    "seo-opportunity-finder": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/seo/composites/seo-opportunity-finder/SKILL.md",
+      "computedHash": "842a9a69aa73e096b06bf8deb50a0223aa4ee7ff5a64e461f5f163746b550fae"
+    },
+    "seo-traffic-analyzer": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/seo/capabilities/seo-traffic-analyzer/SKILL.md",
+      "computedHash": "d58722df7217bbf6f3e53c8c89decb16412ac35d7f31a6f059573d7ce8b07e54"
+    },
+    "sequence-performance": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/outreach/composites/sequence-performance/SKILL.md",
+      "computedHash": "5dc175e8b1335faa02018aa28f75d72927fbc8a6703ce985b2225f19b13bb94f"
+    },
+    "setup-outreach-campaign-smartlead": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/outreach/capabilities/setup-outreach-campaign-smartlead/SKILL.md",
+      "computedHash": "1d6380abe07d36bb520c93cfee34fe0d2807d6e021e5f67728d78250948d2cee"
+    },
+    "signal-detection-pipeline": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/playbooks/signal-detection-pipeline/SKILL.md",
+      "computedHash": "9f99e90d3e8ec08547c5ee8f1dcd5952f9cdb63745b2d63040c58338f2b7f755"
+    },
+    "signal-scanner": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/capabilities/signal-scanner/SKILL.md",
+      "computedHash": "055eda5020a8ed699e2f464a96e2f84c23d2aa9986c6a65ba677897126e8366d"
+    },
+    "site-content-catalog": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/seo/capabilities/site-content-catalog/SKILL.md",
+      "computedHash": "d2c0fdc2a2844e84f48582831a8f74bbb48a85f35f21d98fce8ffee0f6b2815d"
+    },
+    "skill-creator": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research-tools/capabilities/skill-creator/SKILL.md",
+      "computedHash": "682e9c3bdf38d2fe8e38ca0e973a0e2a258db0836186b22e6b0cf20fb1002459"
+    },
+    "slideshow": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/slideshow/SKILL.md",
+      "computedHash": "0a1882ec675c2d5d624bf115c18d5aa2454735cd4fb78948ee70321a257aa7b1"
+    },
+    "social-kit": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/social/composites/social-kit/SKILL.md",
+      "computedHash": "0c50dd8eb5c5d792972cbc4f791ebb60c873634b4da4ba739eb5fafad7ed2847"
+    },
+    "social-listening": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/social/capabilities/social-listening/SKILL.md",
+      "computedHash": "c78d9592472e198aa87828f0e7f7d47e022b9cf2cfff2aa1a71b92e7f8e6f375"
+    },
+    "social-media-scraping-scrapecreators": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/social/capabilities/social-media-scraping-scrapecreators/SKILL.md",
+      "computedHash": "0b0eed0773c7d290d9a1c47b669f66190c74a675f11e75db6293301d52eb72c5"
+    },
+    "sponsored-newsletter-finder": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/composites/sponsored-newsletter-finder/SKILL.md",
+      "computedHash": "8f394bb96718495100382547e22cbafdede5dd48d2f1b92e6631f82da80bbfa5"
+    },
+    "stitch-videos-ffmpeg": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/packs/video-ad-formats/stitch-videos-ffmpeg/SKILL.md",
+      "computedHash": "8de615747d2d3b4243f7513b7d9ce7d03f8260427764c6af2ab76df3d60c4177"
+    },
+    "structured-scraping-riveter": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research-tools/capabilities/structured-scraping-riveter/SKILL.md",
+      "computedHash": "1b7044bf2af0222dea6b6682a6be7a40e89dfddaa7ef4ad360071e45024d2a9c"
+    },
+    "talking-head-video": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/design/packs/video-production/talking-head-video/SKILL.md",
+      "computedHash": "bc7e20744f8919106452127c010212cbfc3b38472f6171140b46feda183f8483"
+    },
+    "tam-builder": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/capabilities/tam-builder/SKILL.md",
+      "computedHash": "05eddeadbb06f9a4e349b9a40e45556c109745dda3b075610cb3dc22a9bbe170"
+    },
+    "targeted-prospecting": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/capabilities/targeted-prospecting/SKILL.md",
+      "computedHash": "cbaa210fb593ba902f804758a19a931ffe0ebada51c17afd61b01468197911e0"
+    },
+    "team-linkedin-profiles": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/capabilities/team-linkedin-profiles/SKILL.md",
+      "computedHash": "07d59dbf4c178bf74cc4fcf5538848af9c7defcf86b7672d27b61dcf778b027a"
+    },
+    "tech-stack-teardown": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/competitive-intel/capabilities/tech-stack-teardown/SKILL.md",
+      "computedHash": "5f30fe71811c99b62e62cba1dbb39ab161910ad831619c41d0cf19e7a72acd6d"
+    },
+    "terminal-gif-recordings": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/design/capabilities/terminal-gif-recordings/SKILL.md",
+      "computedHash": "30a0ba7ec0712c7c62438b78bd67296d4552b4efdd25a10f6ab22573bcca5288"
+    },
+    "tiktok-influencer-finder": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/social/capabilities/tiktok-influencer-finder/SKILL.md",
+      "computedHash": "03e5a60059eac7c81845f8925ee1d72325ac97fc7741c6a93e29817f35599631"
+    },
+    "tiktok-search": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/social/capabilities/tiktok-search/SKILL.md",
+      "computedHash": "4bdfe62f75cbb0405755ef080ecf55fce198f3c5f2d5b12506cf8db8b718c79c"
+    },
+    "topical-authority-mapper": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/seo/composites/topical-authority-mapper/SKILL.md",
+      "computedHash": "b6d41bd977a3c675bddb26ddd3ff532d924f106b079508c381f5ca23ce6100c5"
+    },
+    "trending-ad-hook-spotter": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/composites/trending-ad-hook-spotter/SKILL.md",
+      "computedHash": "9c368bd030ab8e8911c48d113bec003452b2554f4f23523592b82accb371fd2d"
+    },
+    "twitter-mention-tracker": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/monitoring/capabilities/twitter-mention-tracker/SKILL.md",
+      "computedHash": "64748e420b283b756fcb84b851dbcc40956cf2bb62db4ea0745347c86821aaa0"
+    },
+    "twitter-profile-lookup": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/social/capabilities/twitter-profile-lookup/SKILL.md",
+      "computedHash": "72b322943be5bbf9ada128f59ee06a57cc449d7ecfa7c6d3198b0692222f129b"
+    },
+    "ugc-fixloop": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/capabilities/ugc-fixloop/SKILL.md",
+      "computedHash": "0765609070b59a14fa806d900788525014878de70dfb334366c101776cd4ac79"
+    },
+    "update-brand-kit": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/brand/capabilities/update-brand-kit/SKILL.md",
+      "computedHash": "cd3b63103ff599d2b40bbf81f91522401b3589200da6cf773e9dc9669ac3a665"
+    },
+    "uptime-monitor": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/monitoring/capabilities/uptime-monitor/SKILL.md",
+      "computedHash": "52e3db04be340b6770d0f2adf71dd30eb1c7c07eb47708375722c2e93ec8c91c"
+    },
+    "verify-email": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/capabilities/verify-email/SKILL.md",
+      "computedHash": "c0a56a944dabb75997a128e33648cd34c453376a2d5177e83e0a84ae49028553"
+    },
+    "verify-product-image": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/capabilities/verify-product-image/SKILL.md",
+      "computedHash": "cfadeed233c439ed4df969c021ea6d7bd4092585e06f40e9a355ff4602f96838"
+    },
+    "video-clipper": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/design/packs/video-production/video-clipper/SKILL.md",
+      "computedHash": "c765fe0bca9c2e2a2ab649567dccfc1702237502c96bfd2632a30303e55bb7d1"
+    },
+    "video-polish": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/design/packs/video-production/video-polish/SKILL.md",
+      "computedHash": "8d4c68d17c40bc75dc5cccdeaca397fb93d927f8491e70343ac08feb72399dd1"
+    },
+    "visual-brand-extractor": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/brand/capabilities/visual-brand-extractor/SKILL.md",
+      "computedHash": "b4d7412fb19a4324aac71b17eafe24c8853d6ee3e688139ee30627f4f092bb3b"
+    },
+    "voice-of-customer-synthesizer": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research/composites/voice-of-customer-synthesizer/SKILL.md",
+      "computedHash": "54736aaedc89c93dae52193b5cd1aec3f4d557e5e949a9e1d55c4a328e5ac0fb"
+    },
+    "watch": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/ads/packs/video-ad-formats/watch/SKILL.md",
+      "computedHash": "5ee64084091966d9890363153dfae16c14e49465a7ff23203e8310d9db699bc9"
+    },
+    "weather": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research-tools/capabilities/weather/SKILL.md",
+      "computedHash": "2dcfa5cc9251ae023f9921179011455740c22f0352a9dbe226cc000896f3e604"
+    },
+    "web-archive-scraper": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research-tools/capabilities/web-archive-scraper/SKILL.md",
+      "computedHash": "83bfe280ef21caa3b167a53a95091ab77ec3077a7955db8c461b13e9925e0719"
+    },
+    "web-research-parallel": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research-tools/capabilities/web-research-parallel/SKILL.md",
+      "computedHash": "4ae24aa3158bc24437f4e56237ce45486f2352dbb65f7631a81fb2d70dc5b628"
+    },
+    "web-scraping": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research-tools/capabilities/web-scraping/SKILL.md",
+      "computedHash": "14f40361f0faa901f8a2ecd27329c36520075bdf36bf29cbf1f398201696c473"
+    },
+    "web-scraping-olostep": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research-tools/capabilities/web-scraping-olostep/SKILL.md",
+      "computedHash": "aa2b149e1e02ac306467e55a56c761b3b56fae1fbc54c59d2a38fe2058078bbe"
+    },
+    "web-search": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research-tools/capabilities/web-search/SKILL.md",
+      "computedHash": "419fc50fb35632afba3b019e9cb7c9e2fed927e6eaccf82a5c2d2a2bde8bd02e"
+    },
+    "web-search-andi": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research-tools/capabilities/web-search-andi/SKILL.md",
+      "computedHash": "59f9816dd8a6f96bc0f51ad48c7ed03be94a05615676e969cb35e058ae9c21ca"
+    },
+    "web-search-exa": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research-tools/capabilities/web-search-exa/SKILL.md",
+      "computedHash": "89b46deae6774a1e518a5919cc0e02c9a3d140cbda1525fd014fd0daa2e463df"
+    },
+    "web-search-jina": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research-tools/capabilities/web-search-jina/SKILL.md",
+      "computedHash": "fb5bf485473f7dc18c31841903bec89b611ccd85105ba91231b17e85f92017fd"
+    },
+    "web-search-linkup": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research-tools/capabilities/web-search-linkup/SKILL.md",
+      "computedHash": "ac8571820890c526c90b44a1ec507b62d74ec17ac0fbfe44d8e3194d08555653"
+    },
+    "web-search-perplexity": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research-tools/capabilities/web-search-perplexity/SKILL.md",
+      "computedHash": "611e87c73fd4db89fbbbd59a1a8e38e340f1129581f3a280fa64699a0eab9684"
+    },
+    "web-search-tavily": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research-tools/capabilities/web-search-tavily/SKILL.md",
+      "computedHash": "d900b522fb7e3454a83695ae2431f43130111945a9dea8b8ee81e7ba9d2ca3f9"
+    },
+    "web-search-valyu": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research-tools/capabilities/web-search-valyu/SKILL.md",
+      "computedHash": "276da3918aede227fd5251fbca2787e9af6a3d49cec08fb6568e0b02f62809c4"
+    },
+    "website-screenshot-notte": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research-tools/capabilities/website-screenshot-notte/SKILL.md",
+      "computedHash": "4322a6fff4e58989580d8641f6a7e96213ffad7b5c78feb20744f87e31971357"
+    },
+    "website-to-video": {
+      "source": "heygen-com/hyperframes",
+      "sourceType": "github",
+      "skillPath": "skills/website-to-video/SKILL.md",
+      "computedHash": "89921c8b4fed4f4aa6f78359d8c4f1689cc2d439946f7ff2e8a6ad5b58ac20f8"
+    },
+    "yc-batch-evaluator": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/lead-generation/capabilities/yc-batch-evaluator/SKILL.md",
+      "computedHash": "cc5e4c46a9c4c52bbac52cdab5ff37801acbf808c314f1d87499d51d853cf690"
+    },
+    "youtube-apify-transcript": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research-tools/capabilities/youtube-apify-transcript/SKILL.md",
+      "computedHash": "a4b9046e9b8c659331f594c7488afed991601751b4e023161298eca28323c82c"
+    },
+    "youtube-watcher": {
+      "source": "gooseworks-ai/goose-skills",
+      "sourceType": "github",
+      "skillPath": "skills/research-tools/capabilities/youtube-watcher/SKILL.md",
+      "computedHash": "42a90f6c41e498d4b16eb74316f39c3a75038a6b28989d9a8bf87193ec9b575a"
+    }
+  }
+}

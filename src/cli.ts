@@ -1,20 +1,63 @@
 #!/usr/bin/env npx tsx
-import { hasOpenAI } from "./config.js";
+import { join } from "node:path";
+import { hasOpenAI, env } from "./config.js";
 import { watchVideo, buildPlaybook, watchMany } from "./video/watch.js";
 import { generateDraft, generateCalendar, formatDraftForCopy } from "./generate/draft.js";
 import {
   queueSunoMusic,
   queueHeyGen,
   queueKling,
-  queueHyperframes,
   queueVeed,
   queueNanoBanana,
 } from "./media/providers.js";
 import { listLearnings, listDrafts } from "./store.js";
 import { startServer } from "./server.js";
 import { tinyfishSearch, hasTinyfish } from "./research/tinyfish.js";
+import { discoverOssTools, formatOssCatalog } from "./discover/oss-tools.js";
+import { formatOssStack } from "./discover/oss-stack.js";
+import { runPaidHeyGen } from "./integrations/paid-media.js";
+import { hasHeyGen } from "./integrations/heygen.js";
+import { scaffoldSimplePrompt, renderHyperframes } from "./integrations/hyperframes.js";
+import { fundSandboxWallet, formatWallet, loadOrCreateWallet } from "./qa/sui-wallet.js";
+import { getProjectChain, getWalletMode } from "./projects/chain.js";
+import { loadOrCreateStellarWallet, formatStellarWallet, getStellarBalance } from "./qa/stellar-wallet.js";
+import { loadOrCreateEvmWallet, formatEvmWallet, checkEvmFunding } from "./qa/evm-wallet.js";
+import { fundSandboxFromVeil, formatFundResult, withdrawManagerToRecipient } from "./qa/fund-sandbox.js";
+import { llmStatus } from "./ai/router.js";
 import { discoverTrending, autoLearn } from "./discover/auto-learn.js";
 import { autoEdit, planEdit, formatManifestForHuman } from "./edit/pipeline.js";
+import { autonomousEdit, renderFromSavedManifest } from "./edit/autonomous.js";
+import {
+  loadManifestFile,
+  reviseManifest,
+  parseReviseArgs,
+  saveRevisedManifest,
+} from "./edit/manifest-revise.js";
+import { exportAdFormats, formatExportAdsResult } from "./edit/export-ads.js";
+import { buildPaidGrowthPack } from "./growth/paid-growth.js";
+import { buildXProfilePack } from "./growth/x-profile.js";
+import { produceMagmosAd, formatMagmosAdReport } from "./studio/produce-magmos-ad.js";
+import { runOpenMontage, formatOpenMontage } from "./studio/openmontage.js";
+import {
+  produceProductWalkthrough,
+  formatWalkthrough,
+} from "./studio/product-walkthrough.js";
+import { runAdMaker, formatAdMaker } from "./studio/ad-maker.js";
+import { extractViralClips, formatViralClips } from "./edit/viral-clips.js";
+import { formatGoldmine } from "./discover/goldmine.js";
+import { buildWebToAppPack } from "./mobile/web-to-app-pack.js";
+import { growFromUrl, formatGrow } from "./growth/grow-from-url.js";
+import { formatBrain, recall } from "./brain/memory.js";
+import { seedGrowthBrain } from "./brain/seed.js";
+import {
+  formatSkills,
+  rebuildSkillCatalog,
+  adoptSkillsIntoBrain,
+  readSkillBody,
+  getSkill,
+  ensureGooseVendorLink,
+} from "./skills/catalog.js";
+import type { AutonomousEditOptions } from "./edit/autonomous.js";
 import { EDIT_STYLES } from "./edit/styles.js";
 import { buildLaunchPack } from "./generate/launch-pack.js";
 import { buildFirstPostPack, formatFirstPostPack } from "./generate/first-post.js";
@@ -36,24 +79,62 @@ import { runGrowthOps } from "./teams/ops.js";
 import { answerQuestion, formatQA } from "./teams/qa.js";
 import { generateCreative, formatCreative } from "./teams/creative.js";
 import { buildCampaign, formatCampaign } from "./teams/marketing.js";
-import { listProjects } from "./projects/registry.js";
+import { listProjects, getProject } from "./projects/registry.js";
 import { produceTrailer, formatTrailer } from "./studio/trailer.js";
 import { CONTENT_PHASES, launchWeekPlan } from "./studio/phases.js";
 import { tierReport } from "./studio/tiers.js";
 import { runSandbox, formatSandboxReport } from "./qa/sandbox.js";
+import { runFullSandboxDemo, formatFullDemo, loadLatestDemo } from "./qa/sandbox-demo.js";
+import { remixVeil3MinVoiceover } from "./studio/remix-veil-vo.js";
+import { printHorizonCatalog } from "./qa/horizons-cli.js";
+import { writeSortedLaunch, formatSortedLaunch, writeSortedLaunchForProject } from "./studio/sort-launch.js";
+import {
+  produceVeniceLaunch,
+  formatVeniceLaunchMd,
+  quoteLaunchPackUsd,
+  listVeniceModels,
+  hasVenice,
+  VENICE_LAUNCH_PRESETS,
+} from "./studio/venice-studio.js";
+import { formatVeniceStatus } from "./integrations/venice.js";
+import {
+  formatBudgetReport,
+  fetchVeniceBalance,
+  resetLedger,
+  configuredBudgetUsd,
+} from "./integrations/venice-credits.js";
 import type { ContentPhase } from "./studio/phases.js";
 
 function usage(): void {
   console.log(`
 Veil X Bot — Growth OS (marketing · GTM · distribution · Q&A)
 
-  ops <veil|magmos>                          Full team run → data/ops/TODAY.md
-  projects                                   List projects
+  ops <project>                              Full team run → data/ops/TODAY.md (default: magmos)
+  projects                                   List projects (veil, magmos, + projects/*.json)
   campaign <project>                         Marketing brief
   ugc <project> [topic]                      Realistic UGC shot list
   clip <project>                             42s clip brief + b-roll URLs
   qa <project> "<question>"                  Q&A reply draft
-  sandbox <project>                          Test app + screenshots all viewports
+  sandbox <project>                          Auto demo: mint + browser + QA
+  demo <project>                             Same as sandbox
+  veil-demo-3min                             [PAUSED] Veil judge video — use edit-auto for edits
+  magmos-ad <recording.mp4>                  Magmos paid ad: autonomous edit → 9:16/1:1/16:9 + growth pack
+  walkthrough [project]                      HyperFrames + Venice presenter PiP walkthrough
+  openmontage [project] [footage]            OpenMontage plan→edit→shorts→ads
+  ad-maker [project] [domain]                Branda-style domain → still ads (TinyFish+Venice)
+  grow <url> [project]                       ONE connected flow: research→ads→paid floors→UGC
+  brain [seed|search <q>]                    Unified growth memory (OSS/UGC/ads/insights)
+  skills [list|search <q>|show <slug>|adopt] Goose+HyperFrames skill runtime the bot uses
+  shorts <recording.mp4>                     OpenShorts viral moments → 9:16 clips
+  goldmine                                   22 lab OSS repos catalog
+  web-to-app [project]                       Magmos/Veil APK pack for WebToApp
+  x-profile [project]                        FULL X profile setup (bio, banner, pin, communities) — DO FIRST
+  growth-check <project>                     Blue tick + X/TikTok ads playbook → data/growth/
+  horizons [BTC]                             Predict oracle time slots (15m–26d)
+  wallet <project>                           Faucet + show sandbox wallet
+  wallet fund <project>                      Send SUI+dUSDC from veil/.env wallet
+  oss-discover                               TinyFish OSS catalog → data/research/
+  oss-stack                                  Your 7 repos — status for Magmos editor
   produce <project> <phase> [feature]        Trailer/teaser/intro production brief
   phases                                     Content mix (intro → teaser → launch)
   tier                                       Free vs paid media quality report
@@ -64,11 +145,20 @@ Veil X Bot — Growth OS (marketing · GTM · distribution · Q&A)
   engage quote|reply <brand> --under "…"       Quote/reply under a viral post
   engage-batch [top] [brand]                   Top trends → quote + reply drafts
   poster <brand> [kind] "<topic>"              AI poster / quote card / header
-  edit <recording.mp4> <brand> [style]     Render — anime-hype, loss-receipt, etc.
+  edit <recording.mp4> <project> [style]   Basic edit — Whisper, dead-space, b-roll → MP4
+  edit-auto <recording.mp4> <project> [style]  Autonomous CapCut-class (beat-sync, music, VO) — USE THIS
+  edit-revise <manifest.json> <recording.mp4> [--hook "…"] [--cta "…"] [--add-cut 12 zoom-punch]
+  export-ads <master.mp4> [project]          9:16 + 1:1 + 16:9 + caption variants for paid upload
   edit-plan <brand> [style] [topic]        Timeline: cuts, SFX, b-roll (no video)
   styles                                     List edit styles
-  first-post <veil|magmos> [style]           Full 1k launch pack
-  launch <veil|magmos> [style]               EVERYTHING — read data/launch/LAUNCH.md
+  first-post <project> [style]           Full 1k launch pack
+  launch <project> [style]               EVERYTHING — read data/launch/LAUNCH.md
+  sort-launch [project]                      Rank hooks + 30s script (Venice AI text)
+  venice status                              Venice balance + credit ledger
+  venice budget [--reset]                    Show / reset local spend ledger
+  venice quote <project> [--tier draft|standard|hero|premium]  Estimate $ before run
+  venice models [text|image|video|tts|all]   List Venice models
+  venice launch <project> [--tier] [--video-model kling|veo|seedance] [--force]
   clips [niche] [limit]                      Bot finds Pexels/Pixabay b-roll URLs
   hashtags <veil|magmos>                   Trending tags (max 2 on post)
   music [style]                              Seasoned editor music plan + Suno
@@ -107,6 +197,22 @@ function parseCategory(s?: string): TrendCategory {
   return "all";
 }
 
+function parseAutonomousFlags(rest: string[]): { positional: string[]; opts: AutonomousEditOptions } {
+  const positional: string[] = [];
+  const opts: AutonomousEditOptions = {};
+  for (let i = 0; i < rest.length; i++) {
+    const a = rest[i];
+    if (a === "--no-beat-sync") opts.beatSync = false;
+    else if (a === "--no-music") opts.autoMusic = false;
+    else if (a === "--no-vo") opts.voiceover = false;
+    else if (a === "--no-broll") opts.veniceBroll = false;
+    else if (a === "--tier" && rest[i + 1]) {
+      opts.veniceTier = rest[++i];
+    } else if (!a.startsWith("--")) positional.push(a);
+  }
+  return { positional, opts };
+}
+
 async function main(): Promise<void> {
   const [, , cmd, ...rest] = process.argv;
   if (!cmd || cmd === "help" || cmd === "-h") {
@@ -117,6 +223,7 @@ async function main(): Promise<void> {
   switch (cmd) {
     case "tier": {
       console.log(tierReport());
+      console.log(llmStatus());
       break;
     }
     case "phases": {
@@ -134,22 +241,116 @@ async function main(): Promise<void> {
       console.log(formatTrailer(prod));
       break;
     }
-    case "sandbox": {
+    case "sandbox":
+    case "demo": {
       const project = rest[0] || "veil";
-      const report = await runSandbox(project);
-      console.log(formatSandboxReport(report));
+      const full = await runFullSandboxDemo(project);
+      console.log(formatFullDemo(full));
+      console.log("\n" + formatSandboxReport(full.sandbox));
+      break;
+    }
+    case "veil-demo-3min": {
+      console.log("Veil demo videos are paused. Focus: Magmos + autonomous editor.\n");
+      console.log("  npm run edit-auto recording.mp4 magmos");
+      console.log("  npm run magmos-ad forge-recording.webm");
+      console.log("  npm run growth-check magmos");
+      break;
+    }
+    case "veil-demo-remix-vo": {
+      const input =
+        rest[0] ||
+        join(process.cwd(), "data/exports/veil_judge_demo_3min_veil3_mr2hb64r_jsqxh.mp4");
+      console.log(`Remixing voiceover onto: ${input}\n`);
+      const out = await remixVeil3MinVoiceover(input);
+      console.log(`\nFINAL with VO:\n${out}`);
+      break;
+    }
+    case "horizons": {
+      await printHorizonCatalog(rest[0] || "BTC");
+      break;
+    }
+    case "wallet": {
+      if (rest[0] === "fund") {
+        const project = rest[1] || "veil";
+        const result = await fundSandboxFromVeil(project);
+        console.log(formatFundResult(result, loadOrCreateWallet(project)));
+        break;
+      }
+      if (rest[0] === "withdraw") {
+        const project = rest[1] || "veil";
+        const amount = Number(rest[2] || env("SANDBOX_FUND_DUSDC", "25"));
+        const sandbox = loadOrCreateWallet(project);
+        const w = await withdrawManagerToRecipient(sandbox.address, amount);
+        console.log(`Withdrew ${w.amountUsdc} dUSDC → ${sandbox.address}`);
+        console.log(`Tx: ${w.digest}`);
+        break;
+      }
+      if (rest[0] === "withdraw-manager") {
+        const project = rest[1] || "veil";
+        const amount = Number(rest[2] || env("SANDBOX_FUND_DUSDC", "25"));
+        const sandbox = loadOrCreateWallet(project);
+        const w = await withdrawManagerToRecipient(sandbox.address, amount);
+        console.log(
+          `Withdrew ${w.amountUsdc} dUSDC from manager (was ${w.managerBalanceBefore}) → ${sandbox.address}\nTx: ${w.digest}`,
+        );
+        break;
+      }
+      if (rest[0] === "addresses") {
+        const project = rest[1] || "veil";
+        const p = getProject(project);
+        const chain = getProjectChain(p);
+        const mode = getWalletMode(p);
+        console.log(`# ${p.name} — chain ${chain} (${mode})`);
+        if (chain === "sui") {
+          const w = loadOrCreateWallet(project);
+          console.log(formatWallet(w));
+        } else if (chain === "stellar") {
+          const w = loadOrCreateStellarWallet(project);
+          const bal = await getStellarBalance(w.address, w.network);
+          console.log(formatStellarWallet(w, bal));
+        } else if (chain === "evm") {
+          const w = loadOrCreateEvmWallet(project);
+          const { balanceEth, fundingNote } = await checkEvmFunding(project);
+          console.log(formatEvmWallet(w, balanceEth));
+          console.log(fundingNote);
+        } else {
+          console.log("No on-chain wallet for this project.");
+        }
+        break;
+      }
+      const project = rest[0] || "veil";
+      const { wallet, balanceMist, note } = await fundSandboxWallet(project);
+      console.log(formatWallet(wallet, balanceMist));
+      console.log(note);
+      break;
+    }
+    case "oss-discover": {
+      if (!hasTinyfish()) throw new Error("Set TINYFISH_API_KEY");
+      const catalog = await discoverOssTools();
+      console.log(formatOssCatalog(catalog));
+      break;
+    }
+    case "oss-stack": {
+      console.log(formatOssStack());
       break;
     }
     case "ops": {
-      const project = rest[0] || "veil";
+      const project = rest[0] || "magmos";
       const run = await runGrowthOps(project);
       console.log(`Growth ops done → ${run.outputPath}`);
       console.log(`Phases: ${run.phases.join(" → ")}`);
       break;
     }
     case "projects": {
-      for (const p of listProjects()) console.log(`- ${p}`);
-      console.log("\nAdd future: knowledge/<id>.md + src/projects/registry.ts");
+      for (const p of listProjects()) {
+        const def = getProject(p);
+        console.log(`- ${p} (${def.vertical ?? "other"}) — ${def.name}`);
+      }
+      console.log(
+        "\nAdd a project: copy projects/_template.json → projects/<id>.json",
+        "\nOptional Q&A truth: knowledge/<id>.md",
+        "\nWeb2 = marketing only · web3 = + on-chain sandbox demo",
+      );
       break;
     }
     case "campaign": {
@@ -290,6 +491,95 @@ async function main(): Promise<void> {
       console.log("\n→ Saved: data/launch/LAUNCH.md");
       break;
     }
+    case "sort-launch": {
+      const projectId = rest[0] || "veil";
+      const demo = loadLatestDemo();
+      const sorted =
+        demo?.mint?.mintDigest && demo.projectId === projectId
+          ? await writeSortedLaunch(demo.mint, getProject(projectId).name, projectId)
+          : await writeSortedLaunchForProject(projectId);
+      console.log(formatSortedLaunch(sorted, demo?.mint));
+      console.log("\n→ Saved: data/ops/LAUNCH-SORTED.md");
+      break;
+    }
+    case "venice": {
+      const sub = rest[0];
+      if (sub === "status" || !sub) {
+        console.log(formatVeniceStatus());
+        console.log(llmStatus());
+        console.log("");
+        console.log(formatBudgetReport());
+        const live = await fetchVeniceBalance();
+        if (live?.usdRemaining != null) {
+          console.log(`\nAPI balance: $${live.usdRemaining.toFixed(2)} USD`);
+        }
+        break;
+      }
+      if (sub === "budget") {
+        if (rest.includes("--reset")) {
+          resetLedger(configuredBudgetUsd());
+          console.log(`Ledger reset — pool $${configuredBudgetUsd()}`);
+        }
+        console.log(formatBudgetReport());
+        break;
+      }
+      if (sub === "quote") {
+        const projectId = rest[1];
+        if (!projectId) throw new Error("Usage: venice quote <project> [--tier standard]");
+        const tierFlag = rest.indexOf("--tier");
+        const tier = tierFlag >= 0 ? rest[tierFlag + 1] : "standard";
+        const vmFlag = rest.indexOf("--video-model");
+        const videoModel = vmFlag >= 0 ? rest[vmFlag + 1] : undefined;
+        const q = await quoteLaunchPackUsd({
+          tier,
+          videoModel,
+          includeVideo: !rest.includes("--no-video"),
+        });
+        console.log(`Launch quote — ${projectId} (${tier})\n`);
+        for (const line of q.lines) console.log(line);
+        break;
+      }
+      if (sub === "tiers") {
+        for (const p of Object.values(VENICE_LAUNCH_PRESETS)) {
+          console.log(`${p.tier.padEnd(10)} ~$${p.estimateUsd} — ${p.label}\n  ${p.notes}\n`);
+        }
+        break;
+      }
+      if (sub === "models") {
+        const type = (rest[1] as import("./integrations/venice.js").VeniceModelType) || "all";
+        const rows = await listVeniceModels(type);
+        for (const m of rows) console.log(`${m.id}${m.type ? ` (${m.type})` : ""}`);
+        break;
+      }
+      if (sub === "launch") {
+        const projectId = rest[1];
+        if (!projectId) {
+          throw new Error(
+            "Usage: venice launch <project> [--tier draft|standard|hero|premium] [--video-model seedance|kling|veo] [--force]",
+          );
+        }
+        const tierFlag = rest.indexOf("--tier");
+        const tier = tierFlag >= 0 ? rest[tierFlag + 1] : undefined;
+        const vmFlag = rest.indexOf("--video-model");
+        const videoModel = vmFlag >= 0 ? rest[vmFlag + 1] : undefined;
+        const imFlag = rest.indexOf("--image-model");
+        const imageModel = imFlag >= 0 ? rest[imFlag + 1] : undefined;
+        const assets = await produceVeniceLaunch({
+          projectId,
+          tier,
+          imageModel,
+          videoModel,
+          video: !rest.includes("--no-video"),
+          audio: !rest.includes("--no-audio"),
+          force: rest.includes("--force"),
+        });
+        console.log(formatVeniceLaunchMd(assets, getProject(projectId).name));
+        break;
+      }
+      throw new Error(
+        "Usage: venice status | budget | quote | tiers | models | launch",
+      );
+    }
     case "clips": {
       if (!hasTinyfish()) throw new Error("Set TINYFISH_API_KEY");
       const niche = rest[0] ?? "crypto technology dark";
@@ -330,14 +620,181 @@ async function main(): Promise<void> {
       console.log("\nSaved: data/launch/latest-first-post.md");
       break;
     }
+    case "magmos-ad": {
+      const input = rest[0];
+      if (!input) throw new Error("Usage: magmos-ad forge-recording.webm");
+      console.log("Magmos paid ad — autonomous edit + multi-format export...\n");
+      const report = await produceMagmosAd(input);
+      console.log(formatMagmosAdReport(report));
+      if (report.status === "done" && report.masterPath) {
+        console.log(`\nUpload-ready files:\n${report.adExports?.join("\n")}`);
+      }
+      break;
+    }
+    case "walkthrough": {
+      const project = rest[0] || "magmos";
+      const screenPath = rest.find((a) => !a.startsWith("--") && /\.(mp4|webm|mov)$/i.test(a));
+      console.log(`Product walkthrough (HyperFrames + Venice presenter) — ${project}...\n`);
+      const result = await produceProductWalkthrough({
+        projectId: project,
+        screenPath,
+        skipAvatar: env("WALKTHROUGH_AVATAR", "1") === "0",
+        skipCapture: Boolean(screenPath),
+      });
+      console.log(formatWalkthrough(result));
+      break;
+    }
+    case "grow": {
+      const url = rest[0];
+      if (!url) throw new Error("Usage: grow https://magmoslabs.vercel.app [magmos]");
+      const project = rest[1] || "magmos";
+      console.log(`Unified grow — ${url} → ${project}...\n`);
+      const result = await growFromUrl({ url, projectId: project });
+      console.log(formatGrow(result));
+      console.log(`\n→ ${result.outputPath}`);
+      break;
+    }
+    case "brain": {
+      const sub = rest[0] || "show";
+      if (sub === "seed") {
+        const r = seedGrowthBrain();
+        console.log(`Seeded ${r.counted} memory entries`);
+        console.log(formatBrain(20));
+      } else if (sub === "search") {
+        const q = rest.slice(1).join(" ");
+        console.log(
+          recall({ q, limit: 15 })
+            .map((e) => `## ${e.title}\n${e.body.slice(0, 300)}\n`)
+            .join("\n") || "(no hits — run: brain seed)",
+        );
+      } else {
+        seedGrowthBrain();
+        console.log(formatBrain(30));
+      }
+      break;
+    }
+    case "skills": {
+      const sub = rest[0] || "list";
+      ensureGooseVendorLink();
+      if (sub === "adopt" || sub === "rebuild") {
+        const cat = rebuildSkillCatalog();
+        const ad = adoptSkillsIntoBrain(150);
+        console.log(`Catalog: ${cat.count} skills · adopted into brain: ${ad.adopted}`);
+        console.log(formatSkills(25));
+      } else if (sub === "search") {
+        const q = rest.slice(1).join(" ") || "ugc ads";
+        console.log(formatSkills(30, q));
+      } else if (sub === "show") {
+        const slug = rest[1];
+        if (!slug) throw new Error("Usage: skills show <slug>");
+        const meta = getSkill(slug);
+        const body = readSkillBody(slug, 8000);
+        console.log(meta ? JSON.stringify(meta, null, 2) : "(missing meta)");
+        console.log("\n--- SKILL.md ---\n");
+        console.log(body ?? "(SKILL.md not found — check vendor/goose-skills)");
+      } else {
+        rebuildSkillCatalog();
+        console.log(formatSkills(40));
+      }
+      break;
+    }
+    case "openmontage": {
+      const project = rest[0] || "magmos";
+      const footage = rest[1];
+      console.log(`OpenMontage — ${project}...\n`);
+      const run = await runOpenMontage({ projectId: project, footagePath: footage });
+      console.log(formatOpenMontage(run));
+      break;
+    }
+    case "ad-maker": {
+      const project = rest[0] || "magmos";
+      const domain = rest[1];
+      console.log(`Ad Maker (Branda) — ${project}...\n`);
+      const run = await runAdMaker({ projectId: project, domain });
+      console.log(formatAdMaker(run));
+      console.log(`\n→ ${run.outputPath}`);
+      break;
+    }
+    case "shorts": {
+      const input = rest[0];
+      if (!input) throw new Error("Usage: shorts recording.mp4");
+      const job = await extractViralClips(input, { maxClips: Number(rest[1] || 4) });
+      console.log(formatViralClips(job));
+      break;
+    }
+    case "goldmine": {
+      console.log(formatGoldmine());
+      break;
+    }
+    case "web-to-app": {
+      const project = rest[0] || "magmos";
+      const pack = buildWebToAppPack(project);
+      console.log(pack.markdown);
+      console.log(`\n→ ${pack.outputPath}\n→ ${pack.configPath}`);
+      break;
+    }
+    case "x-profile": {
+      const project = rest[0] || "magmos";
+      const pack = buildXProfilePack(project);
+      console.log(pack.markdown);
+      console.log(`\n→ Saved: ${pack.outputPath}`);
+      console.log("Paste into x.com/settings/profile BEFORE first post or ads.");
+      break;
+    }
+    case "growth-check": {
+      const project = rest[0] || "magmos";
+      const pack = buildPaidGrowthPack(project);
+      console.log(pack.markdown);
+      console.log(`\n→ Saved: ${pack.outputPath}`);
+      break;
+    }
+    case "export-ads": {
+      const master = rest[0];
+      if (!master) throw new Error("Usage: export-ads master.mp4 [magmos]");
+      const brand = (rest[1] as BrandKey) || "magmos";
+      const result = await exportAdFormats(master, brand);
+      console.log(formatExportAdsResult(result));
+      break;
+    }
+    case "edit-auto": {
+      const { positional, opts } = parseAutonomousFlags(rest);
+      const input = positional[0];
+      if (!input) throw new Error("Usage: edit-auto recording.mp4 magmos [magmos-forge]");
+      const brand = (positional[1] as BrandKey) || "magmos";
+      const style = positional[2] as import("./edit/styles.js").EditStyleId | undefined;
+      console.log(`Autonomous edit — beat-sync, music, VO, b-roll (${brand})...\n`);
+      const job = await autonomousEdit(input, brand, style, opts);
+      console.log(job.log);
+      console.log(`\nStatus: ${job.status}`);
+      if (job.status === "done") console.log(`Finished MP4: ${job.outputPath}`);
+      break;
+    }
+    case "edit-revise": {
+      const manifestPath = rest[0];
+      const input = rest[1];
+      if (!manifestPath || !input) {
+        throw new Error("Usage: edit-revise manifest.json recording.mp4 [--hook text] [--cta text]");
+      }
+      const reviseRest = rest.slice(2);
+      const ops = parseReviseArgs(reviseRest);
+      let manifest = loadManifestFile(manifestPath);
+      manifest = reviseManifest(manifest, ops);
+      saveRevisedManifest(manifest, manifestPath);
+      console.log(`Revised manifest (${ops.length} op(s)) — re-rendering...\n`);
+      const job = await renderFromSavedManifest(input, manifest);
+      console.log(job.log);
+      if (job.status === "done") console.log(`\nFinished MP4: ${job.outputPath}`);
+      break;
+    }
     case "edit": {
       const input = rest[0];
-      if (!input) throw new Error("Usage: edit recording.mp4 veil [anime-hype]");
+      if (!input) throw new Error("Usage: edit recording.webm magmos [magmos-forge]  — or edit-auto for full autonomous");
       const brand = (rest[1] as BrandKey) || "veil";
       const style = rest[2] as import("./edit/styles.js").EditStyleId | undefined;
       const job = await autoEdit(input, brand, style);
       console.log(job.log);
-      console.log(`Status: ${job.status}`);
+      console.log(`\nStatus: ${job.status}`);
+      if (job.status === "done") console.log(`Finished MP4: ${job.outputPath}`);
       break;
     }
     case "watch": {
@@ -410,7 +867,16 @@ async function main(): Promise<void> {
       break;
     }
     case "heygen": {
-      console.log(queueHeyGen(rest.join(" ")));
+      const prompt = rest.join(" ");
+      if (!prompt) throw new Error('Usage: heygen "30s product explainer script"');
+      if (!hasHeyGen()) {
+        console.log(queueHeyGen(prompt));
+        console.log("\nOr add HeyGen MCP (OAuth): https://mcp.heygen.com/mcp/v1/");
+        break;
+      }
+      console.log("HeyGen Video Agent — polling (up to 20 min)…");
+      const job = await runPaidHeyGen(prompt);
+      console.log(JSON.stringify(job, null, 2));
       break;
     }
     case "kling": {
@@ -418,7 +884,18 @@ async function main(): Promise<void> {
       break;
     }
     case "hyperframes": {
-      console.log(queueHyperframes(rest.join(" ")));
+      const render = rest.includes("--render");
+      const parts = rest.filter((a) => a !== "--render");
+      const prompt = parts.join(" ");
+      if (!prompt) throw new Error('Usage: hyperframes "title | body" [--render]');
+      const [title, ...bodyParts] = prompt.split("|").map((s) => s.trim());
+      const hf = scaffoldSimplePrompt(title || prompt, bodyParts.join(" ") || prompt);
+      console.log(hf.log);
+      if (render) {
+        const result = await renderHyperframes(hf.projectDir);
+        console.log(result.log);
+        if (result.outputPath) console.log(`MP4: ${result.outputPath}`);
+      }
       break;
     }
     case "veed": {

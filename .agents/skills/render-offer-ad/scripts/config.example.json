@@ -1,0 +1,50 @@
+{
+  "_comment": "Illustrative worked example — brand-neutralised from the validated 'drinkable collagen' offer-ad run. The recipe binds a NEW brand's own product photo / palette / copy / music here. Replace every /abs/or/working/... path with a REAL absolute path or a runtime working/ path. ALL text is typeset in the engine (never AI-rendered). The ONLY composited bitmap is the REAL product photo (objectFit:contain, never stretched) — an AI-rendered packshot is an instant fail.",
+  "_notes": {
+    "cta_label": "Do NOT end cta_label with an arrow — Scene04 appends its own '→' (render.py also strips a stray trailing arrow, but keep the source clean).",
+    "mechanism_prop": "One of TWO engine presets only: 'spoon' (drinkable/liquid) or 'accent' (neutral bar; use for SaaS/software & anything non-CPG). Not arbitrary SVG.",
+    "product_format": "Optional. Physical: liquid/powder/capsule/gummy/cream/serum. Digital: software/saas/app. Omit for a product that fits none → the claim-matches-format gate skips.",
+    "saas": "For a SaaS/software product: product_hero_image = a REAL app UI screenshot (keeps its own bg — fine), product_format = 'saas', mechanism_prop = 'accent'."
+  },
+
+  "product_hero_image": "/abs/or/working/raw-materials/product-hero.webp",
+  "product_format": "liquid",
+
+  "brand_palette": {
+    "primary_ground": "#C96E2F",
+    "light_ground": "#FAFAFA",
+    "ink": "#0A0B0D",
+    "highlight_chip": "#F2C9C2"
+  },
+
+  "fonts": {
+    "display": "ArchivoBlack",
+    "body": "Inter"
+  },
+
+  "copy": {
+    "headline_words": ["POWDER", "IS", "OVER."],
+    "subline": "the new way",
+    "motif_chip": "DRINKABLE",
+    "claim_lines": [
+      { "big": "10g", "small": "collagen" },
+      { "big": "1", "small": "spoon" },
+      { "big": "0", "small": "mess" }
+    ],
+    "cta_label": "Try it",
+    "cta_url": "yourbrand.com",
+    "wordmark": "your brand"
+  },
+
+  "mechanism_prop": "spoon",
+  "show_competitor_strike": true,
+
+  "bpm": 115,
+  "beat_split_sec": [3.0, 3.5, 3.0, 2.5],
+  "aspects": ["9:16", "1:1"],
+
+  "music": {
+    "bed": "/abs/or/working/audio/music-bed.mp3",
+    "fade_out_frames": 18
+  }
+}

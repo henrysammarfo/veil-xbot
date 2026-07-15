@@ -1,0 +1,22 @@
+{
+  "id": "evm-funded",
+  "name": "EVM Sandbox Funded",
+  "tagline": "Send testnet ETH to sandbox — auto demo tx",
+  "vertical": "web3",
+  "chain": "evm",
+  "evmChainId": 11155111,
+  "walletMode": "sandbox-funded",
+  "nativeSymbol": "ETH",
+  "primaryUrl": "https://your-dapp.vercel.app",
+  "handles": [],
+  "ugcAngle": "Fund sandbox address — bot sends proof tx then records app",
+  "qaTopics": ["sepolia", "funding"],
+  "pillars": ["Fund sandbox wallet", "Live tx on Etherscan"],
+  "avoid": ["mainnet"],
+  "demoUrls": ["{{explorerTx}}", "{{primaryUrl}}"],
+  "capture": {
+    "width": 1920,
+    "height": 1080,
+    "deviceScaleFactor": 2
+  }
+}

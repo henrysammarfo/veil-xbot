@@ -5,43 +5,52 @@
 | Priority | API | For | Env key | ~Cost |
 |----------|-----|-----|---------|-------|
 | 1 | **FAL.ai** | Flux posters + AI video clips | `FAL_API_KEY` | Pay per gen |
-| 2 | **HeyGen** | AI avatar UGC ads (office guy, dialogue) | `HEYGEN_API_KEY` | Subscription |
-| 3 | **Kling** | Cinematic b-roll, no watermark on paid | `KLING_API_KEY` | Credits |
-| 4 | **Hyperframes** | Speed ramps on screen recordings | `HYPERFRAMES_API_KEY` | Credits |
-| 5 | **ElevenLabs** | VO for trailers | `ELEVENLABS_API_KEY` | Chars/mo |
+| 2 | **HeyGen** | Video Agent avatar UGC | `HEYGEN_API_KEY` or MCP OAuth | Subscription |
+| 3 | **Kling** | Cinematic b-roll | `KLING_API_KEY` | Credits |
+| 4 | **ElevenLabs** | VO for trailers | `ELEVENLABS_API_KEY` | Chars/mo |
+
+**HyperFrames** — no purchase needed (OSS). Set `HYPERFRAMES_AUTO=1` or `npm start hyperframes`.
 
 ## Already wired in bot
 
-| Key set | What activates |
-|---------|----------------|
-| `FAL_API_KEY` | `poster` uses Flux instead of DALL-E; `produce` queues FAL video |
-| `HEYGEN_API_KEY` | `produce` queues avatar scenes with dialogue |
-| `KLING_API_KEY` | `produce` queues b-roll |
-| `HYPERFRAMES_API_KEY` | Motion on exports |
+| Key / flag | What activates |
+|------------|----------------|
+| `FAL_API_KEY` | `poster` uses Flux |
+| `HEYGEN_API_KEY` | `heygen` CLI + `HEYGEN_AUTO=1` on produce |
+| HeyGen MCP OAuth | `.cursor/mcp.json` → Connect in Settings → MCP |
+| `HYPERFRAMES_AUTO=1` | Trailer scaffold → `data/exports/hyperframes-*` |
+| `FLOCKAI_*` / `QVAC_*` | Locked prompts via `src/ai/router.ts` |
+| `SUI_NETWORK` + sandbox | Wallet + testnet faucet before demo videos |
 
-## MCP (Cursor cloud)
+See **INTEGRATIONS.md** for real endpoints (v3 video-agents, HyperFrames CLI, MCP URL).
 
-When you have cloud space:
-- TinyFish MCP — already available for Cursor research
-- Browser MCP — agent can watch TikTok/YouTube for learnings
-- Point agent at `npm run autolearn` on schedule
+## MCP (Cursor)
 
-## Field.io
+| Server | URL | Auth |
+|--------|-----|------|
+| HeyGen | `https://mcp.heygen.com/mcp/v1/` | OAuth |
+| TinyFish | (your existing MCP) | API key |
+| Browser | cursor-ide-browser | built-in |
 
-Cinematic AI video — add `FIELD_API_KEY` when budget allows (stub in future).
+HyperFrames skill: `npx skills add heygen-com/hyperframes`
 
 ## Free stack (today)
 
-`OPENAI` + `TINYFISH` + `playwright` + Pexels + Suno web + ffmpeg
+`OPENAI` + `TINYFISH` + `playwright` + `@mysten/sui` faucet + Pexels + ffmpeg + HyperFrames OSS
 
 Target: **70–75%** of paid quality. Honest.
 
-## Sandbox credentials
+## Sandbox flow
 
-```env
-SANDBOX_TEST_EMAIL=
-SANDBOX_TEST_PASSWORD=
-VEIL_DEMO_URL=https://veil-reviewer.vercel.app
+```bash
+npm run wallet veil          # address + fund testnet SUI
+npm run sandbox veil         # must pass before produce demo
+npm run produce veil trailer "feature"
 ```
 
-Bot tests all viewports before generating demo videos.
+```env
+SANDBOX_WALLET=1
+SUI_NETWORK=testnet
+VEIL_DEMO_URL=https://veil-reviewer.vercel.app
+SANDBOX_DUSDC_FAUCET_URL=https://tally.so/r/Xx102L
+```

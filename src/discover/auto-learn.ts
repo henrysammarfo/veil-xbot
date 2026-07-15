@@ -6,6 +6,7 @@ import { watchVideo, buildPlaybook } from "../video/watch.js";
 import { listLearnings, newId } from "../store.js";
 import OpenAI from "openai";
 import { requireEnv } from "../config.js";
+import type { BrandKey } from "../brands.js";
 
 export interface AutoLearnRun {
   id: string;
@@ -36,7 +37,7 @@ function ensureImproveDir(): string {
 
 export async function autoLearn(opts: {
   top?: number;
-  brand?: "veil" | "magmos" | "both";
+  brand?: BrandKey | "both";
   categories?: import("./categories.js").TrendCategory;
 }): Promise<AutoLearnRun> {
   const top = opts.top ?? 5;

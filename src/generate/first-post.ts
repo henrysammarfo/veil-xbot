@@ -7,7 +7,7 @@ import { generateDraft, formatDraftForCopy } from "./draft.js";
 import { generateEditManifest, formatManifestForHuman, queueMediaFromManifest } from "../edit/manifest.js";
 import { generatePoster } from "./poster.js";
 import { generateEngageFromTrends } from "./engage.js";
-import { styleForBrand } from "../edit/styles.js";
+import { styleForBrand, adStyleForBrand } from "../edit/styles.js";
 import type { BrandKey } from "../brands.js";
 import { hasTinyfish } from "../research/tinyfish.js";
 
@@ -25,11 +25,12 @@ export interface FirstPostPack {
 
 /** Full launch pack: draft + edit manifest + poster + engage targets — optimized for 1k push. */
 export async function buildFirstPostPack(brand: BrandKey, style?: string): Promise<FirstPostPack> {
-  const styleDef = styleForBrand(brand, style);
+  const styleDef =
+    brand === "magmos" && !style ? adStyleForBrand(brand) : styleForBrand(brand, style);
   const topic =
     brand === "veil"
       ? "real testnet loss receipt — stealth order settled -100%"
-      : "AURUM forge smelt on testnet — real Move tx";
+      : "AURUM forge smelt on testnet — real Move tx — paid ad hook";
 
   const draft = await generateDraft({
     brand,

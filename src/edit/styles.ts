@@ -4,7 +4,8 @@ export type EditStyleId =
   | "capcut-crypto"
   | "cinematic-broll"
   | "raw-build"
-  | "loss-receipt";
+  | "loss-receipt"
+  | "magmos-forge";
 
 export interface EditStyleDef {
   id: EditStyleId;
@@ -74,6 +75,17 @@ export const EDIT_STYLES: EditStyleDef[] = [
     brollDensity: "light",
     description: "Hook = negative PnL on screen. Highest X share rate for Veil testnet proof.",
   },
+  {
+    id: "magmos-forge",
+    label: "Magmos forge ad",
+    avgCutSec: 1.9,
+    hookSec: 1.4,
+    bpm: 128,
+    musicMood: "epic industrial forge 128bpm paid ad energy",
+    sfxPack: ["impact", "whoosh", "bass-hit", "rise", "ding"],
+    brollDensity: "medium",
+    description: "Paid X/TikTok ad cut — forge tx proof, beat-sync punches, CapCut velocity with brand polish.",
+  },
 ];
 
 export function getStyle(id?: string): EditStyleDef {
@@ -81,7 +93,17 @@ export function getStyle(id?: string): EditStyleDef {
   return found ?? EDIT_STYLES.find((s) => s.id === "capcut-crypto")!;
 }
 
-export function styleForBrand(brand: "veil" | "magmos", override?: string): EditStyleDef {
+export function styleForBrand(brand: string, override?: string): EditStyleDef {
   if (override) return getStyle(override);
-  return brand === "veil" ? getStyle("loss-receipt") : getStyle("raw-build");
+  if (brand === "veil") return getStyle("loss-receipt");
+  if (brand === "magmos") return getStyle("raw-build");
+  return getStyle("capcut-crypto");
+}
+
+/** Paid / promoted ad cuts — beat-sync, music bed, forge energy. */
+export function adStyleForBrand(brand: string, override?: string): EditStyleDef {
+  if (override) return getStyle(override);
+  if (brand === "magmos") return getStyle("magmos-forge");
+  if (brand === "veil") return getStyle("loss-receipt");
+  return getStyle("anime-hype");
 }

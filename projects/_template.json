@@ -1,0 +1,16 @@
+{
+  "id": "my-saas",
+  "name": "My SaaS",
+  "tagline": "One sentence — what changes for the customer",
+  "vertical": "web2",
+  "pillars": [
+    "Outcome 1 — what the user gets back",
+    "Outcome 2 — time or money saved"
+  ],
+  "avoid": ["guaranteed ROI", "fake testimonials", "feature dumps in launch video"],
+  "primaryUrl": "https://myapp.com",
+  "secondaryUrl": "",
+  "handles": ["@myhandle"],
+  "ugcAngle": "Screen recording of real product — founder POV, no stock footage",
+  "qaTopics": ["pricing", "onboarding", "integrations"]
+}

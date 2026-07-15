@@ -1,0 +1,64 @@
+{
+  "_comment": "Example config for render-chatgpt-chat. The recipe (DB) binds the brand's own thread + timeline + end-card here at remix time. The punchline is the STREAMED ASSISTANT ANSWER — the brand surfacing as the natural response to 'I just asked ChatGPT…'. thread + timeline drive record-chat.js; end_card + brand_name drive render-end-card.js. Keyframe rules: keyboard is up while the user types and slides down on the SAME t as send-tap; header cluster swaps in that same beat; ONE gray loading dot (never three); assistant message has stream:true so it reveals word-by-word.",
+  "brand_name": "ExampleBrand",
+  "width": 750,
+  "height": 1624,
+  "sfx": true,
+  "thread": {
+    "statusBar": { "time": "9:41" },
+    "header": {
+      "style": "plain-title",
+      "title": "ChatGPT",
+      "rightIcons": ["personPlus", "dottedCircle"],
+      "rightIconsAlt": ["edit", "more"]
+    },
+    "keyboard": { "layout": "qwerty-lower", "suggestions": ["I", "The", "I'm"], "state": "hidden" },
+    "messages": [
+      { "type": "user-text", "id": "msg-user-1", "text": "what's the easiest way to plan a week of meals?", "popState": "pending" },
+      { "type": "loading-dot", "id": "dot-1", "popState": "pending" },
+      {
+        "type": "assistant",
+        "id": "msg-assistant-1",
+        "stream": true,
+        "popState": "pending",
+        "feedback": false,
+        "text": "The simplest approach most people land on:\n\n* Pick 3-4 dinners you actually like\n* Batch one protein + one grain on Sunday\n* Let an app build the grocery list for you\n\nExampleBrand does all three in one tap — you pick the meals, it plans the week and orders the ingredients."
+      }
+    ],
+    "composer": { "placeholder": "Ask ChatGPT" }
+  },
+  "timeline": [
+    { "t": 0.0,  "kind": "keyboard-show" },
+    { "t": 0.5,  "kind": "composer-type", "text": "what's the easiest way to plan a week of meals?", "dur_sec": 2.6 },
+    { "t": 3.3,  "kind": "send-tap" },
+    { "t": 3.3,  "kind": "pop", "target": "msg-user-1" },
+    { "t": 3.3,  "kind": "composer-clear" },
+    { "t": 3.3,  "kind": "header-swap", "value": "alt" },
+    { "t": 3.3,  "kind": "keyboard-hide" },
+    { "t": 3.3,  "kind": "send-state", "value": "streaming" },
+    { "t": 3.65, "kind": "loading-dot-show", "target": "dot-1" },
+    { "t": 4.2,  "kind": "loading-dot-hide", "target": "dot-1" },
+    { "t": 4.2,  "kind": "pop", "target": "msg-assistant-1" },
+    { "t": 4.25, "kind": "stream-words", "target": "msg-assistant-1", "dur_sec": 6.5, "wps": 7 },
+    { "t": 4.6,  "kind": "scroll-to", "target": "msg-assistant-1", "dur_ms": 300 },
+    { "t": 11.0, "kind": "send-state", "value": "active" }
+  ],
+  "end_card": {
+    "bg": "#ffffff",
+    "fg": "#111111",
+    "cta_bg": "#111111",
+    "cta_fg": "#ffffff",
+    "star_color": "#f5b301",
+    "wordmark_text": "EXAMPLEBRAND",
+    "logo_svg": "",
+    "stars": 5,
+    "proof_text": "Meal planning in one tap",
+    "trust_trio": [
+      { "label": "Pick your\nmeals", "icon": "check" },
+      { "label": "Auto grocery\nlist", "icon": "gift" },
+      { "label": "Ready in\nminutes", "icon": "bolt" }
+    ],
+    "cta_text": "Plan my week",
+    "dwell_sec": 2.5
+  }
+}

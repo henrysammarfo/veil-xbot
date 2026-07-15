@@ -1,20 +1,22 @@
-import OpenAI from "openai";
 import { writeFileSync, mkdirSync, existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { requireEnv, DATA_DIR, assertDataDir, hasOpenAI } from "../config.js";
-import { listLearnings, readPlaybook, newId } from "../store.js";
+import { DATA_DIR, assertDataDir } from "../config.js";
+import { newId } from "../store.js";
 import { loadLatestEditRecipe } from "../discover/auto-learn.js";
-import { tasteSystemSuffix } from "../taste.js";
 import type { BrandKey } from "../brands.js";
 import { styleForBrand, type EditStyleId } from "./styles.js";
 import { SFX_CATALOG } from "./sfx.js";
+import type { FootageAnalysis } from "./analyze-footage.js";
+import { remapTime } from "./dead-space.js";
 import { discoverClips } from "../discover/clips.js";
 import { queueSunoMusic } from "../media/providers.js";
+import { hasVenice } from "../integrations/venice.js";
 
 export interface CutPoint {
   atSec: number;
   type: "hard-cut" | "zoom-punch" | "speed-ramp" | "flash-frame";
   scale?: number;
+  durationSec?: number;
   note?: string;
 }
 
@@ -28,7 +30,7 @@ export interface BrollSlot {
   atSec: number;
   durationSec: number;
   prompt: string;
-  provider: "pexels" | "pixabay" | "screen" | "kling-ref";
+  provider: "pexels" | "pixabay" | "screen" | "kling-ref" | "generated" | "venice" | "kling" | "veo" | "seedance";
 }
 
 export interface CaptionBeat {
@@ -52,6 +54,9 @@ export interface EditManifest {
   captions: CaptionBeat[];
   renderNotes: string[];
   createdAt: number;
+  sourceDurationSec?: number;
+  deadSpaceRemovedSec?: number;
+  hookLine?: string;
 }
 
 function exportsDir(): string {
@@ -61,182 +66,160 @@ function exportsDir(): string {
   return d;
 }
 
-function fallbackManifest(
+/** Build edit manifest from real footage analysis — not LLM guesses. */
+export function buildManifestFromFootage(
+  analysis: FootageAnalysis,
   brand: BrandKey,
-  styleId: EditStyleId,
-  durationSec: number,
+  styleId?: EditStyleId,
+  inputPath?: string,
 ): EditManifest {
   const style = styleForBrand(brand, styleId);
   const recipe = loadLatestEditRecipe();
-  const hook =
-    brand === "veil"
-      ? "I lost $5 on testnet. On purpose."
-      : "Forge live. Real Move. No mockup.";
+  const segments = analysis.keepSegments;
+  const durationSec = analysis.trimmedDurationSec;
+  const mapT = (t: number) => remapTime(t, segments);
 
-  const captions: CaptionBeat[] = [
-    { start: 0, end: style.hookSec, text: hook, style: "hook" },
-    { start: style.hookSec, end: style.hookSec + 8, text: "Screen recording — real app", style: "body" },
-    { start: durationSec - 3, end: durationSec, text: "Link in reply", style: "cta" },
-  ];
+  const captions: CaptionBeat[] = [];
+  captions.push({
+    start: 0,
+    end: Math.min(style.hookSec, durationSec),
+    text: analysis.hookLine,
+    style: "hook",
+  });
+
+  if (analysis.wordCaptions.length) {
+    for (const wc of analysis.wordCaptions) {
+      const start = mapT(wc.start);
+      const end = mapT(wc.end);
+      if (end <= style.hookSec || start >= durationSec - 2.5) continue;
+      if (end <= start) continue;
+      captions.push({
+        start: Math.max(style.hookSec, start),
+        end: Math.min(durationSec - 2.5, end),
+        text: wc.text,
+        style: "body",
+      });
+    }
+  } else {
+    captions.push({
+      start: style.hookSec,
+      end: Math.min(style.hookSec + 10, durationSec - 3),
+      text: "REAL SCREEN RECORDING — LIVE APP",
+      style: "body",
+    });
+  }
+
+  captions.push({
+    start: Math.max(0, durationSec - 2.8),
+    end: durationSec,
+    text: brand === "veil" ? "LINK IN REPLY ↓" : "TRY IT — LINK IN BIO",
+    style: "cta",
+  });
 
   const cuts: CutPoint[] = [];
-  let t = 0;
-  let i = 0;
-  while (t < durationSec - 1) {
+  cuts.push({
+    atSec: 0,
+    type: "zoom-punch",
+    scale: style.id === "anime-hype" ? 1.18 : 1.14,
+    note: "hook punch",
+  });
+
+  let t = style.avgCutSec;
+  let i = 1;
+  while (t < durationSec - 1.5) {
+    const type =
+      i % 5 === 0
+        ? "flash-frame"
+        : i % 3 === 0
+          ? "speed-ramp"
+          : i % 2 === 0
+            ? "zoom-punch"
+            : "hard-cut";
     cuts.push({
       atSec: t,
-      type: i === 0 ? "zoom-punch" : i % 3 === 0 ? "flash-frame" : "hard-cut",
-      scale: i === 0 ? 1.15 : 1.08,
+      type,
+      scale: type === "zoom-punch" ? 1.1 : undefined,
+      durationSec: type === "speed-ramp" ? 0.45 : type === "flash-frame" ? 0.06 : undefined,
+      note: `beat ${i}`,
     });
     t += style.avgCutSec;
     i++;
   }
 
+  for (const peak of analysis.energyPeaks.map(mapT)) {
+    if (peak > 1 && peak < durationSec - 2 && !cuts.some((c) => Math.abs(c.atSec - peak) < 0.4)) {
+      cuts.push({ atSec: peak, type: "zoom-punch", scale: 1.12, note: "energy peak" });
+    }
+  }
+  cuts.sort((a, b) => a.atSec - b.atSec);
+
+  const sfxPack = style.sfxPack;
   const sfx: SfxCue[] = [
     { atSec: 0, sound: "impact", reason: "hook hit" },
-    { atSec: style.hookSec, sound: "whoosh", reason: "enter demo" },
+    { atSec: Math.min(style.hookSec, durationSec), sound: "whoosh", reason: "enter demo" },
   ];
-  for (const c of cuts.slice(2)) {
+  for (const c of cuts.slice(1)) {
     if (c.type === "hard-cut") sfx.push({ atSec: c.atSec, sound: "whoosh", reason: "cut" });
     if (c.type === "zoom-punch") sfx.push({ atSec: c.atSec, sound: "bass-hit", reason: "punch in" });
+    if (c.type === "flash-frame") sfx.push({ atSec: c.atSec, sound: "glitch", reason: "flash" });
+    if (c.type === "speed-ramp") {
+      sfx.push({ atSec: c.atSec, sound: sfxPack[sfx.length % sfxPack.length] ?? "rise", reason: "speed ramp" });
+    }
   }
 
   const broll: BrollSlot[] = [];
-  if (style.brollDensity !== "light") {
+  const veniceProvider = hasVenice() ? ("seedance" as const) : ("generated" as const);
+  if (style.brollDensity !== "light" && durationSec > 8) {
     broll.push({
-      atSec: 4,
-      durationSec: 2,
-      prompt: `${brand} dashboard UI dark mode — use Pexels clip or screen`,
-      provider: "pexels",
+      atSec: Math.min(4, durationSec * 0.25),
+      durationSec: style.id === "anime-hype" ? 1.2 : 2,
+      prompt: `${brand} dark UI motion vertical abstract tech b-roll cinematic`,
+      provider: veniceProvider,
+    });
+  }
+  if (style.brollDensity === "heavy" && durationSec > 14) {
+    broll.push({
+      atSec: durationSec * 0.55,
+      durationSec: 1.8,
+      prompt: "abstract motion lines vertical dark technology cinematic",
+      provider: veniceProvider,
     });
   }
   if (style.id === "anime-hype") {
     broll.push({
-      atSec: 1.2,
-      durationSec: 0.4,
-      prompt: "abstract motion lines vertical — Pexels",
-      provider: "pexels",
+      atSec: 1.0,
+      durationSec: 0.35,
+      prompt: "flash cut motion blur vertical hype",
+      provider: veniceProvider,
     });
   }
+
+  const deadSpaceRemovedSec = analysis.durationSec - durationSec;
 
   return {
     id: newId("manifest"),
     brand,
     style: style.id,
+    inputPath,
     durationSec,
+    sourceDurationSec: analysis.durationSec,
+    deadSpaceRemovedSec,
+    hookLine: analysis.hookLine,
     bpm: style.bpm,
     musicPrompt: recipe?.musicMood ?? style.musicMood,
     cuts,
-    sfx: sfx.slice(0, 12),
+    sfx: sfx.slice(0, 16),
     broll,
     captions,
     renderNotes: [
       `Style: ${style.label}`,
-      "Hard cut on every SFX whoosh",
-      "Zoom 110-115% on UI clicks",
-      "Burn captions from manifest beats",
+      `Dead space removed: ${deadSpaceRemovedSec.toFixed(1)}s`,
+      `Whisper captions: ${analysis.transcript ? "yes" : "template fallback"}`,
+      "All cuts rendered — zoom, flash, speed-ramp, b-roll overlay",
+      "ASS cinematic captions burned in",
     ],
     createdAt: Date.now(),
   };
-}
-
-/** Frame-accurate edit plan: cuts, SFX, b-roll, captions — learned + style preset. */
-export async function generateEditManifest(opts: {
-  brand: BrandKey;
-  style?: EditStyleId;
-  durationSec?: number;
-  inputPath?: string;
-  topic?: string;
-}): Promise<EditManifest> {
-  const brand = opts.brand;
-  const style = styleForBrand(brand, opts.style);
-  const durationSec = opts.durationSec ?? 45;
-  const learnings = listLearnings().slice(0, 6);
-  const playbook = readPlaybook().slice(0, 2500);
-
-  if (!hasOpenAI()) {
-    const m = fallbackManifest(brand, style.id, durationSec);
-    if (opts.inputPath) m.inputPath = opts.inputPath;
-    saveManifest(m);
-    return m;
-  }
-
-  const openai = new OpenAI({ apiKey: requireEnv("OPENAI_API_KEY") });
-  const res = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    temperature: 0.35,
-    response_format: { type: "json_object" },
-    messages: [
-      {
-        role: "system",
-        content:
-          `You are a viral short-form editor (CapCut/anime/crypto TikTok). Output frame-accurate edit manifests. JSON only.${tasteSystemSuffix()}`,
-      },
-      {
-        role: "user",
-        content: `Brand: ${brand}
-Style: ${style.id} — ${style.description}
-Duration: ${durationSec}s
-BPM: ${style.bpm}
-Topic: ${opts.topic || "first viral post"}
-Allowed SFX: ${Object.keys(SFX_CATALOG).join(", ")}
-
-Learnings:
-${learnings.map((l) => JSON.stringify({ title: l.title, hook: l.analysis.hookPattern, pacing: l.analysis.pacing, edit: l.analysis.editStyle, broll: l.analysis.suggestedBroll })).join("\n")}
-
-Playbook:
-${playbook}
-
-Return JSON:
-{
-  "musicPrompt": "suno one-liner",
-  "cuts": [{"atSec":0,"type":"zoom-punch|hard-cut|flash-frame|speed-ramp","scale":1.15,"note":"why"}],
-  "sfx": [{"atSec":0,"sound":"whoosh|bass-hit|impact|...","reason":"on beat"}],
-  "broll": [{"atSec":4,"durationSec":2,"prompt":"kling prompt","provider":"kling|hyperframes|anime-stock"}],
-  "captions": [{"start":0,"end":2,"text":"max 6 words","style":"hook|body|cta"}],
-  "renderNotes": ["editor instruction 1"]
-}
-SFX must land ON cuts. Hook caption under 1.5s for anime-hype. Min 8 cuts for anime-hype.`,
-      },
-    ],
-  });
-
-  const raw = res.choices[0]?.message?.content;
-  const base = fallbackManifest(brand, style.id, durationSec);
-  if (!raw) {
-    saveManifest(base);
-    return base;
-  }
-
-  const parsed = JSON.parse(raw) as Partial<EditManifest>;
-  const manifest: EditManifest = {
-    ...base,
-    ...parsed,
-    id: newId("manifest"),
-    brand,
-    style: style.id,
-    durationSec,
-    inputPath: opts.inputPath,
-    createdAt: Date.now(),
-  };
-  saveManifest(manifest);
-  await queueMediaFromManifest(manifest);
-  return manifest;
-}
-
-export async function queueMediaFromManifest(m: EditManifest): Promise<void> {
-  queueSunoMusic(m.musicPrompt);
-  const clips = await discoverClips({
-    niche: m.brand === "veil" ? "trading screen dark" : "technology abstract",
-    limit: m.broll.length || 3,
-  });
-  assertDataDir();
-  const dir = join(DATA_DIR, "clips");
-  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
-  writeFileSync(
-    join(dir, "manifest-broll.json"),
-    JSON.stringify({ manifestId: m.id, clips, note: "Download to assets/broll/ — NO Kling watermark" }, null, 2),
-  );
 }
 
 export function saveManifest(m: EditManifest): string {
@@ -254,12 +237,14 @@ export function loadLatestManifest(): EditManifest | null {
 
 export function formatManifestForHuman(m: EditManifest): string {
   const lines = [
-    `# Edit manifest — ${m.style} (${m.brand})`,
-    `Duration: ${m.durationSec}s · BPM: ${m.bpm}`,
+    `# Edit manifest v2 — ${m.style} (${m.brand})`,
+    `Duration: ${m.durationSec.toFixed(1)}s · BPM: ${m.bpm}`,
+    m.deadSpaceRemovedSec ? `Dead space cut: ${m.deadSpaceRemovedSec.toFixed(1)}s` : "",
+    m.hookLine ? `Hook: "${m.hookLine}"` : "",
     `Music: ${m.musicPrompt}`,
     "",
     "## Timeline",
-  ];
+  ].filter(Boolean);
   const events: Array<{ t: number; line: string }> = [];
   for (const c of m.cuts) events.push({ t: c.atSec, line: `CUT ${c.type} ${c.scale ? `@${c.scale}x` : ""} ${c.note || ""}` });
   for (const s of m.sfx) events.push({ t: s.atSec, line: `SFX ${s.sound} — ${s.reason}` });
@@ -269,4 +254,55 @@ export function formatManifestForHuman(m: EditManifest): string {
   for (const e of events) lines.push(`${e.t.toFixed(2)}s  ${e.line}`);
   lines.push("", "## Render notes", ...m.renderNotes.map((n) => `- ${n}`));
   return lines.join("\n");
+}
+
+/** @deprecated use buildManifestFromFootage via autoEdit v2 */
+export async function generateEditManifest(opts: {
+  brand: BrandKey;
+  style?: EditStyleId;
+  durationSec?: number;
+  inputPath?: string;
+  topic?: string;
+}): Promise<EditManifest> {
+  const style = styleForBrand(opts.brand, opts.style);
+  const durationSec = opts.durationSec ?? 45;
+  const m = buildManifestFromFootage(
+    {
+      inputPath: opts.inputPath ?? "",
+      durationSec,
+      transcript: null,
+      silences: [],
+      keepSegments: [{ start: 0, end: durationSec }],
+      trimmedDurationSec: durationSec,
+      fillersRemoved: 0,
+      hookLine: opts.brand === "veil" ? "I LOST $5 ON TESTNET. ON PURPOSE." : "LIVE DEMO — REAL APP",
+      hookEndSec: style.hookSec,
+      wordCaptions: [],
+      energyPeaks: [0],
+    },
+    opts.brand,
+    opts.style,
+    opts.inputPath,
+  );
+  saveManifest(m);
+  return m;
+}
+
+export async function queueMediaFromManifest(m: EditManifest): Promise<void> {
+  queueSunoMusic(m.musicPrompt);
+  const clips = await discoverClips({
+    niche: m.brand === "veil" ? "trading screen dark" : "technology abstract",
+    limit: m.broll.length || 3,
+  });
+  assertDataDir();
+  const dir = join(DATA_DIR, "clips");
+  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+  writeFileSync(
+    join(dir, "manifest-broll.json"),
+    JSON.stringify(
+      { manifestId: m.id, clips, note: "Optional stock — editor v2 generates ken-burns if empty" },
+      null,
+      2,
+    ),
+  );
 }

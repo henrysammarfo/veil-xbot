@@ -3,6 +3,9 @@ import { join } from "node:path";
 import { env, DATA_DIR, assertDataDir } from "../config.js";
 import { newId } from "../store.js";
 import { generateFalImage } from "./fal.js";
+import { hasHeyGen, runVideoAgent } from "./heygen.js";
+import { scaffoldFromTrailer, renderHyperframes } from "./hyperframes.js";
+import type { TrailerProduction } from "../studio/trailer.js";
 
 export interface PaidMediaJob {
   id: string;
@@ -19,17 +22,71 @@ function save(job: PaidMediaJob): PaidMediaJob {
   return job;
 }
 
-/** HeyGen avatar scene — when HEYGEN_API_KEY set. */
+/** HeyGen Video Agent — POST /v3/video-agents when HEYGEN_API_KEY set. */
 export function queuePaidAvatar(dialogue: string, look: string): PaidMediaJob {
-  const key = env("HEYGEN_API_KEY");
+  if (!hasHeyGen()) {
+    return save({
+      id: newId("heygen"),
+      provider: "heygen",
+      prompt: `${look}\n\nScript: ${dialogue}`,
+      status: "needs_key",
+      instructions:
+        "Set HEYGEN_API_KEY or add HeyGen MCP (OAuth): https://mcp.heygen.com/mcp/v1/",
+    });
+  }
   return save({
     id: newId("heygen"),
     provider: "heygen",
-    prompt: `${look}\n\nScript: ${dialogue}`,
-    status: key ? "queued" : "needs_key",
-    instructions: key
-      ? "POST HeyGen API v2 video — wire in integrations/heygen.ts when key purchased."
-      : "Buy HeyGen API → set HEYGEN_API_KEY. Until then: screen POV from trailer shot list.",
+    prompt: `${look}. Presenter says: ${dialogue}`,
+    status: "queued",
+    instructions: "Run: npm start heygen-run <job-id> or produce with HEYGEN_AUTO=1",
+  });
+}
+
+/** Execute queued HeyGen job — polls until MP4 in data/exports/ */
+export async function runPaidHeyGen(prompt: string, jobId?: string): Promise<PaidMediaJob> {
+  const job: PaidMediaJob = {
+    id: jobId ?? newId("heygen"),
+    provider: "heygen",
+    prompt,
+    status: "queued",
+    instructions: "HeyGen Video Agent v3",
+  };
+  try {
+    const result = await runVideoAgent(prompt);
+    job.status = "done";
+    job.outputPath = result.localPath;
+    job.instructions = `session ${result.sessionId} · ${result.videoUrl}`;
+  } catch (e) {
+    job.status = "manual";
+    job.instructions = e instanceof Error ? e.message : "HeyGen failed";
+  }
+  return save(job);
+}
+
+/** HyperFrames HTML scaffold from trailer — OSS, no API key */
+export function queueHyperframesTrailer(trailer: TrailerProduction): PaidMediaJob {
+  const hf = scaffoldFromTrailer(trailer);
+  return save({
+    id: newId("hyperframes"),
+    provider: "hyperframes",
+    prompt: trailer.title,
+    status: "queued",
+    instructions: hf.log,
+    outputPath: hf.projectDir,
+  });
+}
+
+/** Render HyperFrames project to MP4 */
+export async function runPaidHyperframes(projectDir: string): Promise<PaidMediaJob> {
+  const result = await renderHyperframes(projectDir);
+  return save({
+    id: newId("hyperframes"),
+    provider: "hyperframes",
+    prompt: projectDir,
+    status: result.status === "rendered" ? "done" : result.status === "failed" ? "manual" : "queued",
+    instructions: result.log,
+    outputPath: result.outputPath,
   });
 }
 

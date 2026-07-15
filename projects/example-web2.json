@@ -1,0 +1,16 @@
+{
+  "id": "example-web2",
+  "name": "Example Web2 App",
+  "tagline": "Your sales team gets back 12 hours every week",
+  "vertical": "web2",
+  "pillars": [
+    "Automate follow-ups — reps stop living in spreadsheets",
+    "Live CRM sync — no duplicate data entry",
+    "Works with HubSpot + Salesforce"
+  ],
+  "avoid": ["AI CRM buzzword soup", "guaranteed pipeline", "stock photo handshake"],
+  "primaryUrl": "https://example.com",
+  "handles": [],
+  "ugcAngle": "Real dashboard screen + customer quote overlay — not a slide deck",
+  "qaTopics": ["pricing", "trial", "security", "SOC2"]
+}

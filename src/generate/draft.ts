@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import { requireEnv } from "../config.js";
-import { brandVoice, brandLink, VEIL_VOICE, type BrandKey } from "../brands.js";
+import { brandVoice, type BrandKey } from "../brands.js";
 import { xAlgorithmPromptBlock } from "../algorithm/x-signals.js";
 import { tasteSystemSuffix } from "../taste.js";
 import { listLearnings, newId, readPlaybook, saveDraft, type PostDraft } from "../store.js";
@@ -16,10 +16,9 @@ export async function generateDraft(opts: {
   const playbook = readPlaybook().slice(0, 3000);
   const topic = opts.topic || "build in public — testnet milestone";
 
-  const link =
-    opts.brand === "veil"
-      ? `Demo: ${brandLink("veil")}${VEIL_VOICE.waitlistUrl() !== "[WAITLIST_URL]" ? `\nWaitlist: ${VEIL_VOICE.waitlistUrl()}` : ""}`
-      : `Repo: ${brandLink("magmos")}`;
+  const link = voice.waitlistUrl()
+    ? `Product: ${voice.link()}\nWaitlist: ${voice.waitlistUrl()}`
+    : `Link: ${voice.link()}`;
 
   const user = `Write ONE X post (manual paste — no auto-post).
 

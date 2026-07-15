@@ -1,0 +1,22 @@
+{
+  "id": "stellar-demo",
+  "name": "Stellar Project",
+  "tagline": "Payments on Stellar — live testnet proof",
+  "vertical": "web3",
+  "chain": "stellar",
+  "walletMode": "self-fund",
+  "stellarNetwork": "testnet",
+  "nativeSymbol": "XLM",
+  "primaryUrl": "https://laboratory.stellar.org",
+  "handles": ["@StellarOrg"],
+  "ugcAngle": "Explorer tx + app UI — Friendbot self-funds sandbox wallet",
+  "qaTopics": ["testnet", "payments", "wallet"],
+  "pillars": ["Live testnet tx", "Real XLM balance", "Explorer proof first"],
+  "avoid": ["mainnet funds", "fake tx screenshots"],
+  "demoUrls": ["{{explorerTx}}", "{{primaryUrl}}"],
+  "capture": {
+    "width": 1920,
+    "height": 1080,
+    "deviceScaleFactor": 2
+  }
+}

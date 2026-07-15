@@ -73,6 +73,19 @@ const EDITOR_MUSIC: Record<EditStyleId, Omit<MusicPlan, "style">> = {
     ],
     downloadUrls: ["https://pixabay.com/music/search/dramatic/"],
   },
+  "magmos-forge": {
+    bpm: 128,
+    genre: "epic industrial / forge hammer",
+    referenceArtists: "CapCut product launch ads — punchy 128bpm",
+    sunoPrompt: "epic industrial forge hammer 128bpm cinematic bass hits no vocals product ad",
+    editorNotes: [
+      "Cut on every snare — forge reveal at bar 4",
+      "Whoosh on UI transitions",
+      "Music -18dB under VO",
+      "Flash frame on tx hash",
+    ],
+    downloadUrls: ["https://pixabay.com/music/search/epic%20industrial/"],
+  },
 };
 
 export function getMusicPlan(styleId?: EditStyleId): MusicPlan {

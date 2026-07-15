@@ -1,4 +1,6 @@
 /** Booming niches — steal what's winning, angle Veil/Magmos later. */
+import type { BrandKey } from "../brands.js";
+
 export type TrendCategory =
   | "crypto"
   | "ai"
@@ -116,7 +118,7 @@ export function resolveCategories(
 
 export function queriesForDiscovery(opts: {
   categories?: TrendCategory | TrendCategory[];
-  brand?: "veil" | "magmos" | "both";
+  brand?: BrandKey | "both";
 }): string[] {
   const cats = resolveCategories(opts.categories ?? "all");
   const base = cats.flatMap((c) => c.queries);

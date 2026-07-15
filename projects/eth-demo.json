@@ -1,0 +1,34 @@
+{
+  "id": "eth-demo",
+  "name": "Ethereum dApp",
+  "tagline": "EVM demo — MetaMask sign on testnet",
+  "vertical": "web3",
+  "chain": "evm",
+  "evmChainId": 11155111,
+  "walletMode": "metamask",
+  "nativeSymbol": "ETH",
+  "primaryUrl": "https://sepolia.etherscan.io",
+  "secondaryUrl": "https://your-dapp.vercel.app",
+  "handles": ["@ethereum"],
+  "ugcAngle": "MetaMask connect + sign visible in recording — judges see real wallet flow",
+  "qaTopics": ["sepolia", "metamask", "connect wallet"],
+  "pillars": ["MetaMask visible", "Testnet only", "Tx on Etherscan"],
+  "avoid": ["mainnet", "seed phrase on screen"],
+  "demoUrls": ["{{explorerTx}}", "{{primaryUrl}}", "{{secondaryUrl}}"],
+  "capture": {
+    "width": 1920,
+    "height": 1080,
+    "deviceScaleFactor": 2,
+    "headed": true,
+    "steps": [
+      { "action": "goto", "url": "{{primaryUrl}}", "note": "Explorer proof" },
+      { "action": "wait", "ms": 3500 },
+      { "action": "screenshot" },
+      { "action": "goto", "url": "{{secondaryUrl}}", "note": "dApp" },
+      { "action": "wait", "ms": 4000 },
+      { "action": "click", "selector": "button:has-text('Connect'), [data-testid='connect-wallet']", "note": "MetaMask connect" },
+      { "action": "wait", "ms": 8000, "note": "Approve in MetaMask window" },
+      { "action": "screenshot" }
+    ]
+  }
+}

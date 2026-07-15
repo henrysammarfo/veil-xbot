@@ -1,5 +1,6 @@
 import { tinyfishSearch, type SearchHit } from "../research/tinyfish.js";
 import { queriesForDiscovery, type TrendCategory } from "./categories.js";
+import type { BrandKey } from "../brands.js";
 
 export type TrendPlatform = "youtube" | "tiktok" | "x" | "other";
 
@@ -93,7 +94,7 @@ function scoreHit(hit: SearchHit, query: string): RankedTrend | null {
 }
 
 export async function discoverTrending(opts: {
-  brand?: "veil" | "magmos" | "both";
+  brand?: BrandKey | "both";
   categories?: TrendCategory | TrendCategory[];
   limit?: number;
   perQuery?: number;

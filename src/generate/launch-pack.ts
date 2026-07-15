@@ -1,6 +1,6 @@
 import { writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
-import { DATA_DIR, assertDataDir } from "../config.js";
+import { env, DATA_DIR, assertDataDir } from "../config.js";
 import { newId } from "../store.js";
 import { buildFirstPostPack, formatFirstPostPack } from "./first-post.js";
 import { discoverClips } from "../discover/clips.js";
@@ -10,6 +10,8 @@ import { firstPostAlgorithmChecklist, xAlgorithmPromptBlock } from "../algorithm
 import { styleForBrand } from "../edit/styles.js";
 import type { BrandKey } from "../brands.js";
 import { hasTinyfish } from "../research/tinyfish.js";
+import { launchBriefForProject, formatEddyLaunchBrief } from "../studio/eddy-launch.js";
+import { chatCompletion } from "../ai/router.js";
 
 export interface LaunchPack {
   id: string;
@@ -29,9 +31,26 @@ export async function buildLaunchPack(brand: BrandKey, style?: string): Promise<
   const clips = hasTinyfish() ? await discoverClips({ niche: brand === "veil" ? "trading dark screen" : "forge fire abstract", limit: 8 }) : [];
 
   const algo = firstPostAlgorithmChecklist();
+  const eddyBrief = formatEddyLaunchBrief(launchBriefForProject(brand));
+
+  let launchScript = "";
+  try {
+    const llm = await chatCompletion(
+      "launch",
+      `Brand: ${brand}. Style: ${styleDef.id}. Write a 30s launch video script JSON:
+{"hook3s":"on-screen text","beats":[{"sec":3,"visual":"..."}],"cta":"..."}
+Outcome-first. Live proof. No logo open.`,
+      { context: brand },
+    );
+    launchScript = llm.content;
+  } catch {
+    launchScript = "(Set OPENAI_API_KEY or VERNICE_API_* for AI script)";
+  }
 
   let md = `# LAUNCH PACK — ${brand.toUpperCase()}\n\n`;
-  md += `> Complete playbook. Keys: OpenAI + TinyFish only. No watermarked Kling/HeyGen.\n\n`;
+  md += `> Complete playbook. Keys: OpenAI / Vernice AI + TinyFish. No watermarked Kling/HeyGen.\n\n`;
+  md += `## 0. LAUNCH VIDEO (Eddy rules — outcome first)\n\n${eddyBrief}\n\n`;
+  md += `### AI script (${env("LLM_PROVIDER") || "auto"})\n\n\`\`\`json\n${launchScript}\n\`\`\`\n\n`;
   md += `## 1. WHAT TO POST FIRST (new channel)\n\n`;
   md += brand === "veil"
     ? `**Main feed:** 42s video — hook on screen: *I lost $5.05 on testnet. On purpose.*\n\n**NOT your first post:** feature thread, APY, tagging @SuiNetwork\n`

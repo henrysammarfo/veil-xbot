@@ -12,7 +12,12 @@ import { discoverTrending } from "../discover/trending.js";
 import { autoLearn } from "../discover/auto-learn.js";
 import { hasTinyfish } from "../research/tinyfish.js";
 import { isBrandKey } from "../projects/registry.js";
+import type { BrandKey } from "../brands.js";
 import { tierReport } from "../studio/tiers.js";
+import { adStyleForBrand } from "../edit/styles.js";
+import { buildPaidGrowthPack } from "../growth/paid-growth.js";
+import { seedGrowthBrain } from "../brain/seed.js";
+import { searchSkills, adoptSkillsIntoBrain, ensureGooseVendorLink } from "../skills/catalog.js";
 
 export interface OpsRun {
   id: string;
@@ -27,8 +32,17 @@ export interface OpsRun {
  * This IS your marketing team for the day.
  */
 export async function runGrowthOps(projectId: string): Promise<OpsRun> {
+  ensureGooseVendorLink();
+  seedGrowthBrain();
+  adoptSkillsIntoBrain(100);
+
   const project = getProject(projectId);
   const phases: string[] = [];
+  const skillHits = [
+    ...searchSkills("ugc ads meta", 4),
+    ...searchSkills("x content launch", 3),
+    ...searchSkills("brand research", 2),
+  ];
   const sections: string[] = [
     `# GROWTH OPS — ${project.name}`,
     `_${new Date().toISOString()}_`,
@@ -38,7 +52,11 @@ export async function runGrowthOps(projectId: string): Promise<OpsRun> {
     "- GTM (launch)",
     "- Distribution (trends, engage, hashtags)",
     "- Creative (UGC + clip brief)",
+    "- Skills runtime (Goose + HyperFrames catalog)",
     "- Q&A knowledge loaded",
+    "",
+    "## Skills the bot is using this run",
+    ...skillHits.map((s) => `- **${s.slug}** — ${s.description.slice(0, 120)}`),
     "",
   ];
 
@@ -65,16 +83,16 @@ export async function runGrowthOps(projectId: string): Promise<OpsRun> {
     if (isBrandKey(projectId)) {
       const tags = await discoverHashtags(projectId);
       sections.push("## DISTRIBUTION — hashtags\n", `Post: ${tags.hashtags.slice(0, 2).join(" ")}\nEngage: ${tags.tags.join(" ")}\n`);
-      const trends = await discoverTrending({ limit: 6, brand: projectId });
+      const trends = await discoverTrending({ limit: 6, brand: projectId as BrandKey });
       if (isBrandKey(projectId)) {
-        await generateEngageFromTrends(trends, projectId, 4);
+        await generateEngageFromTrends(trends, projectId as BrandKey, 4);
       }
       sections.push("## DISTRIBUTION — engage drafts saved to dashboard\n");
     }
     phases.push("learn");
     if (isBrandKey(projectId)) {
       try {
-        await autoLearn({ top: 3, brand: projectId, categories: "all" });
+        await autoLearn({ top: 3, brand: projectId as BrandKey, categories: "all" });
         sections.push("## LEARN — autolearn 3 videos done\n");
       } catch {
         sections.push("## LEARN — skipped (no URLs)\n");
@@ -82,21 +100,37 @@ export async function runGrowthOps(projectId: string): Promise<OpsRun> {
     }
   }
 
+  const adStyle = adStyleForBrand(projectId);
+  if (projectId === "magmos") {
+    phases.push("paid-growth");
+    const growth = buildPaidGrowthPack("magmos");
+    sections.push("## PAID GROWTH (blue tick + ads)\n", growth.markdown.slice(0, 2800), "…\n");
+  }
+
   sections.push(
     "## STUDIO",
     tierReport(),
     "",
-    "Run: npm run sandbox " + projectId + " → fix bugs → npm run produce " + projectId + " trailer",
+    projectId === "magmos"
+      ? [
+          "Magmos ad pipeline (autonomous — no CapCut):",
+          "1. Record forge terminal 45–60s",
+          `2. \`npm run magmos-ad recording.webm\` — style **${adStyle.id}**`,
+          "3. Upload 9:16 to X Ads + organic post first",
+          "4. `npm run growth-check magmos` — budget + blue tick checklist",
+        ].join("\n")
+      : [
+          "Run: npm run sandbox " + projectId + " → npm run produce " + projectId + " trailer",
+          "1. Record UGC shot list above",
+          `2. \`npm run edit-auto recording.mp4 ${projectId}\``,
+        ].join("\n"),
     "",
-    "1. Record UGC shot list above",
-    "2. `npm run edit recording.mp4 " + projectId + "`",
-    "3. Post video → `npm run qa " + projectId + ' "question"` for replies',
-    "4. Dashboard: npm run serve",
+    "Dashboard: npm run serve",
     "",
     "## Realistic media policy",
-    "- Clips: screen POV + Pexels b-roll (bot finds URLs)",
+    "- Autonomous editor: beat-sync, music, VO, b-roll — zero timeline babysitting",
     "- Avatar: NO watermarked AI faces — screen + text hooks",
-    "- UGC: founder desk / phone showing real app",
+    "- UGC: founder desk / terminal showing real txs",
   );
 
   const md = sections.join("\n");

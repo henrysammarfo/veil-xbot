@@ -6,8 +6,11 @@
     "strict": true,
     "skipLibCheck": true,
     "noEmit": true,
-    "rootDir": "src",
-    "types": ["node"]
+    "types": ["node"],
+    "paths": {
+      "@veil/sdk": ["../veil/packages/sdk/src/index.ts"],
+      "@veil/sdk/*": ["../veil/packages/sdk/src/*"]
+    }
   },
   "include": ["src/**/*"]
 }

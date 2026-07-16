@@ -42,6 +42,7 @@ import { editEnginesAvailable } from "../integrations/edit-reference.js";
 import { hasFal } from "../integrations/fal.js";
 import { hasVenice } from "../integrations/venice.js";
 import { hasOpenAI } from "../config.js";
+import { hasFfmpeg, runFfmpeg } from "../edit/ffmpeg-util.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -84,6 +85,7 @@ export interface StackBatchResult {
   format: GooseFormat;
   probe: StackProbe;
   ads: StackAdResult[];
+  ugcLoops?: Array<{ pngPath: string; mp4Path: string }>;
   companions: {
     anglesPath?: string;
     metaBriefPath?: string;
@@ -430,6 +432,54 @@ async function remixOne(opts: {
   };
 }
 
+async function buildUgcLoops(opts: {
+  workDir: string;
+  ads: StackAdResult[];
+  log: string[];
+}): Promise<Array<{ pngPath: string; mp4Path: string }>> {
+  if (!hasFfmpeg()) {
+    opts.log.push("UGC loops skipped: ffmpeg missing");
+    return [];
+  }
+  const loops: Array<{ pngPath: string; mp4Path: string }> = [];
+  const limit = Math.min(opts.ads.length, Number(env("UGC_LOOP_COUNT", "4")) || 4);
+  const sec = Math.max(4, Number(env("UGC_LOOP_SEC", "8")) || 8);
+  for (let i = 0; i < limit; i++) {
+    const ad = opts.ads[i];
+    const mp4Path = join(opts.workDir, `ugc-loop-${i}-${ad.concept.layout}.mp4`);
+    try {
+      runFfmpeg(
+        [
+          "-y",
+          "-loop",
+          "1",
+          "-i",
+          ad.pngPath,
+          "-vf",
+          "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,format=yuv420p",
+          "-c:v",
+          "libx264",
+          "-t",
+          String(sec),
+          "-pix_fmt",
+          "yuv420p",
+          mp4Path,
+        ],
+        `goose-ugc-loop-${i}`,
+      );
+      if (existsSync(mp4Path)) {
+        loops.push({ pngPath: ad.pngPath, mp4Path });
+      }
+    } catch (e) {
+      opts.log.push(`UGC loop ${i} failed: ${e instanceof Error ? e.message : e}`);
+    }
+  }
+  if (loops.length) {
+    opts.log.push(`UGC loops built: ${loops.length}/${limit}`);
+  }
+  return loops;
+}
+
 /** Run companion Goose skills as structured JSON (executable output, not wallpaper). */
 async function runCompanionSkills(opts: {
   workDir: string;
@@ -541,6 +591,8 @@ export async function runGooseStaticStack(opts: {
     ads.push({ ...ad, pngPath: dest });
   }
 
+  const ugcLoops = await buildUgcLoops({ workDir: dir, ads, log });
+
   const companions = await runCompanionSkills({
     workDir: dir,
     projectId: opts.projectId,
@@ -570,6 +622,11 @@ export async function runGooseStaticStack(opts: {
         (a, i) =>
           `${i + 1}. **${a.engine}** · ${a.concept.conceptId} · ref=${a.referencePath ? basename(a.referencePath) : "—"} → ${a.pngPath}`,
       ),
+      "",
+      "## UGC loops (vertical MP4)",
+      ...(ugcLoops.length
+        ? ugcLoops.map((u, i) => `${i + 1}. ${u.mp4Path}`)
+        : ["- (none — set ffmpeg or check ad outputs)"]),
       "",
       "## Companion skill outputs",
       companions.anglesPath ? `- ${companions.anglesPath}` : "- angles: (skipped)",
@@ -608,6 +665,7 @@ export async function runGooseStaticStack(opts: {
     format,
     probe,
     ads,
+    ugcLoops,
     companions: { ...companions, stackReportPath },
     log,
   };

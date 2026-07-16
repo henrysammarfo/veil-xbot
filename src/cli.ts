@@ -153,6 +153,9 @@ Veil X Bot — Growth OS (marketing · GTM · distribution · Q&A)
   oss-discover                               TinyFish OSS catalog → data/research/
   oss-stack                                  OSS repos — live wired status table
   oss-wire [project] [--no-montage] [--no-heygen]  Full wire: goldmine + montage + probes
+  social-max [project]                           Daily learn: X/YT/TikTok/Reddit → craft rules
+  site-ads [project] [url]                       Google-style site → Venice stills + Seedance clips
+  ship [project]                                 ONE pipeline: social-max → pack (enterprise ship)
   produce <project> <phase> [feature]        Trailer/teaser/intro production brief
   phases                                     Content mix (intro → teaser → launch)
   tier                                       Free vs paid media quality report
@@ -372,6 +375,42 @@ async function main(): Promise<void> {
         runHeyGen: !noHeygen,
       });
       console.log(formatOssWire(wire));
+      break;
+    }
+    case "social-max": {
+      const project = rest[0] || "magmos";
+      console.log(`Social max — learn winners across platforms (${project})...\n`);
+      const { runSocialMax, formatSocialMax } = await import("./discover/social-max.js");
+      const r = await runSocialMax({
+        projectId: project,
+        skipWatch: rest.includes("--skip-watch"),
+      });
+      console.log(formatSocialMax(r));
+      break;
+    }
+    case "site-ads": {
+      const project = rest[0] || "magmos";
+      const url = rest.find((a) => /^https?:\/\//i.test(a));
+      console.log(`Site→ads (Google-style) — ${project}...\n`);
+      const { runSiteAds, formatSiteAds } = await import("./studio/site-ads.js");
+      const r = await runSiteAds({ projectId: project, url, makeVideo: !rest.includes("--no-video") });
+      console.log(formatSiteAds(r));
+      console.log(`\n→ ${r.dir}`);
+      break;
+    }
+    case "ship": {
+      const project = rest[0] || "magmos";
+      console.log(`SHIP — one pipeline: social-max → full pack (${project})...\n`);
+      const { runSocialMax, formatSocialMax } = await import("./discover/social-max.js");
+      const smax = await runSocialMax({
+        projectId: project,
+        skipWatch: rest.includes("--skip-watch"),
+      });
+      console.log(formatSocialMax(smax));
+      console.log("\n--- Pack ---\n");
+      const result = await produceFullPack({ projectId: project });
+      console.log(formatProducePack(result));
+      console.log(`\n→ ${result.packDir}`);
       break;
     }
     case "ops": {

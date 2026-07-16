@@ -1,6 +1,6 @@
 /**
- * Magmos brand kit + Goose-level reference taste — the bar for local ads.
- * Refs live in data/ads/reference/magmos-goose/ (user-provided Goose dashboard ads).
+ * Magmos brand kit — plain human voice for public ads/posts.
+ * Goose refs in data/ads/reference/magmos-goose/ = taste bar (layout/energy), NOT copy source of truth.
  */
 import { existsSync, readdirSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
@@ -17,35 +17,43 @@ export const MAGMOS_BRAND = {
   black: "#0A0A0A",
   white: "#FFFFFF",
   teal: "#2A9D8F",
-  /** Short lines only — Goose-level density */
+  /** Public voice — warm, easy, zero crypto-jargon theater */
   voice: [
-    "No lockups. No jargon.",
-    "Just yield onchain.",
-    "Always worth $1.00",
-    "Your dollar earns while you hold",
-    "100% on-chain reserves",
-    "Composable yield-dollar on Sui",
-    "Trust-minimized. Composable. Verifiable on-chain.",
-    "Where is your dollar going?",
-    "HELLO, NICE TO MEET YOUR YIELD DOLLAR",
-    "Magmos is for the builders shipping yield on Sui while the market sleeps.",
-    "Because YIELD SHOULD COMPOUND",
-    "Your reserves shouldn't be hiding in spend you can't verify",
+    "Your dollar can earn while you hold it.",
+    "Still worth $1.00.",
+    "No lockups. Stay flexible.",
+    "Reserves you can check on-chain.",
+    "Simple. Clear. On Sui.",
+    "Idle money shouldn't sit still.",
+    "Join the waitlist.",
+    "Hold steady. Earn quietly.",
+    "Built for people who want clarity — not more jargon.",
+    "A digital dollar that stays $1 and can grow.",
+  ],
+  /** Words banned in public ads / trailers / X posts */
+  neverSay: [
+    "forge",
+    "smelt",
+    "refine",
+    "melt",
+    "thermal",
+    "Forge Council",
+    "composable yield-dollar",
+    "Trust-minimized",
+    "APY guaranteed",
+    "compostible",
   ],
 };
 
-/** Concept templates distilled from Goose Magmos ads — layout + plate prompt + copy. */
+/** Concept templates — layout craft from Goose taste; copy is plain Magmos. */
 export interface GooseLevelConcept {
   id: string;
-  /** HTML template key in local compositor */
   layout: string;
   ratio: "1:1" | "4:5";
   headline: string;
   subheadline: string;
   cta?: string;
-  /** Venice plate — NO TEXT. Matches Goose photography mood. */
   platePrompt: string;
-  /** Why this is the bar */
   lesson: string;
   useUiShot?: boolean;
 }
@@ -55,7 +63,7 @@ export const GOOSE_LEVEL_CONCEPTS: GooseLevelConcept[] = [
     id: "yellow-split-hello",
     layout: "yellow_split",
     ratio: "1:1",
-    headline: "HELLO,\nNICE TO\nMEET\nYOUR\nYIELD\nDOLLAR",
+    headline: "HELLO,\nNICE TO\nMEET\nYOUR\nDOLLAR",
     subheadline: "",
     cta: "Magmos",
     platePrompt:
@@ -68,76 +76,76 @@ export const GOOSE_LEVEL_CONCEPTS: GooseLevelConcept[] = [
     ratio: "4:5",
     headline: "A digital dollar\nthat earns while\nyou hold",
     subheadline: "Always worth $1.00",
-    cta: "Composable yield on Sui",
+    cta: "Join waitlist",
     platePrompt:
       "Natural light lifestyle photo young woman cross-legged on lounge chair looking at phone, soft neutrals, editorial fashion feel, empty negative space on left for text overlay, NO TEXT NO LOGOS",
-    lesson: "Lifestyle photo + mustard graphic shapes + punchy benefit + $1 pill.",
+    lesson: "Lifestyle photo + mustard shapes + clear benefit + $1 pill.",
   },
   {
     id: "clarity-no-jargon",
     layout: "clarity_overlay",
     ratio: "4:5",
-    headline: "No lockups.\nNo jargon.",
-    subheadline: "Just yield onchain.",
-    cta: "100% on-chain reserves, verifiable via Walrus MemWal",
+    headline: "No lockups.\nNo stress.",
+    subheadline: "Just hold and earn.",
+    cta: "Reserves on-chain",
     platePrompt:
       "Cinematic close-up of a focused person reading a document, warm brown knit sweater, soft spotlight, shallow depth of field, NO readable text on paper (blank/blurred), NO logos",
-    lesson: "Human emotion + two short headlines sandwiching the message.",
+    lesson: "Human emotion + two short headlines.",
     useUiShot: true,
   },
   {
     id: "dollar-leaking",
     layout: "pain_tags",
     ratio: "4:5",
-    headline: "Where is your\ndollar going?",
+    headline: "Where is your\nmoney going?",
     subheadline: "",
     cta: "Magmos",
     platePrompt:
       "Photorealistic top-down leather wallet with US dollar bills spilling out on light gray seamless background, product photography studio light, NO text on tags (blank white tags only), NO logos",
-    lesson: "Object metaphor + labeled pain points. Problem before product.",
+    lesson: "Object metaphor + pain points. Problem before product.",
   },
   {
     id: "late-night-builders",
     layout: "builders_night",
     ratio: "4:5",
-    headline: "Magmos is for\nthe builders shipping yield on Sui\nwhile the market sleeps.",
+    headline: "For people building\nquietly while the\nworld sleeps.",
     subheadline: "Magmos is for you.",
     platePrompt:
       "Overhead night office photograph, single developer at desk under warm desk lamp, rest of office in darkness, cinematic, NO TEXT NO SCREENS WITH READABLE TEXT",
-    lesson: "Atmospheric photography carries the culture message.",
+    lesson: "Atmosphere carries culture — keep words soft.",
   },
   {
     id: "compound-dreams",
     layout: "compound_room",
     ratio: "4:5",
     headline: "Because",
-    subheadline: "YIELD SHOULD COMPOUND",
+    subheadline: "GROWTH SHOULD FEEL QUIET",
     cta: "Magmos",
     platePrompt:
       "Warm beige room, young woman in mustard yellow shirt sitting on wood floor looking hopeful upward, soft daylight, empty wall space, NO TEXT NO FURNITURE OVERLAYS",
-    lesson: "Aspirational quiet photo + gold type. Leave room for line-art overlays in HTML.",
+    lesson: "Aspirational quiet photo + gold type.",
   },
   {
     id: "hidden-reserves",
     layout: "spotlight_object",
     ratio: "1:1",
-    headline: "Your reserves shouldn't be hiding in spend you can't verify",
-    subheadline: "Magmos keeps 100% on-chain.",
-    cta: "See verifiable reserves →",
+    headline: "Your reserves shouldn't hide",
+    subheadline: "Check them on-chain.",
+    cta: "See Magmos →",
     platePrompt:
       "Dramatic spotlight on crumpled ball of blank ledger paper on black background, studio product photo, deep shadows, NO readable text, NO logos",
-    lesson: "Single metaphor object + gold accent word + dark mode.",
+    lesson: "Single metaphor object + dark mode.",
   },
   {
     id: "defi-gazette",
     layout: "gazette",
     ratio: "1:1",
-    headline: "MINT, STAKE AND EARN\nIN A SINGLE ATOMIC TRANSACTION",
-    subheadline: "AURUM $1 · sAURUM compounds · 100% on-chain reserves",
-    cta: "The DeFi Gazette — Sui Special Edition",
+    headline: "MINT. HOLD. EARN.\nONE CLEAR FLOW",
+    subheadline: "$1 digital dollar · earns while you hold · on-chain reserves",
+    cta: "Magmos — waitlist open",
     platePrompt:
       "Photorealistic newspaper lying flat on mustard yellow table surface, blank newsprint pages slight crease, top-down product photo, NO readable newspaper text (empty columns), NO logos",
-    lesson: "Editorial object as container. Mustard stage. Dense but designed.",
+    lesson: "Editorial object as container. Mustard stage.",
     useUiShot: false,
   },
 ];
@@ -152,7 +160,7 @@ export function listMagmosReferenceAds(): string[] {
   return readdirSync(dir).filter((f) => /\.(png|jpg|webp)$/i.test(f));
 }
 
-/** Seed brain + self-learn from Goose Magmos refs — call on unified prepare / ad-maker. */
+/** Seed brain from Goose refs as TASTE bar — layout/energy only. */
 export function ingestGooseMagmosReferences(): {
   files: number;
   lessons: string[];
@@ -160,27 +168,26 @@ export function ingestGooseMagmosReferences(): {
   assertDataDir();
   const files = listMagmosReferenceAds();
   const lessons = [
-    "GOLD STANDARD = Goose Magmos ads in data/ads/reference/magmos-goose — match or beat that taste",
-    "Brand color: mustard yellow #E8B84A + black + white — not generic crypto blue/purple",
-    "Concept > UI screenshot. Metaphor, lifestyle, editorial newspaper, surreal interruption",
-    "Copy is short and stacked. No paragraphs on the ad face",
-    "Human or object photography carries emotion; HTML type stays crisp on top",
-    "Always place Magmos wordmark; never invent hardware gadgets",
-    "Problem ads: idle stables / opaque reserves / lockups / low yield",
-    "Culture ads: builders at night shipping yield on Sui",
-    "Self-improve: if output looks like a dashboard paste, reject and regenerate",
+    "Goose Magmos PNGs = taste bar for layout/energy — NOT the only ad path",
+    "Primary ads path = site → Google-style concepts → Venice stills + Seedance clips",
+    "Brand color: mustard #E8B84A + black + white",
+    "Public copy: plain English. Ban forge/smelt/thermal jargon in ads",
+    "Concept > dashboard paste. Metaphor, lifestyle, quiet aspiration",
+    "Short stacked words. No paragraphs on the ad face",
+    "Never invent Magmos hardware gadgets or AI faces",
+    "Self-improve: if output looks like a UI screenshot dump, reject",
   ];
 
   remember({
     kind: "insight",
-    title: "Magmos Goose ads = taste gold standard",
+    title: "Magmos taste = Goose layout energy + plain human voice",
     importance: 5,
     source: "magmos-goose-refs",
-    tags: ["taste", "ads", "magmos", "goose-reference"],
+    tags: ["taste", "ads", "magmos"],
     body: [
-      `Reference files (${files.length}): ${files.join(", ") || "place PNGs in data/ads/reference/magmos-goose"}`,
+      `Reference files (${files.length}): ${files.join(", ") || "optional taste refs"}`,
       ...lessons,
-      "Directions distilled: yellow-split-hello, lifestyle-earns, clarity-no-jargon, dollar-leaking, late-night-builders, compound-dreams, hidden-reserves, defi-gazette",
+      `Never say in public: ${MAGMOS_BRAND.neverSay.join(", ")}`,
     ].join("\n"),
   });
 
@@ -188,7 +195,7 @@ export function ingestGooseMagmosReferences(): {
     projectId: "magmos",
     feature: "ad-maker",
     outcome: "success",
-    summary: `Ingested ${files.length} Goose Magmos reference ads as taste bar`,
+    summary: `Taste bar: ${files.length} Goose refs · public voice = plain English`,
     lessons,
     meta: { files },
   });
@@ -198,20 +205,16 @@ export function ingestGooseMagmosReferences(): {
   writeFileSync(
     join(outDir, "MAGMOS-TASTE.md"),
     [
-      "# Magmos ad taste bar (Goose refs)",
+      "# Magmos ad taste",
       "",
-      "## Brand",
-      `- Mustard: ${MAGMOS_BRAND.mustard}`,
-      `- Ink/black/paper for type`,
-      "",
-      "## Voice (steal these rhythms)",
+      "## Public voice",
       ...MAGMOS_BRAND.voice.map((v) => `- ${v}`),
       "",
-      "## Concepts to ship",
-      ...GOOSE_LEVEL_CONCEPTS.map((c) => `- **${c.id}** (${c.layout}): ${c.lesson}`),
+      "## Never say (public)",
+      ...MAGMOS_BRAND.neverSay.map((v) => `- ${v}`),
       "",
-      "## References",
-      ...files.map((f) => `- ${f}`),
+      "## Concepts",
+      ...GOOSE_LEVEL_CONCEPTS.map((c) => `- **${c.id}**: ${c.lesson}`),
     ].join("\n"),
   );
 

@@ -73,18 +73,18 @@ function magmosImessageThread() {
     ],
     messages: [
       { type: "timestamp", label: "iMessage\nToday 9:41 AM" },
-      { type: "text", from: "alex", text: "where’s your idle USDC sitting" },
+      { type: "text", from: "alex", text: "what’re you doing with idle USDC" },
       {
         type: "text",
         from: "me",
-        text: "Minted AURUM on Magmos. Still $1. Yield compounds into sAURUM.",
+        text: "Moved it into Magmos. Still $1. Can earn while I hold.",
         delivered: true,
       },
       { type: "text", from: "alex", text: "lockups?" },
       {
         type: "text",
         from: "me",
-        text: "None. 100% on-chain reserves. magmoslabs.vercel.app",
+        text: "None. Reserves on-chain. magmoslabs.vercel.app",
         delivered: true,
         read: true,
       },
@@ -105,11 +105,11 @@ function magmosChatgptThread() {
     messages: [
       {
         type: "user-text",
-        text: "I want a digital dollar on Sui that earns while I hold — no lockups, no opaque reserves.",
+        text: "I want a digital dollar on Sui that can earn while I hold it — no lockups, clear reserves.",
       },
       {
         type: "assistant",
-        text: `**Magmos AURUM** — unit-stable $1.00, mint 1:1 from USDC.\n\n**sAURUM** compounds yield from Scallop, DeepBook, Aftermath.\n\nReserves are 100% on-chain (Walrus MemWal). No APY marketing — composable yield-dollar.\n\nOpen: magmoslabs.vercel.app`,
+        text: `**Magmos** — a digital dollar that stays $1.00.\n\nYou can earn while you hold. No lockups. Reserves are on-chain.\n\nNo APY promises — just a clear product.\n\nOpen: magmoslabs.vercel.app`,
       },
     ],
     composer: { placeholder: "Ask anything" },
@@ -120,17 +120,17 @@ function magmosAppleNotesThread() {
   return {
     title: "Why Magmos",
     body: [
-      { type: "paragraph", text: "AURUM = $1 digital dollar on Sui" },
+      { type: "paragraph", text: "Digital dollar on Sui — stays $1" },
       {
         type: "checklist",
         items: [
-          { text: "Mint 1:1 from USDC", checked: true },
+          { text: "Earn while you hold", checked: true },
           { text: "No lockups", checked: true },
-          { text: "sAURUM compounds daily", checked: true },
+          { text: "On-chain reserves", checked: true },
           { text: "Join waitlist", checked: false },
         ],
       },
-      { type: "paragraph", text: "Reserves verifiable on-chain. Mustard brand. Ship." },
+      { type: "paragraph", text: "Calm product. Clear words. Ship." },
     ],
     cursor: null,
     status_bar: {

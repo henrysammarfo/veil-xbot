@@ -7,10 +7,11 @@ import { join } from "node:path";
 import { DATA_DIR, assertDataDir } from "../config.js";
 import { newId } from "../store.js";
 import { hasFfmpeg, runFfmpeg } from "../edit/ffmpeg-util.js";
-import { hasVenice, veniceGenerateImage, veniceTextToSpeech } from "../integrations/venice.js";
+import { hasVenice, veniceGenerateImage, veniceTextToSpeech, veniceGenerateVideo } from "../integrations/venice.js";
 import { scaffoldFromTrailer, renderHyperframes } from "../integrations/hyperframes.js";
 import { produceTrailer, formatTrailer } from "../studio/trailer.js";
 import { runAdMaker, formatAdMaker } from "../studio/ad-maker.js";
+import { runSiteAds, formatSiteAds } from "../studio/site-ads.js";
 import { generateDraft, formatDraftForCopy } from "../generate/draft.js";
 import { generateCreative, formatCreative } from "../teams/creative.js";
 import { generateEngage } from "../generate/engage.js";
@@ -26,6 +27,9 @@ import { runOpenMontage, formatOpenMontage } from "../studio/openmontage.js";
 import { env } from "../config.js";
 import { hasHeyGen } from "../integrations/heygen.js";
 import { runPaidHeyGen } from "../integrations/paid-media.js";
+import { runSocialMax, formatSocialMax } from "../discover/social-max.js";
+import { MAGMOS_BRAND } from "../studio/magmos-brand.js";
+import { xAlgorithmPromptBlock } from "../algorithm/x-signals.js";
 
 export interface ProducePackResult {
   id: string;
@@ -80,11 +84,28 @@ export async function produceFullPack(opts: {
     log.push(`OSS wire warn: ${e instanceof Error ? e.message : e}`);
   }
 
+  // --- 0c. Daily social max (X/YT/TikTok/Reddit → learn before create) ---
+  if (env("SOCIAL_MAX", "1") === "1") {
+    log.push("[0c/12] Social max learn");
+    try {
+      const smax = await runSocialMax({
+        projectId,
+        watchTop: Number(env("SOCIAL_MAX_WATCH", "3")),
+        skipWatch: env("SOCIAL_MAX_SKIP_WATCH", "0") === "1",
+      });
+      writeFileSync(join(packDir, "SOCIAL-MAX.md"), formatSocialMax(smax));
+      paths.socialMax = smax.reportPath;
+      log.push(`Social max: ${smax.trends.length} trends · watched ${smax.watched.length}`);
+    } catch (e) {
+      log.push(`Social max warn: ${e instanceof Error ? e.message : e}`);
+    }
+  }
+
   // --- 1. TinyFish research ---
-  log.push("[1/11] TinyFish research");
+  log.push("[1/12] TinyFish research");
   try {
     const research = await smartResearch({
-      query: `${project.name} ${url} yield forge AURUM`,
+      query: `${project.name} ${url} digital dollar earn hold waitlist Sui`,
       projectId,
       fetchTop: true,
     });
@@ -94,14 +115,17 @@ export async function produceFullPack(opts: {
     log.push(`Research warn: ${e instanceof Error ? e.message : e}`);
   }
 
-  // --- 2. Thriller / trailer ---
-  log.push("[2/11] Thriller trailer");
+  // --- 2. Thriller — REAL Venice video first, still+VO only as fallback ---
+  log.push("[2/12] Thriller trailer (Venice T2V)");
   let thrillerMp4 = "";
   try {
+    const thrillerHint =
+      opts.thrillerHint ||
+      "calm premium trailer: a digital dollar that stays $1 and can earn while you hold it — warm light, mustard accents, no jargon, no forge imagery";
     const thriller = await produceTrailer({
       project: projectId,
       phase: "trailer",
-      feature: opts.thrillerHint || "thriller dark forge AURUM vault countdown — composable dollar, no compostible typo",
+      feature: thrillerHint,
     });
     writeFileSync(join(packDir, "THRILLER.md"), formatTrailer(thriller));
     writeFileSync(join(packDir, "thriller.json"), JSON.stringify(thriller, null, 2));
@@ -109,23 +133,82 @@ export async function produceFullPack(opts: {
     const hf = scaffoldFromTrailer(thriller);
     paths.hyperframes = hf.projectDir;
 
-    if (hasVenice()) {
+    const voScript =
+      "Your dollar can earn while you hold it. Still worth one dollar. No lockups. Magmos — join the waitlist.";
+
+    if (hasVenice() && env("THRILLER_VIDEO", "1") === "1") {
+      try {
+        const t2v = await veniceGenerateVideo(
+          `Cinematic 6-second premium brand film for Magmos. Warm soft light, mustard yellow #E8B84A accents, calm desk or city morning, phone with blurred finance UI, slow push-in, storytelling mood, NO text overlays, NO logos, NO AI faces looking at camera, NO forge/industrial vault, photoreal.`,
+          {
+            durationSec: 6,
+            aspectRatio: "16:9",
+            projectId,
+            force: true,
+          },
+        );
+        copyFileSync(t2v.path, join(packDir, "thriller-venice.mp4"));
+        paths.thrillerVenice = join(packDir, "thriller-venice.mp4");
+        log.push(`Venice T2V thriller: $${t2v.usd.toFixed(2)}`);
+
+        const vo = await veniceTextToSpeech(voScript, {
+          outName: `pack-${id}-thriller-vo.mp3`,
+          voice: "am_michael",
+          projectId,
+          force: true,
+        });
+        copyFileSync(vo.path, join(packDir, "thriller-vo.mp3"));
+
+        if (hasFfmpeg()) {
+          thrillerMp4 = join(packDir, "thriller.mp4");
+          try {
+            runFfmpeg(
+              [
+                "-y",
+                "-i",
+                paths.thrillerVenice,
+                "-i",
+                join(packDir, "thriller-vo.mp3"),
+                "-c:v",
+                "copy",
+                "-c:a",
+                "aac",
+                "-shortest",
+                thrillerMp4,
+              ],
+              "pack-thriller-t2v",
+            );
+            paths.thrillerMp4 = thrillerMp4;
+          } catch (e) {
+            copyFileSync(paths.thrillerVenice, thrillerMp4);
+            paths.thrillerMp4 = thrillerMp4;
+            log.push(`Thriller mux warn: ${e instanceof Error ? e.message : e}`);
+          }
+        } else {
+          thrillerMp4 = paths.thrillerVenice;
+          paths.thrillerMp4 = thrillerMp4;
+        }
+      } catch (e) {
+        log.push(`Venice T2V failed → still+VO: ${e instanceof Error ? e.message : e}`);
+      }
+    }
+
+    if (!thrillerMp4 && hasVenice()) {
       const poster = await veniceGenerateImage(
-        `Thriller cinematic Magmos: dark forge vault, crimson countdown, molten gold AURUM $1 composable dollar coin (NOT compostible), industrial, no people, 16:9. Lessons: ${prior.slice(0, 3).join("; ")}`,
+        `Premium calm Magmos brand still: soft morning light, mustard yellow accent, phone on desk, blurred UI, photoreal, NO TEXT, NO forge vault, NO molten metal`,
         { outName: `pack-${id}-thriller.png`, projectId, force: true },
       );
       copyFileSync(poster.path, join(packDir, "thriller-poster.png"));
       paths.thrillerPoster = join(packDir, "thriller-poster.png");
-      const vo = await veniceTextToSpeech(
-        "Vault countdown. Magmos forges AURUM — the composable dollar. Join the waitlist.",
-        { outName: `pack-${id}-thriller-vo.mp3`, voice: "am_michael", projectId, force: true },
-      );
+      const vo = await veniceTextToSpeech(voScript, {
+        outName: `pack-${id}-thriller-vo.mp3`,
+        voice: "am_michael",
+        projectId,
+        force: true,
+      });
       copyFileSync(vo.path, join(packDir, "thriller-vo.mp3"));
-    }
-
-    if (hasFfmpeg() && existsSync(join(packDir, "thriller-poster.png"))) {
-      thrillerMp4 = join(packDir, "thriller.mp4");
-      try {
+      if (hasFfmpeg()) {
+        thrillerMp4 = join(packDir, "thriller.mp4");
         runFfmpeg(
           [
             "-y",
@@ -146,11 +229,9 @@ export async function produceFullPack(opts: {
             "-shortest",
             thrillerMp4,
           ],
-          "pack-thriller",
+          "pack-thriller-still",
         );
         paths.thrillerMp4 = thrillerMp4;
-      } catch (e) {
-        log.push(`Thriller ffmpeg: ${e instanceof Error ? e.message : e}`);
       }
     }
 
@@ -170,17 +251,43 @@ export async function produceFullPack(opts: {
       outcome: thrillerMp4 ? "success" : "partial",
       summary: `pack thriller ${thriller.title}`,
       lessons: [
-        "Thriller pack must say COMPOSABLE not compostible",
-        "Stills+VO fallback when Venice T2V times out",
-        "Never invent Magmos hardware — product is forge UI / AURUM dollar",
+        "Thriller = Venice T2V first; still+VO is fallback only",
+        "Public narration: plain English — dollar earns while you hold, still $1, waitlist",
+        `Never say in trailer: ${MAGMOS_BRAND.neverSay.slice(0, 6).join(", ")}`,
       ],
     });
   } catch (e) {
     log.push(`Thriller failed: ${e instanceof Error ? e.message : e}`);
   }
 
-  // --- 3. Ad-maker (Goose stack stills) ---
-  log.push("[3/11] Ad-maker");
+  // --- 3. Ads: Google-style site→ads FIRST, Goose stack as taste remix ---
+  log.push("[3/12] Site→ads + Goose stack");
+  try {
+    const site = await runSiteAds({
+      projectId,
+      url,
+      count: 6,
+      makeVideo: env("SITE_ADS_VIDEO", "1") === "1",
+    });
+    writeFileSync(join(packDir, "SITE-ADS.md"), formatSiteAds(site));
+    paths.siteAds = site.dir;
+    for (const s of site.stills.slice(0, 4)) {
+      if (existsSync(s.path)) {
+        const name = s.path.split(/[/\\]/).pop()!;
+        copyFileSync(s.path, join(packDir, name));
+      }
+    }
+    for (const c of site.clips.slice(0, 2)) {
+      if (existsSync(c.path)) {
+        const name = c.path.split(/[/\\]/).pop()!;
+        copyFileSync(c.path, join(packDir, name));
+      }
+    }
+    log.push(`Site ads: ${site.stills.length} stills · ${site.clips.length} clips`);
+  } catch (e) {
+    log.push(`Site ads failed: ${e instanceof Error ? e.message : e}`);
+  }
+
   try {
     const domain = new URL(url.includes("://") ? url : `https://${url}`).hostname;
     const ads = await runAdMaker({ projectId, domain });
@@ -189,16 +296,16 @@ export async function produceFullPack(opts: {
     for (const img of ads.images.slice(0, 4)) {
       if (existsSync(img.path)) {
         const name = img.path.split(/[/\\]/).pop()!;
-        copyFileSync(img.path, join(packDir, name));
+        copyFileSync(img.path, join(packDir, `goose-${name}`));
       }
     }
-    log.push(`Ads: ${ads.images.length}/${ads.concepts.length}`);
+    log.push(`Goose stack ads: ${ads.images.length}/${ads.concepts.length}`);
   } catch (e) {
-    log.push(`Ads failed: ${e instanceof Error ? e.message : e}`);
+    log.push(`Goose ads failed: ${e instanceof Error ? e.message : e}`);
   }
 
   // --- 3b. Goose video formats (imessage / chatgpt / apple-notes) + HyperFrames ---
-  log.push("[3b/11] Video formats (Goose mockups + HyperFrames)");
+  log.push("[3b/12] Video formats (Goose mockups + HyperFrames)");
   try {
     const { runAllVideoFormats } = await import("../studio/video-formats.js");
     const vf = await runAllVideoFormats({
@@ -222,11 +329,13 @@ export async function produceFullPack(opts: {
   }
 
   // --- 4. X post (via smartChat so cascade + lessons inject) ---
-  log.push("[4/11] X post");
+  log.push("[4/12] X post");
   try {
     const draft = await generateDraft({
       brand: projectId as BrandKey,
-      topic: "thriller launch — forge live, AURUM composable dollar, waitlist open",
+      topic:
+        "waitlist open — digital dollar that stays $1 and can earn while you hold · calm clear proof · " +
+        xAlgorithmPromptBlock().slice(0, 280),
     });
     const postText = formatDraftForCopy(draft);
     writeFileSync(join(packDir, "POST.md"), postText);
@@ -236,33 +345,37 @@ export async function produceFullPack(opts: {
       feature: "draft",
       outcome: "success",
       summary: `pack post ${draft.id}`,
-      lessons: ["Posts: waitlist CTA + testnet proof, max 2 hashtags, no APY hype"],
+      lessons: [
+        "Posts: waitlist CTA + plain English, max 2 hashtags",
+        "Match x-algorithm: reply bait + quotable first line + video when possible",
+        "Never forge/smelt jargon on X",
+      ],
     });
   } catch (e) {
     log.push(`Post failed: ${e instanceof Error ? e.message : e}`);
   }
 
   // --- 5. UGC influencer (product UI only) ---
-  log.push("[5/11] UGC influencer");
+  log.push("[5/12] UGC influencer");
   try {
     const ugc = await generateCreative({
       project: projectId,
       kind: "ugc",
       topic:
-        "Influencer desk phone POV — REAL Magmos forge web UI on screen only. No fake gadgets, no invented hardware, no faces. Composable dollar AURUM.",
+        "Influencer desk phone POV — REAL Magmos web UI on screen only. Calm. Clear. No fake gadgets, no faces. Digital dollar that stays $1.",
     });
     writeFileSync(join(packDir, "UGC.md"), formatCreative(ugc));
     paths.ugc = join(packDir, "UGC.md");
 
     if (hasVenice()) {
       const ugcStill = await veniceGenerateImage(
-        "Vertical 9:16 UGC: hands holding phone, Magmos Labs forge DASHBOARD on screen (web UI dark industrial, AURUM forge, composable dollar — NOT a physical speaker/cube gadget), desk keyboard, no face, authentic influencer POV",
+        "Vertical 9:16 UGC: hands holding phone, Magmos web app on screen (dark calm UI, $1 dollar product — NOT industrial forge), desk keyboard, no face, authentic influencer POV, photoreal",
         { outName: `pack-${id}-ugc.png`, projectId, force: true },
       );
       copyFileSync(ugcStill.path, join(packDir, "ugc-influencer-pov.png"));
       paths.ugcStill = join(packDir, "ugc-influencer-pov.png");
       const ugcVo = await veniceTextToSpeech(
-        "Forging AURUM live on Magmos. Real screen. Real waitlist. Not another APY story.",
+        "Holding a dollar that can earn while I hold it. Still one dollar. No lockups. Magmos waitlist is open.",
         { outName: `pack-${id}-ugc-vo.mp3`, voice: "am_michael", projectId, force: true },
       );
       copyFileSync(ugcVo.path, join(packDir, "ugc-vo.mp3"));
@@ -319,7 +432,7 @@ export async function produceFullPack(opts: {
 
   // --- 5b. OpenMontage (auto-footage → edit → shorts → ads) ---
   if (env("OPENMONTAGE_AUTO", "1") === "1") {
-    log.push("[5b/11] OpenMontage");
+    log.push("[5b/12] OpenMontage");
     try {
       const footageCandidates = [
         join(packDir, "ugc-influencer.mp4"),
@@ -349,11 +462,11 @@ export async function produceFullPack(opts: {
 
   // --- 5c. HeyGen presenter (when key + HEYGEN_AUTO) ---
   if (env("HEYGEN_AUTO", "1") === "1" && hasHeyGen()) {
-    log.push("[5c/11] HeyGen presenter");
+    log.push("[5c/12] HeyGen presenter");
     try {
       const prompt =
         projectId === "magmos"
-          ? "Professional presenter, waist-up, neutral background. Says: Magmos forges AURUM — the composable dollar on Sui. Link in bio."
+          ? "Professional presenter, waist-up, neutral background. Says: Magmos is a digital dollar that stays one dollar and can earn while you hold it. Join the waitlist."
           : `Professional presenter introduces ${project.name}. Link in bio.`;
       const job = await runPaidHeyGen(prompt);
       if (job.outputPath && existsSync(job.outputPath)) {
@@ -369,15 +482,15 @@ export async function produceFullPack(opts: {
   }
 
   // --- 6. Engage draft ---
-  log.push("[6/11] Engage");
+  log.push("[6/12] Engage");
   try {
     if (projectId === "magmos" || projectId === "veil") {
       const eng = await generateEngage({
         brand: projectId as BrandKey,
         type: "quote",
         context: {
-          title: "DeFi yield dollars on Sui — who is shipping real forge UX?",
-          snippet: "Composable dollars and on-chain reserves",
+          title: "Who is shipping a clear digital dollar on Sui — no jargon, real app?",
+          snippet: "Stay $1. Earn while you hold. On-chain reserves.",
         },
       });
       writeFileSync(join(packDir, "ENGAGE.md"), `${eng.primary}\n\n${(eng.alternates ?? []).join("\n")}`);
@@ -388,7 +501,7 @@ export async function produceFullPack(opts: {
   }
 
   // --- 7. Paid floors ---
-  log.push("[7/11] Paid growth floors");
+  log.push("[7/12] Paid growth floors");
   try {
     const paid = buildPaidGrowthPack(projectId);
     writeFileSync(join(packDir, "PAID.md"), paid.markdown.slice(0, 4000));
@@ -398,9 +511,9 @@ export async function produceFullPack(opts: {
   }
 
   // --- 8. End-to-end critique + smart learn ---
-  log.push("[8/11] Smart critique whole pack");
+  log.push("[8/12] Smart critique whole pack");
   const status: ProducePackResult["status"] =
-    paths.post || paths.ads || paths.thrillerMp4 ? "done" : "partial";
+    paths.post || paths.ads || paths.siteAds || paths.thrillerMp4 ? "done" : "partial";
   const summary = [
     `# PACK ${id}`,
     `Project: ${projectId}`,
@@ -424,9 +537,9 @@ export async function produceFullPack(opts: {
     summary: `full produce-pack ${id}`,
     errors: log.filter((l) => /fail/i.test(l)),
     lessons: [
-      "Full pack = research → thriller → ads → post → UGC → engage → paid → learn (one flow)",
-      "Do not ship see-pack scripts that skip learn()",
-      "Composable spelling + real UI only",
+      "ONE pipeline: social-max learn → research → Venice T2V thriller → site-ads → goose taste remix → formats → post → UGC → montage → engage → paid → learn",
+      "Goose refs = taste bar only; Google-style site→ads is primary",
+      "Public Magmos = plain English. Mechanics jargon only in Q&A docs",
     ],
     meta: { id, paths },
   });
@@ -438,10 +551,9 @@ export async function produceFullPack(opts: {
       artifactSummary: summary.slice(0, 3000),
       errors: log.filter((l) => /fail/i.test(l)),
     });
-    // Distill durable spellings / UI rules once more via learn task
     await smartChat(
       "learn",
-      `From this Magmos pack, return JSON {"lessons":["…"]} that future runs must obey (typos, UI truth, faces).\n${summary.slice(0, 1500)}`,
+      `From this Magmos pack, return JSON {"lessons":["…"]} future runs must obey (plain voice, real video, social learn, no forge jargon).\n${summary.slice(0, 1500)}`,
       { projectId, feature: "grow" },
     );
   } catch {

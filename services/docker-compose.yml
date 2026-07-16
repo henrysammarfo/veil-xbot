@@ -1,0 +1,31 @@
+# Magmos speech stack — one command bootstrap
+# TTS = Voicebox-compatible API · ASR = VibeVoice-compatible API
+# Default: Venice TTS + OpenAI Whisper (no local GPU). Swap images for real OSS later.
+
+services:
+  speech:
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - ../:/app
+      - ../.env:/app/.env:ro
+    command: ["node", "services/speech-proxy.mjs"]
+    ports:
+      - "8780:8780"
+    environment:
+      SPEECH_PROXY_PORT: "8780"
+      VENICE_API_KEY: ${VENICE_API_KEY:-}
+      VERNICE_API_KEY: ${VERNICE_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      VENICE_API_URL: ${VENICE_API_URL:-https://api.venice.ai/api/v1}
+      VENICE_TTS_MODEL: ${VENICE_TTS_MODEL:-tts-kokoro}
+      VENICE_TTS_VOICE: ${VENICE_TTS_VOICE:-am_michael}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8780/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+# Optional: run without Docker
+#   npm run services:up:local

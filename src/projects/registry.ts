@@ -53,23 +53,27 @@ const PROJECTS: Record<string, ProjectDef> = {
   magmos: {
     id: "magmos",
     name: "Magmos Labs",
-    tagline: "Composable yield-dollar on Sui — AURUM / sAURUM",
+    tagline: "A digital dollar on Sui that stays $1 and can earn while you hold it",
     vertical: "web3",
     pillars: [
-      "Forge · smelt · refine lifecycle (USDC → AURUM → sAURUM)",
-      "Thermal limits + Forge Council risk controls",
-      "Live testnet app — real Move txs, wallet-gated dashboard",
-      "MAGMA governance + VYSS + liquidity layer",
+      "Plain product: hold a $1 digital dollar that can earn — no lockups",
+      "Reserves checkable on-chain",
+      "Live testnet app — real wallet flows",
+      "Waitlist-first growth — clear, calm, human",
     ],
-    avoid: ["APY guarantees", "confusing with Veil trading", "stablecoin yield promises"],
-    /** Live app first — repo is secondary proof */
+    avoid: [
+      "APY guarantees",
+      "confusing with Veil trading",
+      "forge/smelt/thermal jargon in public ads",
+      "AI faces / invented hardware",
+    ],
     primaryUrl: process.env.MAGOS_DEMO_URL || "https://magmoslabs.vercel.app",
     secondaryUrl: process.env.MAGOS_REPO_URL || "https://github.com/henrysammarfo/magmoslabs",
     handles: [
       process.env.MAGOS_X_HANDLE ? `@${process.env.MAGOS_X_HANDLE.replace(/^@/, "")}` : "@henrysammarfo",
       "@SuiNetwork",
     ],
-    ugcAngle: "Founder POV of magmoslabs.vercel.app /aurum forge — real wallet, real tx. No stock scientist.",
+    ugcAngle: "Phone POV of magmoslabs.vercel.app — real UI on screen, calm desk, no faces.",
     qaTopics: ["AURUM", "sAURUM", "forge", "smelt", "refine", "thermal limits", "Forge Council", "testnet"],
   },
 };

@@ -408,6 +408,8 @@ async function main(): Promise<void> {
       });
       console.log(formatSocialMax(smax));
       console.log("\n--- Pack ---\n");
+      // Pack must not re-run social-max (burns TinyFish rate limit)
+      process.env.SOCIAL_MAX = "0";
       const result = await produceFullPack({ projectId: project });
       console.log(formatProducePack(result));
       console.log(`\n→ ${result.packDir}`);

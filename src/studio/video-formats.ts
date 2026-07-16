@@ -21,7 +21,6 @@ import { pathToFileURL } from "node:url";
 import { createRequire } from "node:module";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import { chromium } from "playwright";
 import { DATA_DIR, assertDataDir, env } from "../config.js";
 import { newId } from "../store.js";
 import { resolveGooseRoot } from "./goose-stack.js";
@@ -29,6 +28,7 @@ import { scaffoldSimplePrompt, renderHyperframes } from "../integrations/hyperfr
 import { hasFfmpeg, runFfmpeg } from "../edit/ffmpeg-util.js";
 import { learn } from "../brain/self-learn.js";
 import { MAGMOS_BRAND } from "./magmos-brand.js";
+import { launchChromium } from "../qa/playwright-launch.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -156,7 +156,7 @@ async function screenshotHtmlLocal(opts: {
   width: number;
   height: number;
 }): Promise<void> {
-  const browser = await chromium.launch({ headless: true });
+  const browser = await launchChromium({ headless: true });
   try {
     const context = await browser.newContext({
       viewport: { width: opts.width, height: opts.height },

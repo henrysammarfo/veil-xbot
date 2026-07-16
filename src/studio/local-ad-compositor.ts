@@ -17,12 +17,12 @@ import {
 } from "node:fs";
 import { join, dirname } from "node:path";
 import { pathToFileURL } from "node:url";
-import { chromium } from "playwright";
 import { DATA_DIR, assertDataDir, env } from "../config.js";
 import { hasVenice, veniceGenerateImage } from "../integrations/venice.js";
 import { newId } from "../store.js";
 import { learn } from "../brain/self-learn.js";
 import { MAGMOS_BRAND } from "./magmos-brand.js";
+import { launchChromium } from "../qa/playwright-launch.js";
 
 export type LocalAdRatio = "1:1" | "4:5" | "9:16";
 
@@ -98,7 +98,7 @@ export async function captureProductScreenshot(opts: {
   const dir = dirname(opts.outPath);
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
 
-  const browser = await chromium.launch({ headless: true });
+  const browser = await launchChromium({ headless: true });
   try {
     const context = await browser.newContext({
       viewport: {
@@ -434,7 +434,7 @@ export async function renderHtmlToPng(opts: {
   const dir = dirname(opts.outPath);
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
 
-  const browser = await chromium.launch({ headless: true });
+  const browser = await launchChromium({ headless: true });
   try {
     const context = await browser.newContext({
       viewport: { width: w, height: h },

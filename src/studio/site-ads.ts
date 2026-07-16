@@ -5,7 +5,6 @@
  */
 import { writeFileSync, mkdirSync, existsSync, copyFileSync } from "node:fs";
 import { join } from "node:path";
-import { chromium } from "playwright";
 import { DATA_DIR, assertDataDir, env } from "../config.js";
 import { newId } from "../store.js";
 import { getProject } from "../projects/registry.js";
@@ -15,6 +14,7 @@ import { hasFfmpeg, runFfmpeg } from "../edit/ffmpeg-util.js";
 import { learn, lessonsFor } from "../brain/self-learn.js";
 import { MAGMOS_BRAND } from "./magmos-brand.js";
 import { loadLatestSocialMax } from "../discover/social-max.js";
+import { launchChromium } from "../qa/playwright-launch.js";
 
 export interface SiteAdConcept {
   id: string;
@@ -39,7 +39,7 @@ export interface SiteAdResult {
 }
 
 async function captureSite(url: string, outPath: string): Promise<void> {
-  const browser = await chromium.launch({ headless: true });
+  const browser = await launchChromium({ headless: true });
   try {
     const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
     await page.goto(url, { waitUntil: "domcontentloaded", timeout: 90000 });

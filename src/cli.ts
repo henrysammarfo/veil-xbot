@@ -152,6 +152,7 @@ Veil X Bot — Growth OS (marketing · GTM · distribution · Q&A)
   wallet fund <project>                      Send SUI+dUSDC from veil/.env wallet
   oss-discover                               TinyFish OSS catalog → data/research/
   oss-stack                                  OSS repos — live wired status table
+  health                                     Capture + brain/smart + speech full probe
   oss-wire [project] [--no-montage] [--no-heygen]  Full wire: goldmine + montage + probes
   social-max [project]                           Daily learn: X/YT/TikTok/Reddit → craft rules
   site-ads [project] [url]                       Google-style site → Venice stills + Seedance clips
@@ -360,6 +361,14 @@ async function main(): Promise<void> {
       )) {
         console.log(`- ${i.id}: **${i.status}** — ${i.notes}`);
       }
+      break;
+    }
+    case "health": {
+      console.log("Full health probe (capture + brain + smart + speech)...\n");
+      const { runHealthProbe, formatHealth } = await import("./qa/health.js");
+      const h = await runHealthProbe({ capture: !rest.includes("--no-capture") });
+      console.log(formatHealth(h));
+      if (!h.allOk) process.exitCode = 1;
       break;
     }
     case "oss-wire": {

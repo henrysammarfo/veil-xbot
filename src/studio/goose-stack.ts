@@ -24,7 +24,6 @@ import { join, dirname, basename } from "node:path";
 import { pathToFileURL } from "node:url";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import { chromium } from "playwright";
 import { DATA_DIR, XBOT_ROOT, assertDataDir, env } from "../config.js";
 import { chatCompletion } from "../ai/router.js";
 import { readSkillBody, getSkill } from "../skills/catalog.js";
@@ -43,6 +42,7 @@ import { hasFal } from "../integrations/fal.js";
 import { hasVenice } from "../integrations/venice.js";
 import { hasOpenAI } from "../config.js";
 import { hasFfmpeg, runFfmpeg } from "../edit/ffmpeg-util.js";
+import { launchChromium } from "../qa/playwright-launch.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -311,7 +311,7 @@ h1{font:800 56px/.95 Syne,sans-serif;letter-spacing:-.03em;max-width:14ch}
     }
   }
 
-  const browser = await chromium.launch({ headless: true });
+  const browser = await launchChromium({ headless: true });
   try {
     const context = await browser.newContext({
       viewport: { width: w, height: h },

@@ -28,6 +28,7 @@
     "edit": "tsx src/cli.ts edit",
     "oss-discover": "tsx src/cli.ts oss-discover",
     "oss-stack": "tsx src/cli.ts oss-stack",
+    "health": "tsx src/cli.ts health",
     "oss-wire": "tsx src/cli.ts oss-wire magmos",
     "social-max": "tsx src/cli.ts social-max magmos",
     "site-ads": "tsx src/cli.ts site-ads magmos",

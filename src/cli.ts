@@ -1,5 +1,6 @@
 #!/usr/bin/env npx tsx
 import { join } from "node:path";
+import { readFileSync } from "node:fs";
 import { hasOpenAI, env } from "./config.js";
 import { watchVideo, buildPlaybook, watchMany } from "./video/watch.js";
 import { generateDraft, generateCalendar, formatDraftForCopy } from "./generate/draft.js";
@@ -14,7 +15,8 @@ import { listLearnings, listDrafts } from "./store.js";
 import { startServer } from "./server.js";
 import { tinyfishSearch, hasTinyfish } from "./research/tinyfish.js";
 import { discoverOssTools, formatOssCatalog } from "./discover/oss-tools.js";
-import { formatOssStack } from "./discover/oss-stack.js";
+import { formatOssStack, probeLiveOssStackAsync } from "./discover/oss-stack.js";
+import { wireFullOssStack, formatOssWire } from "./discover/oss-wire.js";
 import { runPaidHeyGen } from "./integrations/paid-media.js";
 import { hasHeyGen } from "./integrations/heygen.js";
 import { scaffoldSimplePrompt, renderHyperframes } from "./integrations/hyperframes.js";
@@ -43,10 +45,17 @@ import {
   formatWalkthrough,
 } from "./studio/product-walkthrough.js";
 import { runAdMaker, formatAdMaker } from "./studio/ad-maker.js";
+import {
+  formatStackProbe,
+  probeStack,
+  runGooseStaticStack,
+} from "./studio/goose-stack.js";
 import { extractViralClips, formatViralClips } from "./edit/viral-clips.js";
 import { formatGoldmine } from "./discover/goldmine.js";
 import { buildWebToAppPack } from "./mobile/web-to-app-pack.js";
 import { growFromUrl, formatGrow } from "./growth/grow-from-url.js";
+import { produceFullPack, formatProducePack } from "./growth/produce-pack.js";
+import { prepareUnifiedSystem } from "./brain/unified-context.js";
 import { formatBrain, recall } from "./brain/memory.js";
 import { seedGrowthBrain } from "./brain/seed.js";
 import { formatSelfLearn, lessonsFor, learn } from "./brain/self-learn.js";
@@ -123,8 +132,12 @@ Veil X Bot — Growth OS (marketing · GTM · distribution · Q&A)
   magmos-ad <recording.mp4>                  Magmos paid ad: autonomous edit → 9:16/1:1/16:9 + growth pack
   walkthrough [project]                      HyperFrames + Venice presenter PiP walkthrough
   openmontage [project] [footage]            OpenMontage plan→edit→shorts→ads
-  ad-maker [project] [domain]                Branda-style domain → still ads (TinyFish+Venice)
+  ad-maker [project] [domain]                Goose stack still ads (formats.static → remix + companions)
+  stack [probe|run] [project]                Probe / execute Goose+OSS stack (formats, refs, FAL, skills)
+  video-formats [project]                    Goose imessage/chatgpt/apple-notes mockups + HyperFrames
   grow <url> [project]                       ONE connected flow: research→ads→paid floors→UGC
+  pack [project]                             FULL creative pack: research→thriller→ads→post→UGC→engage→learn
+  unified [project]                          Arm skills+brain+knowledge+OSS+lessons as ONE context
   brain [seed|search <q>]                    Unified growth memory (OSS/UGC/ads/insights)
   learn [show|seed] [project]                Project-wide self-learn store (data/improve/SELF-LEARN*)
   smart [status|research <q>|critique <feature>]  Venice→OpenAI cascade + TinyFish
@@ -138,7 +151,8 @@ Veil X Bot — Growth OS (marketing · GTM · distribution · Q&A)
   wallet <project>                           Faucet + show sandbox wallet
   wallet fund <project>                      Send SUI+dUSDC from veil/.env wallet
   oss-discover                               TinyFish OSS catalog → data/research/
-  oss-stack                                  Your 7 repos — status for Magmos editor
+  oss-stack                                  OSS repos — live wired status table
+  oss-wire [project] [--no-montage] [--no-heygen]  Full wire: goldmine + montage + probes
   produce <project> <phase> [feature]        Trailer/teaser/intro production brief
   phases                                     Content mix (intro → teaser → launch)
   tier                                       Free vs paid media quality report
@@ -335,7 +349,29 @@ async function main(): Promise<void> {
       break;
     }
     case "oss-stack": {
+      const live = await probeLiveOssStackAsync();
       console.log(formatOssStack());
+      console.log("\n## Async health");
+      for (const i of live.filter((x) =>
+        ["goldmine", "openmontage", "voicebox", "vibevoice", "heygen"].includes(x.id),
+      )) {
+        console.log(`- ${i.id}: **${i.status}** — ${i.notes}`);
+      }
+      break;
+    }
+    case "oss-wire": {
+      const project = rest[0] || "magmos";
+      const noMontage = rest.includes("--no-montage");
+      const noHeygen = rest.includes("--no-heygen");
+      const p = getProject(project);
+      console.log(`OSS wire — ${project}...\n`);
+      const wire = await wireFullOssStack({
+        projectId: project,
+        url: p.primaryUrl,
+        runMontage: !noMontage,
+        runHeyGen: !noHeygen,
+      });
+      console.log(formatOssWire(wire));
       break;
     }
     case "ops": {
@@ -658,6 +694,39 @@ async function main(): Promise<void> {
       console.log(`\n→ ${result.outputPath}`);
       break;
     }
+    case "pack":
+    case "produce-pack": {
+      const project = rest[0] || "magmos";
+      const hint = rest.slice(1).join(" ") || undefined;
+      console.log(`Full creative pack — ${project} (research→thriller→ads→post→UGC→engage→learn)...\n`);
+      const result = await produceFullPack({
+        projectId: project,
+        thrillerHint: hint,
+      });
+      console.log(formatProducePack(result));
+      console.log(`\n→ ${result.packDir}`);
+      break;
+    }
+    case "unified": {
+      const project = rest[0] || "magmos";
+      console.log(`Arming unified OS for ${project}...\n`);
+      const u = prepareUnifiedSystem({ projectId: project, task: "pack", feature: "global" });
+      console.log(
+        [
+          `# Unified OS — ${project}`,
+          `Skills catalog: ${u.skillCatalogCount}`,
+          `Brain seeded: ${u.brainSeeded} · skills adopted: ${u.skillsAdopted}`,
+          `Lessons: ${u.lessons.length}`,
+          `Knowledge: ${u.paths.knowledge ?? "(none)"}`,
+          `Goldmine: ${u.paths.goldmine}`,
+          `Context dump: ${u.paths.contextFile}`,
+          "",
+          "Lessons:",
+          ...u.lessons.slice(0, 12).map((l) => `- ${l}`),
+        ].join("\n"),
+      );
+      break;
+    }
     case "brain": {
       const sub = rest[0] || "show";
       if (sub === "seed") {
@@ -690,6 +759,8 @@ async function main(): Promise<void> {
             "Every feature writes lessons to SELF-LEARN.json",
             "Venice → OpenAI cascade via smartChat / failover",
             "TinyFish is the live web truth for grow/ops/ad-maker",
+            "Use `npm run pack` for full creative flow — not one-off see-pack scripts",
+            "Say COMPOSABLE not compostible; Magmos is web forge UI not hardware",
           ],
         });
         console.log(`Seeded self-learn for ${project}`);
@@ -767,10 +838,37 @@ async function main(): Promise<void> {
     case "ad-maker": {
       const project = rest[0] || "magmos";
       const domain = rest[1];
-      console.log(`Ad Maker (Branda) — ${project}...\n`);
+      console.log(`Ad Maker (Goose stack) — ${project}...\n`);
       const run = await runAdMaker({ projectId: project, domain });
       console.log(formatAdMaker(run));
       console.log(`\n→ ${run.outputPath}`);
+      break;
+    }
+    case "stack": {
+      const mode = rest[0] || "probe";
+      const project = rest[1] || "magmos";
+      if (mode === "run") {
+        const p = getProject(project);
+        console.log(`Goose stack RUN — ${project}...\n`);
+        const batch = await runGooseStaticStack({
+          projectId: project,
+          productUrl: p.primaryUrl,
+          brand: p.name,
+        });
+        console.log(readFileSync(batch.companions.stackReportPath, "utf8"));
+        console.log(`\n→ ${batch.dir}`);
+      } else {
+        console.log(formatStackProbe(probeStack()));
+      }
+      break;
+    }
+    case "video-formats": {
+      const project = rest[0] || "magmos";
+      console.log(`Video formats (Goose mockups + HF) — ${project}...\n`);
+      const { runAllVideoFormats } = await import("./studio/video-formats.js");
+      const vf = await runAllVideoFormats({ projectId: project });
+      console.log(readFileSync(join(vf.dir, "VIDEO-FORMATS.md"), "utf8"));
+      console.log(`\n→ ${vf.dir}`);
       break;
     }
     case "shorts": {

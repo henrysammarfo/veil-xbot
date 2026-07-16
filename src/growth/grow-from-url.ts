@@ -8,14 +8,13 @@ import { DATA_DIR, assertDataDir } from "../config.js";
 import { newId } from "../store.js";
 import { hasTinyfish, tinyfishFetchText, tinyfishSearch } from "../research/tinyfish.js";
 import { remember } from "../brain/memory.js";
-import { seedGrowthBrain } from "../brain/seed.js";
 import { learn } from "../brain/self-learn.js";
 import { smartCritique, smartStatus } from "../brain/smart.js";
+import { prepareUnifiedSystem } from "../brain/unified-context.js";
 import { runAdMaker, formatAdMaker } from "../studio/ad-maker.js";
 import { buildPaidGrowthPack } from "./paid-growth.js";
 import { generateCreative } from "../teams/creative.js";
 import { getProject } from "../projects/registry.js";
-import { adoptSkillsIntoBrain, ensureGooseVendorLink } from "../skills/catalog.js";
 
 export interface GrowFromUrlResult {
   id: string;
@@ -48,11 +47,11 @@ export async function growFromUrl(opts: {
   const dir = join(DATA_DIR, "growth", "grow", id);
   mkdirSync(dir, { recursive: true });
 
-  const seeded = seedGrowthBrain();
-  log.push(`Brain seed: ${seeded.counted} entries refreshed`);
-  ensureGooseVendorLink();
-  const skills = adoptSkillsIntoBrain(80);
-  log.push(`Skills adopted into brain: ${skills.adopted}`);
+  const unified = prepareUnifiedSystem({ projectId, task: "grow", feature: "grow" });
+  writeFileSync(join(dir, "UNIFIED.md"), unified.promptBlock.slice(0, 12000));
+  log.push(
+    `Unified OS: skills ${unified.skillCatalogCount} · brain ${unified.brainSeeded} · lessons ${unified.lessons.length}`,
+  );
 
   remember({
     kind: "url",

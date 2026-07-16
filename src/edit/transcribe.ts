@@ -98,9 +98,18 @@ function parseWhisperVerbose(raw: unknown): TranscriptResult {
 }
 
 export async function transcribeAudioFile(wavPath: string): Promise<TranscriptResult | null> {
-  if (backend() === "vibevoice") {
-    const vv = await transcribeViaVibeVoice(wavPath);
-    if (vv) return vv;
+  // Try VibeVoice whenever endpoint is configured (even if backend=whisper)
+  if (env("VIBEVOICE_ASR_URL")) {
+    try {
+      const vv = await transcribeViaVibeVoice(wavPath);
+      if (vv) return vv;
+    } catch (e) {
+      console.warn("VibeVoice ASR:", e instanceof Error ? e.message : e);
+    }
+    if (backend() === "vibevoice") {
+      console.warn("VibeVoice ASR unavailable — falling back to Whisper");
+    }
+  } else if (backend() === "vibevoice") {
     console.warn("VibeVoice ASR unavailable — falling back to Whisper");
   }
   if (!hasOpenAI()) return null;

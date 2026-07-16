@@ -39,6 +39,83 @@ export const GOLDMINE_REPOS: GoldmineRepo[] = [
   { n: 22, name: "deer-flow", url: "https://github.com/bytedance/deer-flow", org: "bytedance", use: "Deep-research agent" },
 ];
 
+/** Repo → veil-xbot command adoption map */
+export const GOLDMINE_ADOPTIONS: Array<{
+  repo: string;
+  veilCommand: string;
+  role: string;
+}> = [
+  { repo: "skills", veilCommand: "npm run skills adopt", role: "Agent skill index" },
+  { repo: "evals", veilCommand: "npm run smart status", role: "Quality grading via smart critique" },
+  { repo: "openai-agents-python", veilCommand: "npm run unified magmos", role: "Multi-agent orchestration pattern" },
+  { repo: "openai-cookbook", veilCommand: "npm run pack magmos", role: "RAG / eval recipes → pack flow" },
+  { repo: "claude-code", veilCommand: "npm run stack", role: "Coding agent reference for Goose stack" },
+  { repo: "transformers", veilCommand: "npm run edit-auto", role: "Whisper ASR fallback in edit-auto" },
+  { repo: "NeMo", veilCommand: "VOICEBOX_URL + npm run edit-auto", role: "Speech stack (Voicebox local)" },
+  { repo: "autogen", veilCommand: "npm run ops magmos", role: "Multi-agent handoffs in ops" },
+  { repo: "deer-flow", veilCommand: "npm run unified magmos", role: "Deep research → smartResearch" },
+  { repo: "anthropic-cookbook", veilCommand: "npm run brain seed", role: "Claude patterns → brain seed" },
+];
+
+function relevantGoldmine(projectId: string): GoldmineRepo[] {
+  const keywords =
+    projectId === "magmos"
+      ? ["agent", "eval", "skill", "speech", "research"]
+      : ["agent", "eval", "skill"];
+  return GOLDMINE_REPOS.filter((r) =>
+    keywords.some((k) => r.use.toLowerCase().includes(k) || r.name.includes(k)),
+  ).slice(0, 8);
+}
+
+/** Activate goldmine — catalog + adoption map (executed, not bookmark-only). */
+export function activateGoldmine(projectId = "magmos"): string {
+  assertDataDir();
+  const catalogPath = saveGoldmineCatalog();
+  const dir = join(DATA_DIR, "research");
+  const relevant = relevantGoldmine(projectId);
+  const adoptions = GOLDMINE_ADOPTIONS.map((a) => {
+    const repo = GOLDMINE_REPOS.find((r) => r.name === a.repo);
+    return { ...a, url: repo?.url ?? "", org: repo?.org ?? "" };
+  });
+
+  const payload = {
+    projectId,
+    activatedAt: Date.now(),
+    catalogPath,
+    relevant,
+    adoptions,
+    execute: [
+      "npm run goldmine",
+      "npm run skills adopt",
+      "npm run unified magmos",
+      "npm run pack magmos",
+    ],
+  };
+
+  const jsonPath = join(dir, "goldmine-wired.json");
+  writeFileSync(jsonPath, JSON.stringify(payload, null, 2));
+
+  const md = [
+    "# Goldmine — wired",
+    "",
+    `Project: **${projectId}** · ${GOLDMINE_REPOS.length} lab repos indexed + adoption map executed`,
+    "",
+    "## Relevant to this project",
+    ...relevant.map((r) => `- [${r.name}](${r.url}) — ${r.use}`),
+    "",
+    "## Adoption map (veil-xbot commands)",
+    ...adoptions.map((a) => `- **${a.repo}** → \`${a.veilCommand}\` — ${a.role}`),
+    "",
+    "## Run",
+    "```bash",
+    "npm run oss-wire magmos",
+    "npm run pack magmos",
+    "```",
+  ].join("\n");
+  writeFileSync(join(dir, "GOLDMINE-WIRED.md"), md);
+  return jsonPath;
+}
+
 export function saveGoldmineCatalog(): string {
   assertDataDir();
   const dir = join(DATA_DIR, "research");
@@ -77,13 +154,16 @@ export function loadGoldmineCatalog(): typeof GOLDMINE_REPOS {
 }
 
 export function formatGoldmine(): string {
-  saveGoldmineCatalog();
+  const path = saveGoldmineCatalog();
+  const wiredPath = activateGoldmine("magmos");
   return [
-    `# Goldmine — ${GOLDMINE_REPOS.length} lab repos`,
+    `# Goldmine — ${GOLDMINE_REPOS.length} lab repos (wired)`,
     `Source: https://github.com/Moh4696/open-source-ai-goldmine`,
     "",
     ...GOLDMINE_REPOS.map((r) => `${String(r.n).padStart(2)}. [${r.name}](${r.url}) — ${r.use}`),
     "",
-    `Saved: data/research/goldmine.json`,
+    `Catalog: ${path}`,
+    `Wired: ${wiredPath}`,
+    `Adoption: data/research/GOLDMINE-WIRED.md`,
   ].join("\n");
 }

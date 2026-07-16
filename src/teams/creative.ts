@@ -1,11 +1,10 @@
-import OpenAI from "openai";
-import { requireEnv } from "../config.js";
 import { getProject } from "../projects/registry.js";
-import { tasteSystemSuffix } from "../taste.js";
 import { newId, saveCreative, type CreativeBrief } from "../store.js";
 import { listLearnings, readPlaybook } from "../store.js";
 import { discoverClips } from "../discover/clips.js";
 import { hasTinyfish } from "../research/tinyfish.js";
+import { smartChat } from "../brain/smart.js";
+import { learn } from "../brain/self-learn.js";
 
 export type CreativeKind = "ugc" | "clip" | "avatar" | "teaser";
 
@@ -19,30 +18,21 @@ export async function generateCreative(opts: {
   topic?: string;
 }): Promise<CreativeBrief> {
   const project = getProject(opts.project);
-  const openai = new OpenAI({ apiKey: requireEnv("OPENAI_API_KEY") });
   const learnings = listLearnings().slice(0, 4);
   const playbook = readPlaybook().slice(0, 1200);
 
   const kindGuide: Record<CreativeKind, string> = {
-    ugc: `Realistic UGC: ${project.ugcAngle}. Shot list for phone recording. NO AI-generated human face as "user". POV screen > talking head.`,
+    ugc: `Realistic UGC: ${project.ugcAngle}. Shot list for phone recording. NO AI-generated human face as "user". POV screen > talking head. Magmos UI is a WEB forge dashboard — never invent physical gadgets/speakers.`,
     clip: "42s vertical clip structure: hook 0-1.5s, demo, proof, CTA. Cuts + SFX beats.",
-    avatar: "AVATAR POLICY: Do NOT use watermarked HeyGen/Kling faces. Options: (1) no face — screen only (2) real founder clip (3) text-on-screen hook. If image needed: quote card not fake person.",
+    avatar:
+      "AVATAR POLICY: Do NOT use watermarked HeyGen/Kling faces. Options: (1) no face — screen only (2) real founder clip (3) text-on-screen hook.",
     teaser: "12s teaser for community: one hook line on screen, fastest cut.",
   };
 
-  const res = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    temperature: 0.55,
-    response_format: { type: "json_object" },
-    messages: [
-      {
-        role: "system",
-        content: `Creative director for ${project.name}. Realistic only. Reject generic crypto slop and displaced stock imagery.${tasteSystemSuffix()}`,
-      },
-      {
-        role: "user",
-        content: `${kindGuide[opts.kind]}
+  const user = `${kindGuide[opts.kind]}
 Topic: ${opts.topic || "product proof on testnet"}
+Product URL: ${project.primaryUrl}
+Tagline: ${project.tagline}
 
 Learnings: ${learnings.map((l) => l.analysis.hookPattern).join(" | ")}
 Playbook: ${playbook}
@@ -58,14 +48,18 @@ Return JSON:
   "doNot": ["avoid these slop tropes"],
   "brollSearch": "pexels search terms",
   "realisticCheck": "why this does not look like AI slop"
-}`,
-      },
-    ],
-  });
+}`;
 
-  const raw = res.choices[0]?.message?.content;
+  const res = await smartChat("creative", user, {
+    projectId: opts.project,
+    feature: "global",
+  });
+  const raw = res.content.replace(/```json|```/g, "").trim();
   if (!raw) throw new Error("Empty creative brief");
-  const parsed = JSON.parse(raw) as Omit<CreativeBrief, "id" | "projectId" | "kind" | "createdAt" | "clipUrls">;
+  const parsed = JSON.parse(raw) as Omit<
+    CreativeBrief,
+    "id" | "projectId" | "kind" | "createdAt" | "clipUrls"
+  >;
 
   let clipUrls: string[] = [];
   if (hasTinyfish() && opts.kind !== "avatar") {
@@ -85,6 +79,18 @@ Return JSON:
     ...parsed,
   };
   saveCreative(brief);
+  learn({
+    projectId: opts.project,
+    feature: "global",
+    outcome: "success",
+    summary: `creative ${opts.kind} via ${res.provider}`,
+    lessons: [
+      opts.kind === "ugc"
+        ? "UGC = real Magmos web UI on phone — never invent hardware products"
+        : `${opts.kind} brief from cascaded LLM`,
+    ],
+    meta: { attempted: res.attempted },
+  });
   return brief;
 }
 

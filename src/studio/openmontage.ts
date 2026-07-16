@@ -13,6 +13,7 @@ import { exportAdFormats } from "../edit/export-ads.js";
 import { extractViralClips } from "../edit/viral-clips.js";
 import { adStyleForBrand } from "../edit/styles.js";
 import type { BrandKey } from "../brands.js";
+import { ensureFootageForMontage } from "../discover/oss-footage.js";
 
 export interface MontagePhase {
   id: string;
@@ -84,6 +85,10 @@ export async function runOpenMontage(opts: {
   projectId: string;
   footagePath?: string;
   brief?: string;
+  /** When true (default), discover or synthesize footage if none provided */
+  autoFootage?: boolean;
+  footageCandidates?: string[];
+  url?: string;
 }): Promise<OpenMontageRun> {
   const id = newId("montage");
   const log: string[] = [];
@@ -102,7 +107,24 @@ export async function runOpenMontage(opts: {
   phases.push({ id: "plan", title: "Script + shot list", output: planPath });
   log.push(`Hook: ${plan.hook}`);
 
-  if (!opts.footagePath || !existsSync(opts.footagePath)) {
+  let footagePath = opts.footagePath;
+  const autoFootage = opts.autoFootage !== false;
+  if ((!footagePath || !existsSync(footagePath)) && autoFootage) {
+    try {
+      const resolved = await ensureFootageForMontage({
+        projectId,
+        url: opts.url,
+        candidates: opts.footageCandidates,
+        workDir: dir,
+      });
+      footagePath = resolved.path;
+      log.push(`Auto footage (${resolved.source}): ${footagePath}`);
+    } catch (e) {
+      log.push(`Auto footage failed: ${e instanceof Error ? e.message : e}`);
+    }
+  }
+
+  if (!footagePath || !existsSync(footagePath)) {
     const md = join(dir, `${id}-BRIEF.md`);
     writeFileSync(
       md,
@@ -142,7 +164,7 @@ export async function runOpenMontage(opts: {
 
   const style = adStyleForBrand(brand);
   log.push(`[2/5] Autonomous edit (${style.id}) — freecut + beat-sync`);
-  const job = await autonomousEdit(opts.footagePath, brand, style.id, {
+  const job = await autonomousEdit(footagePath, brand, style.id, {
     beatSync: true,
     autoMusic: true,
     voiceover: true,
@@ -169,7 +191,7 @@ export async function runOpenMontage(opts: {
   }
 
   log.push("[3/5] OpenShorts viral clips");
-  const clips = await extractViralClips(opts.footagePath, { maxClips: 3, brand: projectId });
+  const clips = await extractViralClips(footagePath, { maxClips: 3, brand: projectId });
   phases.push({
     id: "shorts",
     title: "Viral 9:16 clips",

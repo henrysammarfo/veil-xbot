@@ -16,10 +16,10 @@ import type { BrandKey } from "../brands.js";
 import { tierReport } from "../studio/tiers.js";
 import { adStyleForBrand } from "../edit/styles.js";
 import { buildPaidGrowthPack } from "../growth/paid-growth.js";
-import { seedGrowthBrain } from "../brain/seed.js";
-import { searchSkills, adoptSkillsIntoBrain, ensureGooseVendorLink } from "../skills/catalog.js";
+import { searchSkills } from "../skills/catalog.js";
 import { learn } from "../brain/self-learn.js";
 import { smartCritique, smartStatus } from "../brain/smart.js";
+import { prepareUnifiedSystem } from "../brain/unified-context.js";
 
 export interface OpsRun {
   id: string;
@@ -34,9 +34,7 @@ export interface OpsRun {
  * This IS your marketing team for the day.
  */
 export async function runGrowthOps(projectId: string): Promise<OpsRun> {
-  ensureGooseVendorLink();
-  seedGrowthBrain();
-  adoptSkillsIntoBrain(100);
+  const unified = prepareUnifiedSystem({ projectId, task: "ops", feature: "ops" });
 
   const project = getProject(projectId);
   const phases: string[] = [];
@@ -48,6 +46,12 @@ export async function runGrowthOps(projectId: string): Promise<OpsRun> {
   const sections: string[] = [
     `# GROWTH OPS — ${project.name}`,
     `_${new Date().toISOString()}_`,
+    "",
+    `## Unified OS`,
+    `- Skills catalog: ${unified.skillCatalogCount}`,
+    `- Brain seeded: ${unified.brainSeeded}`,
+    `- Lessons: ${unified.lessons.length}`,
+    `- Context: ${unified.paths.contextFile}`,
     "",
     "## Teams activated",
     "- Marketing (campaign)",

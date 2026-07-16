@@ -1,6 +1,72 @@
 # Magmos Growth Brain
-_Updated 2026-07-15T11:47:28.700Z_
-_Entries: 85_
+_Updated 2026-07-16T05:11:45.230Z_
+_Entries: 99_
+
+## [insight] Goose stack executed (not prompt-only)
+- id: `mem_mrn0dxia_lcrvn`
+- tags: goose, stack, ad-maker, magmos
+- source: goose-stack
+
+format=static; engines=ref-html-finish,ref-html-finish,ref-html-finish,ref-html-finish,ref-html-finish,ref-html-finish; refs=8; fal=false
+
+## [insight] learn:ad-maker:fail
+- id: `mem_mrmclutd_nyivl`
+- tags: self-learn, ad-maker, magmos, fail
+- source: self-learn/ad-maker
+
+Smart critique score=65 via venice
+Lessons: The ads are generally on-brand with the mustard yellow color scheme, but some could benefit from more creative and metaphorical concepts. The copy is short and stacked, but some ads could use more impactful and emotional language. The use of HTML type and product screenshots is effective, but some ads could use more lifestyle or editorial photography to convey emotion. The ads do a good job of highlighting the key features of Magmos, such as composability, yield, and onchain operations, but some could benefit from more clarity and simplicity in their messaging. Overall, the ads are a good start, but there is room for improvement in terms of creativity, emotional impact, and clarity of messaging.
+
+
+## [brand] Magmos Labs product truth
+- id: `mem_mrmb9i5t_qqy96`
+- tags: product-truth, magmos
+- source: C:\Users\RICHEY_SON\Desktop\veil-xbot\knowledge\magmos.md
+
+# Magmos Labs — product truth for Q&A
+
+Synced from [henrysammarfo/magmoslabs](https://github.com/henrysammarfo/magmoslabs) + live app.
+
+## What it is
+Composable yield-dollar protocol on Sui (Sui Overflow 2026).
+
+| Token / layer | Role |
+|---------------|------|
+| **AURUM** | Unit-stable dollar minted from USDC collateral (`aurum::forge`) |
+| **sAURUM** | Index-based yield token from staking AURUM (`saurum::smelt`) |
+| **MAGMA** | Governance + fee-sharing lane |
+| **VYSS** | Permissioned yield stream for registered AURUM holders |
+| **Liquidity Layer** | LP yield hook for AURUM-sided liquidity |
+| **Thermal Limits + Forge Council** | Risk controls + scoped governance |
+
+Lifecycle: **forge** (USDC→AURUM) → **smelt** (AURUM→sAURUM) → **refine** (sAURUM→AURUM) → **melt** (AURUM→USDC).
+
+## Live URLs
+- **App (use this in bio / ads):** https://magmoslabs.vercel.app
+- **Repo:** https://github.com/henrysammarfo/magmoslabs
+- Sibling repo `henrysammarfo/magmos` exists but product source of truth is **magmoslabs**
+
+## What is live (testnet)
+- Move contracts deployed on Sui testnet
+- Frontend reads live (wallet-gated dashboard/profile)
+- Write flows: `/aurum` forge/smelt/withdraw · `/saurum` re
+
+## [insight] Magmos Goose ads = taste gold standard
+- id: `mem_mrmcjdmv_nqn33`
+- tags: taste, ads, magmos, goose-reference
+- source: magmos-goose-refs
+
+Reference files (8): compounding-dreams-4x5.png, defi-gazette-1x1.png, hidden-spend-1x1.png, late-night-builders-4x5.png, where-dollar-going-4x5.png, yield-dollar-clarity-4x5.png, yield-dollar-hero-4x5.png, yield-dollar-masks-1x1.png
+GOLD STANDARD = Goose Magmos ads in data/ads/reference/magmos-goose — match or beat that taste
+Brand color: mustard yellow #E8B84A + black + white — not generic crypto blue/purple
+Concept > UI screenshot. Metaphor, lifestyle, editorial newspaper, surreal interruption
+Copy is short and stacked. No paragraphs on the ad face
+Human or object photography carries emotion; HTML type stays crisp on top
+Always place Magmos wordmark; never invent hardware gadgets
+Problem ads: idle stables / opaque reserves / lockups / low yield
+Culture ads: builders at night shipping yield on Sui
+Self-improve: if output looks like a dashboard paste, reject and regenerate
+Directions distilled: yellow-split-hello, lifestyle-earns, clarity-no-jargon, dollar-leaking, late-night-builders, compound-dreams, hidden-reserves, defi-gazette
 
 ## [skill] Goose + agent skills catalog
 - id: `mem_mrlw6quw_v5iy2`
@@ -99,67 +165,22 @@ HeyGen is optional — prefer Venice presenter (character still + TTS → avatar
 One connected brain: URL in → research → ads → edit → distribute. Self-learning via
 TinyFish + Venice 24/7.
 
-## [brand] Site digest magmoslabs.vercel.app
-- id: `mem_mrlws6x4_145iu`
-- tags: brand, magmoslabs.vercel.app
-- source: tinyfish
-- url: https://magmoslabs.vercel.app
+## [oss] User OSS stack (wired)
+- id: `mem_mrmb9i51_hakiy`
+- tags: oss, stack, magmos
+- source: unified-context
 
-# Your Dollar Earns Itself.
-
-AURUM is a unit-stable digital dollar on Sui. Stake it for sAURUM and watch the accumulation index rise daily — yield from Scallop, DeepBook, and Aftermath, compounded on-chain.
-
-Join us
-
-SuiScallopDeepBookAftermathCetusWalrusNautilus TEESuiScallopDeepBookAftermathCetusWalrusNautilus TEE
-
-Two tokens. One protocol.
-
-## A stable dollar, and a dollar that grows.
-
-### AURUM
-
-always $1.00
-
-The composable dollar. Unit-stable, transferable, and native to every Sui protocol at the type level.
-
-$1.00
-
-* Always equals $1 — pure open-market arbitrage
-* Lives in your wallet as a native Move object
-* Composable across Scallop, Cetus, DeepBook
-* Mint 1:1 from USDC, any time, by anyone
-
-### sAURUM
-
-index ↑ daily
-
-The yield dollar. Stake AURUM and your balance tracks a rising accumulation index — compounded daily, verified on-chain.
-
-Accumulation index1.1200
-
-* Accumulation index rises daily as yield compounds
-* Yield from Scallop + DeepBook + Aftermath
-* Unstake any time — receive AURUM at current index
-* The longer you hold, the more AURUM you get back
-
-How it works
-
-## Four flows. One atomic transaction.
-
-01
-
-### Forge
-
-Deposit USDC. Receive AURUM 1:1 immediately as
-
-## [url] Grow target magmoslabs.vercel.app
-- id: `mem_mrlws3v2_5e6pu`
-- tags: grow, magmos, magmoslabs.vercel.app
-- source: grow-from-url
-- url: https://magmoslabs.vercel.app
-
-User asked full growth OS for https://magmoslabs.vercel.app
+hyperframes: wired — HTML compose → validate → 1080p MP4
+ad-maker: wired — Domain → 4–6 on-brand still ads
+goose-skills: wired — GTM / ads / social agent skills library
+openmontage: wired — Agentic production pipelines
+web-to-app: wired — Magmos demo APK from web
+goldmine: wired — 22 lab OSS repos catalog
+openshorts: wired — Viral clips + 9:16 reframe
+voicebox: wired — Local voice clone / TTS
+vibevoice: wired — Long-form ASR (Who/When/What)
+freecut: wired — PRIMARY CapCut-class agent editor
+heygen: wired — Avatar PiP for walkthroughs
 
 ## [oss] goose-skills
 - id: `mem_mrlvqlv6_bftlt`
@@ -251,24 +272,131 @@ inspect → script/storyboard/timing contract → Playwright capture → present
 → HyperFrames HTML compose → check/snapshot/inspect/render 1080p. Timing plan is the
 contract between VO, screen, captions, SFX.
 
-## [insight] learn:global:success
-- id: `mem_mrm0mpmk_2wdi5`
-- tags: self-learn, global, magmos, success
-- source: self-learn/global
+## [brand] Site digest magmoslabs.vercel.app
+- id: `mem_mrlws6x4_145iu`
+- tags: brand, magmoslabs.vercel.app
+- source: tinyfish
+- url: https://magmoslabs.vercel.app
 
-Manual seed — smart stack + self-learn armed
-Lessons: Every feature writes lessons to SELF-LEARN.json | Venice → OpenAI cascade via smartChat / failover | TinyFish is the live web truth for grow/ops/ad-maker
+# Your Dollar Earns Itself.
+
+AURUM is a unit-stable digital dollar on Sui. Stake it for sAURUM and watch the accumulation index rise daily — yield from Scallop, DeepBook, and Aftermath, compounded on-chain.
+
+Join us
+
+SuiScallopDeepBookAftermathCetusWalrusNautilus TEESuiScallopDeepBookAftermathCetusWalrusNautilus TEE
+
+Two tokens. One protocol.
+
+## A stable dollar, and a dollar that grows.
+
+### AURUM
+
+always $1.00
+
+The composable dollar. Unit-stable, transferable, and native to every Sui protocol at the type level.
+
+$1.00
+
+* Always equals $1 — pure open-market arbitrage
+* Lives in your wallet as a native Move object
+* Composable across Scallop, Cetus, DeepBook
+* Mint 1:1 from USDC, any time, by anyone
+
+### sAURUM
+
+index ↑ daily
+
+The yield dollar. Stake AURUM and your balance tracks a rising accumulation index — compounded daily, verified on-chain.
+
+Accumulation index1.1200
+
+* Accumulation index rises daily as yield compounds
+* Yield from Scallop + DeepBook + Aftermath
+* Unstake any time — receive AURUM at current index
+* The longer you hold, the more AURUM you get back
+
+How it works
+
+## Four flows. One atomic transaction.
+
+01
+
+### Forge
+
+Deposit USDC. Receive AURUM 1:1 immediately as
+
+## [url] Grow target magmoslabs.vercel.app
+- id: `mem_mrlws3v2_5e6pu`
+- tags: grow, magmos, magmoslabs.vercel.app
+- source: grow-from-url
+- url: https://magmoslabs.vercel.app
+
+User asked full growth OS for https://magmoslabs.vercel.app
+
+## [insight] learn:grow:success
+- id: `mem_mrma0ta8_fpa7q`
+- tags: self-learn, grow, magmos, success
+- source: self-learn/grow
+
+video formats: 3/3 mockups
+Lessons: EXECUTE create-imessage/chatgpt/apple-notes-mockup — not formats.json text only | HyperFrames scaffolds each format; ffmpeg still→mp4 when HF render unavailable | Magmos threads: no APY, composable dollar, waitlist URL
 
 
-## [insight] Ad-maker run magmoslabs.vercel.app
-- id: `mem_mrlwsf9u_dqekh`
-- tags: ad-maker, magmos, magmoslabs.vercel.app
+## [insight] learn:grow:partial
+- id: `mem_mrm9v6o1_jexei`
+- tags: self-learn, grow, magmos, partial
+- source: self-learn/grow
+
+video formats: 0/3 mockups
+Lessons: EXECUTE create-imessage/chatgpt/apple-notes-mockup — not formats.json text only | HyperFrames scaffolds each format; ffmpeg still→mp4 when HF render unavailable | Magmos threads: no APY, composable dollar, waitlist URL
+
+
+## [insight] learn:ad-maker:success
+- id: `mem_mrm8lom8_6cbo9`
+- tags: self-learn, ad-maker, magmos, success
+- source: self-learn/ad-maker
+
+goose-stack static: 6 ads · engines ref-html-finish
+Lessons: EXECUTE formats.json → remix-graphic-ad-from-reference — do not only inject SKILL.md into prompts | Cascade: FAL edit-on-ref → HTML finish on Goose ref (+ goose-graphics screenshot) → local concept | Companion skills write JSON artifacts (ad-angle-miner, meta-ads-campaign-builder) | goose-skills: EXECUTE via goose-stack (formats → remix) — not prompt-only | goldmine: catalog bookmarks unless a lab is imported
+
+
+## [insight] Ad-maker run magmos
+- id: `mem_mrmcjknl_qp0z8`
+- tags: ad-maker, magmos, magmos
 - source: ad-maker
 
-typographic: AURUM — The composable dollar.
-gradient_field: sAURUM — Yield that compounds.
-editorial_spread: Forge. Smelt. Compound. — One transaction, four flows.
-isometric: Your $1.00 — Earns itself daily.
+yellow_split: HELLO,
+NICE TO
+MEET
+YOUR
+YIELD
+DOLLAR — Magmos
+lifestyle_yellow: A digital dollar
+that earns while
+you hold — Always worth $1.00
+clarity_overlay: No lockups.
+No jargon. — Just yield onchain.
+pain_tags: Where is your
+dollar going? — Magmos
+builders_night: Magmos is for
+the builders shipping yield on Sui
+while the market sleeps. — Magmos is for you.
+compound_room: Because — YIELD SHOULD COMPOUND
+
+## [oss] Goldmine 22 labs armed
+- id: `mem_mrmb9i5f_svx0e`
+- tags: goldmine, oss
+- source: unified-context
+
+skills: Reusable agent skills
+openai-agents-python: Multi-agent framework
+adk-python: Agent development kit
+courses: Prompting / agent courses
+openai-cookbook: Recipes: RAG, evals, agents
+generative-ai-python: Gemini SDK
+claude-code: Coding agent reference
+evals: Model quality grading
 
 ## [skill] skill:website-to-video
 - id: `mem_mrlw6ttk_75akn`
@@ -749,3 +877,79 @@ AI video conversations - create real-time video calls with AI personas
 - url: C:\Users\RICHEY_SON\Desktop\veil-xbot\.agents\skills\ad-campaign-analyzer\SKILL.md
 
 Analyze ad campaign performance data, identify winners and waste, check statistical significance, and recommend multi-channel budget reallocation with specific dollar-amount shift recommendations and scenario modeling.
+
+## [insight] Ad-maker run magmoslabs.vercel.app
+- id: `mem_mrlwsf9u_dqekh`
+- tags: ad-maker, magmos, magmoslabs.vercel.app
+- source: ad-maker
+
+typographic: Forge AURUM — Mint AURUM from USDC
+isometric: sAURUM Yield — Accumulate yield daily
+editorial_spread: On-Chain Reserves — 100% verified on-chain
+product_hero: Your Dollar Earns — Composable yield-dollar
+
+## [insight] learn:ad-maker:partial
+- id: `mem_mrmbbqzj_ssy7f`
+- tags: self-learn, ad-maker, magmos, partial
+- source: self-learn/ad-maker
+
+Unified ads still garbled UI text inside Venice images
+Lessons: Venice text-in-image garbles (Aorge, compost typos) — need real magmoslabs screenshot + GooseWorks remix MCP OR HTML/goose-graphics text overlay | Prefer capturing live /aurum UI then remix-layout rather than inventing phone UI | Install gooseworks MCP for dashboard-parity ads when available
+In-image copy garbled on product_hero
+
+## [insight] learn:engage:success
+- id: `mem_mrma0t96_81uxr`
+- tags: self-learn, engage, magmos, success
+- source: self-learn/engage
+
+quote under DeFi yield dollars on Sui — who is shipping real forge UX? via venice
+Lessons: Ties to Magmos' real forge UX and testnet, subtly promoting the product. | Engage cascade hit: venice
+
+
+## [insight] learn:global:success
+- id: `mem_mrm0mpmk_2wdi5`
+- tags: self-learn, global, magmos, success
+- source: self-learn/global
+
+Smart critique score=95 via venice
+Lessons: The UGC run for Magmos is highly effective, showcasing the real Magmos forge UI and demonstrating the composable yield-dollar on Sui. The concept of the founder demonstrating the UI live with real transactions is compelling and aligns well with the brand's truth. | The shots are well-structured, starting with a bold hook and ending with a strong visual of the AURUM dollar. The inclusion of real-time UI updates and transaction confirmations adds authenticity and trust. | The SFX and music complement the visuals well, enhancing the overall impact of the UGC. The voiceover is concise and reinforces the key message of real yield and real transactions. | The 'Do NOT' section is clear and ensures that the UGC remains realistic and true to the product, avoiding any invented elements that could mislead the audience. | The B-roll URLs provided are relevant and can be used to enhance the visual appeal of the UGC. However, it's important to ensure that they are used in a way that complements the main content without overshadowing it. | The run successfully adheres to the Magmos product truth, focusing on the real Magmos web UI and the AURUM dollar, 
+
+## [insight] learn:draft:success
+- id: `mem_mrm9zyq1_pzxzs`
+- tags: self-learn, draft, magmos, success
+- source: self-learn/draft
+
+pack post draft_mrm9zyps_hvcvz
+Lessons: Posts: waitlist CTA + testnet proof, max 2 hashtags, no APY hype
+
+
+## [insight] research:Magmos Labs https://magmoslabs.vercel.app yield forge AURUM
+- id: `mem_mrm9vua1_sl9zh`
+- tags: tinyfish, research, magmos
+- source: tinyfish
+- url: https://www.youtube.com/channel/UCiSVf-UpLC9rRjAT1qRTW0g
+
+Forge Labs — https://www.youtube.com/channel/UCiSVf-UpLC9rRjAT1qRTW0g
+How to GET MAGMAITE FAST in THE FORGE - MAGMAITE ... — https://www.youtube.com/watch?v=ibR5hcVK9Vg
+Forge: Home — https://forge-demo.vercel.app/
+Forge Alumnus - App Store - Apple — https://apps.apple.com/in/app/forge-alumnus/id6450661962
+FORGE — Website Factory — https://forgeweb.vercel.app/settings
+Deployment - Forge — https://mvriu5-forge.mintlify.app/self-hosting/deployment
+MAGLabs — https://labs.magfest.org/
+Deploy Magma — https://magmacore.org/deploy-magma/
+
+About
+Press
+Copyright
+Contact us
+Creators
+Advertise
+Developers
+Terms
+Privacy
+Policy & Safety
+How YouTube works
+Test new features
+NFL Sunday Ticket
+© 2026 Google LLC
+Forge Labs - YouTube

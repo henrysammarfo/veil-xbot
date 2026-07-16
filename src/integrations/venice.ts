@@ -6,7 +6,7 @@
  *   VENICE_API_KEY  or  VERNICE_API_KEY  (legacy alias)
  *   VENICE_API_URL  default https://api.venice.ai/api/v1
  */
-import { writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { writeFileSync, mkdirSync, existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { env, DATA_DIR, assertDataDir } from "../config.js";
 import { newId } from "../store.js";
@@ -156,6 +156,62 @@ export async function veniceGenerateImage(
     projectId: opts?.projectId,
   });
   return { path, revisedPrompt: data.data?.[0]?.revised_prompt, usd: est };
+}
+
+/**
+ * POST /image/edit — edit-on-reference (FAL alternate).
+ * Returns PNG binary. Default model qwen-edit (~$0.04). Prefer gpt-image-*-edit when available.
+ * @see https://docs.venice.ai/api-reference/endpoint/image/edit
+ */
+export async function veniceEditImage(opts: {
+  referencePath: string;
+  prompt: string;
+  model?: string;
+  aspectRatio?: string;
+  outName?: string;
+  force?: boolean;
+  projectId?: string;
+}): Promise<{ path: string; usd: number; model: string }> {
+  if (!existsSync(opts.referencePath)) {
+    throw new Error(`Venice edit: missing reference ${opts.referencePath}`);
+  }
+  const model = opts.model || env("VENICE_EDIT_MODEL", "qwen-edit");
+  const { estimateImageUsd, assertCanSpend, recordSpend } = await import("./venice-credits.js");
+  // Edit pricing ~ generation; ledger as image spend
+  const est = Math.max(0.04, estimateImageUsd(model));
+  assertCanSpend(est, { force: opts.force, label: `Image edit ${model}` });
+
+  const cfg = veniceConfig();
+  const b64 = readFileSync(opts.referencePath).toString("base64");
+  const res = await fetch(`${cfg.baseUrl}/image/edit`, {
+    method: "POST",
+    headers: veniceHeaders(cfg),
+    body: JSON.stringify({
+      model,
+      prompt: opts.prompt,
+      image: b64,
+      aspect_ratio: opts.aspectRatio ?? "auto",
+      output_format: "png",
+    }),
+  });
+  if (!res.ok) {
+    throw new Error(`Venice edit ${res.status}: ${(await res.text()).slice(0, 400)}`);
+  }
+
+  assertDataDir();
+  const dir = join(DATA_DIR, "exports", "venice");
+  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+  const name = opts.outName ?? `${newId("venice-edit")}.png`;
+  const path = join(dir, name);
+  const buf = Buffer.from(await res.arrayBuffer());
+  writeFileSync(path, buf);
+  recordSpend(est, {
+    modality: "image",
+    model,
+    note: `edit: ${opts.prompt.slice(0, 60)}`,
+    projectId: opts.projectId,
+  });
+  return { path, usd: est, model };
 }
 
 /** POST /audio/speech — VO for launch clips */

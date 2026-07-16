@@ -69,10 +69,13 @@ If output breaks these rules → discard and regenerate. Learn from playbooks an
 
 ## Graphics / posters
 
-- Dark `#0a0a0a` field, off-white type, **one** accent (subtle, not amber explosion).
-- One headline, max 6 words. No paragraph on image.
-- UI screenshot > abstract crypto art.
-- Match Veil dashboard aesthetic: minimal, monospace labels, thin borders.
+- **Magmos gold standard** = Goose dashboard ads in `data/ads/reference/magmos-goose` — match or beat that taste. Self-reject anything weaker.
+- Magmos brand: mustard `#E8B84A` + black + white. Not generic crypto blue/purple.
+- Concept photography / metaphor / editorial object > UI dashboard paste with labels.
+- One headline, short stacked lines. No paragraphs on the ad face.
+- Magmos wordmark always present. Venice = scene plate only; HTML owns all type.
+- Veil: dark `#0a0a0a` field, off-white type, **one** accent — minimal, monospace labels.
+- Instant reject: glossy 3D coins, neon cities, hooded hackers, garbled AI text on image.
 
 ---
 
@@ -114,4 +117,5 @@ Before generating copy:
 When something posts well or flops, add a line under **Notes**:
 
 ### Notes
+- 2026-07-15: Goose Magmos ads (Defi Gazette, yellow-split hello, lifestyle earn, clarity, wallet pain-tags, late-night builders, compound dreams, hidden reserves) are the taste bar — local compositor must ship those layouts, not UI paste.
 - (add wins/fails here)

@@ -40,8 +40,12 @@ export const MAGMOS_BRAND = {
     "Forge Council",
     "composable yield-dollar",
     "Trust-minimized",
-    "APY guaranteed",
+    "APY",
+    "real yield",
+    "guaranteed",
     "compostible",
+    "Own Your World",
+    "Trust in Tech",
   ],
 };
 

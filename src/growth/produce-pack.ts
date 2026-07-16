@@ -511,13 +511,32 @@ export async function produceFullPack(opts: {
   }
 
   // --- 8. End-to-end critique + smart learn ---
-  log.push("[8/12] Smart critique whole pack");
-  const status: ProducePackResult["status"] =
-    paths.post || paths.ads || paths.siteAds || paths.thrillerMp4 ? "done" : "partial";
+  log.push("[8/12] Smart critique + quality gate");
+  const { scorePackQuality, formatQuality } = await import("./quality-gate.js");
+  const quality = scorePackQuality({ packDir, paths, log });
+  writeFileSync(join(packDir, "QUALITY.md"), formatQuality(quality));
+  paths.quality = join(packDir, "QUALITY.md");
+  log.push(`Quality: score=${quality.score} shippable=${quality.shippable}`);
+  for (const f of quality.findings) log.push(`Q-${f.level}: ${f.code} — ${f.message}`);
+
+  let status: ProducePackResult["status"] = quality.shippable
+    ? "done"
+    : quality.score >= 40
+      ? "partial"
+      : "failed";
+  // Never call empty-ad packs done even if other bits exist
+  if (
+    log.some((l) => /Site ads: 0 stills/i.test(l)) &&
+    log.some((l) => /Goose stack ads: 0\//i.test(l))
+  ) {
+    status = "failed";
+  }
+
   const summary = [
     `# PACK ${id}`,
     `Project: ${projectId}`,
     `URL: ${url}`,
+    `Quality: ${quality.score} · shippable=${quality.shippable} · status=${status}`,
     "",
     "## Log",
     ...log.map((l) => `- ${l}`),
@@ -533,15 +552,19 @@ export async function produceFullPack(opts: {
   learn({
     projectId,
     feature: "grow",
-    outcome: status === "done" ? "success" : "partial",
-    summary: `full produce-pack ${id}`,
-    errors: log.filter((l) => /fail/i.test(l)),
-    lessons: [
-      "ONE pipeline: social-max learn → research → Venice T2V thriller → site-ads → goose taste remix → formats → post → UGC → montage → engage → paid → learn",
-      "Goose refs = taste bar only; Google-style site→ads is primary",
-      "Public Magmos = plain English. Mechanics jargon only in Q&A docs",
+    outcome: status === "done" ? "success" : status === "partial" ? "partial" : "fail",
+    summary: `full produce-pack ${id} quality=${quality.score}`,
+    errors: [
+      ...log.filter((l) => /fail/i.test(l)),
+      ...quality.findings.filter((f) => f.level === "fail").map((f) => f.message),
     ],
-    meta: { id, paths },
+    lessons: [
+      "ONE pipeline: social-max learn → research → Venice T2V thriller → site-ads → goose taste remix → formats → post → UGC → montage → engage → paid → quality gate",
+      "Never mark pack done if site ads < 3 stills or post missing or social-max junk hooks",
+      "Goose refs = taste bar only; Google-style site→ads is primary",
+      "Public Magmos = plain English. No forge / APY / real yield / generic Own Your World copy",
+    ],
+    meta: { id, paths, quality },
   });
 
   try {
@@ -553,7 +576,7 @@ export async function produceFullPack(opts: {
     });
     await smartChat(
       "learn",
-      `From this Magmos pack, return JSON {"lessons":["…"]} future runs must obey (plain voice, real video, social learn, no forge jargon).\n${summary.slice(0, 1500)}`,
+      `From this Magmos pack, return JSON {"lessons":["…"]} future runs must obey (plain voice, real video, social learn, no forge jargon, reject CapCut junk hooks).\n${summary.slice(0, 1500)}`,
       { projectId, feature: "grow" },
     );
   } catch {
@@ -571,5 +594,10 @@ export function formatProducePack(r: ProducePackResult): string {
     ...r.log,
     "",
     ...Object.entries(r.paths).map(([k, v]) => `${k}: ${v}`),
-  ].join("\n");
+    r.status === "failed" || r.status === "partial"
+      ? "\n⚠ Not shippable as-is — check QUALITY.md and re-run after fixing failures."
+      : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
 }

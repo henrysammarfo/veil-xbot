@@ -15,6 +15,7 @@ import { learn, lessonsFor } from "../brain/self-learn.js";
 import { MAGMOS_BRAND } from "./magmos-brand.js";
 import { loadLatestSocialMax } from "../discover/social-max.js";
 import { launchChromium } from "../qa/playwright-launch.js";
+import { filterMagmosConcepts } from "../growth/quality-gate.js";
 
 export interface SiteAdConcept {
   id: string;
@@ -107,22 +108,92 @@ export async function runSiteAds(opts: {
       "ad-maker",
       `${plainVoiceBlock(projectId)}
 
-You are Google Ads Creative Studio. Site: ${url}
+You are Google Ads Creative Studio for ONE product only: Magmos.
+Site: ${url}
 Brand: ${project.name}
 Site notes: ${siteNotes}
 Screenshot on disk: ${existsSync(screenshotPath) ? "yes" : "no"}
 
 Return JSON only:
-{"concepts":[{"id":"c1","angle":"...","headline":"≤6 words","subhead":"≤10 words","cta":"≤4 words","visualPrompt":"photoreal scene NO TEXT NO LOGOS for image model","ratio":"1:1|4:5|9:16"}]}
+{"concepts":[{"id":"c1","angle":"magmos-dollar","headline":"≤6 words","subhead":"≤10 words","cta":"≤4 words","visualPrompt":"photoreal scene NO TEXT NO LOGOS","ratio":"1:1|4:5|9:16"}]}
 
-Exactly ${count} concepts. Mix: lifestyle, problem, product-UI-on-phone, quiet aspiration.
-Headlines must be easy and human — not crypto-bro. No forge/smelt words.`,
+Exactly ${count} concepts. EVERY concept must be about Magmos:
+- digital dollar that stays $1
+- earn while you hold / no lockups / on-chain reserves / waitlist
+BANNED headlines: Own Your World, Trust in Tech, Open and Rewarding, New Ways to Earn (generic), APY, forge, smelt, real yield.
+Visuals: lifestyle, wallet/phone, calm desk with Magmos UI blur — not futuristic hologram cities.
+Plain warm English only.`,
       { projectId, feature: "ad-maker" },
     );
     const parsed = JSON.parse(llm.content.replace(/```json|```/g, "").trim()) as {
       concepts?: SiteAdConcept[];
     };
-    concepts = (parsed.concepts ?? []).slice(0, count);
+    concepts = filterMagmosConcepts(parsed.concepts ?? []).slice(0, count);
+    if (concepts.length < 3) {
+      log.push(`Concept filter kept ${concepts.length} — filling Magmos defaults`);
+      concepts = [
+        {
+          id: "c1",
+          angle: "hold-earn",
+          headline: "Your dollar can earn",
+          subhead: "Still worth $1.00",
+          cta: "Join waitlist",
+          visualPrompt:
+            "Warm lifestyle photo person checking phone at cafe, soft light, mustard yellow accent objects, empty space for text, NO TEXT NO LOGOS",
+          ratio: "4:5" as const,
+        },
+        {
+          id: "c2",
+          angle: "clarity",
+          headline: "No lockups. No stress.",
+          subhead: "Hold. Earn. Stay flexible.",
+          cta: "See Magmos",
+          visualPrompt:
+            "Clean desk with phone showing blurry finance app UI, natural light, calm, NO readable screen text, NO LOGOS",
+          ratio: "1:1" as const,
+        },
+        {
+          id: "c3",
+          angle: "reserves",
+          headline: "See where money sits",
+          subhead: "On-chain reserves you can check",
+          cta: "Learn more",
+          visualPrompt:
+            "Minimal product photo glass jar of coins on white, soft shadow, premium, NO TEXT",
+          ratio: "1:1" as const,
+        },
+        {
+          id: "c4",
+          angle: "idle",
+          headline: "Idle money is a choice",
+          subhead: "Put your dollar to work",
+          cta: "Waitlist",
+          visualPrompt:
+            "Top-down wallet with dollars on light desk, soft daylight, product photo, NO TEXT NO LOGOS",
+          ratio: "4:5" as const,
+        },
+        {
+          id: "c5",
+          angle: "calm",
+          headline: "Calm money. Clear rules.",
+          subhead: "Always $1. Always checkable.",
+          cta: "Open Magmos",
+          visualPrompt:
+            "Quiet morning window light on phone face-down next to coffee, mustard napkin, editorial, NO TEXT",
+          ratio: "9:16" as const,
+        },
+        {
+          id: "c6",
+          angle: "waitlist",
+          headline: "Waitlist is open",
+          subhead: "A dollar that can earn while you hold",
+          cta: "Join now",
+          visualPrompt:
+            "Hands holding phone with blurred app UI, cozy home desk, authentic UGC feel, NO faces, NO TEXT",
+          ratio: "9:16" as const,
+        },
+      ].slice(0, count);
+    }
   } catch (e) {
     log.push(`LLM concepts fallback: ${e instanceof Error ? e.message : e}`);
     concepts = [

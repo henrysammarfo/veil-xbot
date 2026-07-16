@@ -28,15 +28,23 @@ export interface SocialMaxResult {
 }
 
 const PLATFORM_QUERIES = [
-  "site:x.com viral post hook crypto OR defi OR saas 2026",
-  "youtube short high views storytelling hook 2026",
-  "tiktok edit cuts every 2 seconds viral 2026",
-  "reddit r/Entrepreneur OR r/SaaS winning post format",
-  "linkedin product launch post high engagement",
-  "instagram reel caption structure high saves",
-  "github anti AI slop writing rules stop hallucinations",
-  "best short form video hooks no AI voiceover fluff",
+  "site:x.com viral fintech OR \"digital dollar\" OR \"stable\" OR waitlist product launch",
+  "youtube short high views personal finance storytelling hook clear copy",
+  "tiktok product demo phone screen recording high views no face",
+  "reddit r/personalfinance OR r/SaaS launch post high upvotes",
+  "linkedin fintech product launch post high engagement plain english",
+  "best short form fintech ad hooks idle money OR dollar earns",
+  "github anti AI slop writing guidelines crisp product copy",
 ];
+
+const JUNK_HOOK =
+  /capcut|corona|re-fungible|cursor killer|walk effect|trending music|ai walk|template 2026|create your own social/i;
+
+function isUsefulHook(h: string): boolean {
+  if (!h || h.length < 4) return false;
+  if (JUNK_HOOK.test(h)) return false;
+  return true;
+}
 
 async function harvestAntiAiCraft(): Promise<string[]> {
   const defaults = [
@@ -157,11 +165,15 @@ ${sample || "(no TinyFish hits — use evergreen short-form craft)"}
 
 Return JSON only:
 {
-  "winningHooks":["≤8 word hooks stolen from winners"],
-  "craftRules":["how to edit/write like winners — plain English"],
-  "neverSay":["jargon and AI slop to ban for Magmos public content"]
+  "winningHooks":["≤8 word hooks that could sell Magmos — a $1 digital dollar that earns while you hold"],
+  "craftRules":["how to edit/write like winners — plain English, product-first"],
+  "neverSay":["jargon and AI slop to ban"]
 }
-Magmos public voice: simple, warm, clear. A digital dollar that stays $1 and earns while you hold. NO forge/smelt/thermal jargon in ads.`,
+HARD RULES:
+- Magmos public voice only. NO CapCut template names, NO random AI tool drama, NO pandemic titles.
+- Hooks must be about money clarity, idle dollars, holding $1, waitlist, calm product UI.
+- If a scanned title is junk (CapCut, corona, RFT), IGNORE it — do not copy it into winningHooks.
+Never say: forge, smelt, thermal, APY, real yield.`,
       { projectId, feature: "global" },
     );
     const parsed = JSON.parse(llm.content.replace(/```json|```/g, "").trim()) as {
@@ -169,8 +181,21 @@ Magmos public voice: simple, warm, clear. A digital dollar that stays $1 and ear
       craftRules?: string[];
       neverSay?: string[];
     };
-    winningHooks = parsed.winningHooks ?? [];
-    craftRules = [...(parsed.craftRules ?? []), ...(parsed.neverSay?.map((n) => `Never: ${n}`) ?? []), ...antiAiRules];
+    winningHooks = (parsed.winningHooks ?? []).filter(isUsefulHook).slice(0, 8);
+    if (!winningHooks.length) {
+      winningHooks = [
+        "Your idle dollar can work",
+        "Still $1. Still earning.",
+        "No lockups. Just hold.",
+        "See your reserves on-chain",
+      ];
+    }
+    craftRules = [
+      ...(parsed.craftRules ?? []),
+      ...(parsed.neverSay?.map((n) => `Never: ${n}`) ?? []),
+      ...antiAiRules,
+      "Ignore CapCut/template/AI-drama trends — steal craft, not junk titles",
+    ];
   } catch {
     winningHooks = [
       "Your idle dollars can work",

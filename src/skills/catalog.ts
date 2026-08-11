@@ -15,6 +15,13 @@ import {
 import { join, dirname } from "node:path";
 import { DATA_DIR, assertDataDir, XBOT_ROOT } from "../config.js";
 import { remember } from "../brain/memory.js";
+import {
+  agentsSkillsDir,
+  resolveGooseRoot,
+  resolveSkillDir,
+  ensureGooseVendorBootstrap,
+  vendorGooseDir,
+} from "./paths.js";
 
 export interface SkillRecord {
   slug: string;
@@ -34,16 +41,6 @@ export interface SkillCatalog {
   skills: SkillRecord[];
 }
 
-const GOOSE_INDEX_CANDIDATES = [
-  join(XBOT_ROOT, "vendor", "goose-skills", "skills-index.json"),
-  join(XBOT_ROOT, "..", "goose-skills", "skills-index.json"),
-  "c:\\Users\\RICHEY_SON\\Desktop\\goose-skills\\skills-index.json",
-];
-
-function agentsSkillsDir(): string {
-  return join(XBOT_ROOT, ".agents", "skills");
-}
-
 function catalogPath(): string {
   assertDataDir();
   const dir = join(DATA_DIR, "skills");
@@ -60,23 +57,15 @@ function parseFrontmatter(md: string): { name?: string; description?: string } {
 }
 
 function gooseRoot(): string {
-  const vendorRoot = join(XBOT_ROOT, "vendor", "goose-skills");
-  const rootTxt = join(vendorRoot, "ROOT.txt");
-  if (existsSync(rootTxt)) {
-    const line = readFileSync(rootTxt, "utf8").split(/\r?\n/)[0]?.trim();
-    if (line && existsSync(line)) return line;
-  }
-  for (const p of GOOSE_INDEX_CANDIDATES) {
-    if (existsSync(p)) return dirname(p);
-  }
-  return join(XBOT_ROOT, "..", "goose-skills");
+  ensureGooseVendorBootstrap();
+  return resolveGooseRoot() ?? agentsSkillsDir();
 }
 
 function loadGooseIndex(): SkillRecord[] {
   ensureGooseVendorLink();
   const root = gooseRoot();
-  const indexFile = existsSync(join(XBOT_ROOT, "vendor", "goose-skills", "skills-index.json"))
-    ? join(XBOT_ROOT, "vendor", "goose-skills", "skills-index.json")
+  const indexFile = existsSync(join(vendorGooseDir(), "skills-index.json"))
+    ? join(vendorGooseDir(), "skills-index.json")
     : join(root, "skills-index.json");
   if (!existsSync(indexFile)) return [];
   const raw = JSON.parse(readFileSync(indexFile, "utf8")) as {
@@ -97,11 +86,19 @@ function loadGooseIndex(): SkillRecord[] {
       : typeof s.tags === "string"
         ? s.tags.split(/[,\s]+/).filter(Boolean)
         : s.metadata?.tags ?? [];
+    const slug = s.slug ?? s.name ?? "unknown";
     const rel = s.path ?? "";
-    const abs = join(root, rel);
-    const skillMd = join(abs, "SKILL.md");
+    const nested = join(root, rel);
+    const flat = resolveSkillDir(slug);
+    const skillMdNested = join(nested, "SKILL.md");
+    const skillMdFlat = flat ? join(flat, "SKILL.md") : "";
+    const path = existsSync(skillMdFlat)
+      ? skillMdFlat
+      : existsSync(skillMdNested)
+        ? skillMdNested
+        : flat || nested;
     return {
-      slug: s.slug ?? s.name ?? "unknown",
+      slug,
       name: s.name ?? s.slug ?? "unknown",
       domain: s.domain ?? "growth",
       category: s.category ?? "skill",
@@ -109,7 +106,7 @@ function loadGooseIndex(): SkillRecord[] {
         (s.metadata?.description || s.description || "").replace(/^>\s*/, "").trim() ||
         `${s.slug} skill`,
       tags,
-      path: existsSync(skillMd) ? skillMd : abs,
+      path,
       source: "goose" as const,
     };
   });
@@ -350,18 +347,8 @@ export function formatSkills(limit = 40, q?: string): string {
   ].join("\n");
 }
 
-/** Ensure vendor copy of goose index exists for offline bot use */
+/** Ensure vendor copy of goose index + formats + ROOT for offline bot use */
 export function ensureGooseVendorLink(): string {
-  const vendor = join(XBOT_ROOT, "vendor", "goose-skills");
-  const src = "c:\\Users\\RICHEY_SON\\Desktop\\goose-skills";
-  if (!existsSync(join(vendor, "skills-index.json")) && existsSync(join(src, "skills-index.json"))) {
-    mkdirSync(vendor, { recursive: true });
-    writeFileSync(join(vendor, "skills-index.json"), readFileSync(join(src, "skills-index.json")));
-    // Point path resolution at desktop clone for SKILL.md bodies
-    writeFileSync(
-      join(vendor, "ROOT.txt"),
-      `${src}\n# Full skill bodies live here; index copied for veil-xbot runtime.\n`,
-    );
-  }
-  return existsSync(join(vendor, "skills-index.json")) ? vendor : src;
+  const boot = ensureGooseVendorBootstrap();
+  return boot.root ?? boot.vendor;
 }

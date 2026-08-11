@@ -23,6 +23,7 @@ import { getProject } from "../projects/registry.js";
 import type { BrandKey } from "../brands.js";
 import { activateGoldmine } from "../discover/goldmine.js";
 import { probeOssWires } from "../discover/oss-wire.js";
+import { ensureGooseVendorBootstrap, gooseStackReady } from "../skills/paths.js";
 import { runOpenMontage, formatOpenMontage } from "../studio/openmontage.js";
 import { env } from "../config.js";
 import { hasHeyGen } from "../integrations/heygen.js";
@@ -30,6 +31,8 @@ import { runPaidHeyGen } from "../integrations/paid-media.js";
 import { runSocialMax, formatSocialMax } from "../discover/social-max.js";
 import { MAGMOS_BRAND } from "../studio/magmos-brand.js";
 import { xAlgorithmPromptBlock } from "../algorithm/x-signals.js";
+import { craftVideoPrompt, seedCinematicCraft } from "../studio/cinematic-craft.js";
+import { evolveHarness } from "../brain/evolve.js";
 
 export interface ProducePackResult {
   id: string;
@@ -58,6 +61,8 @@ export async function produceFullPack(opts: {
   paths.packDir = packDir;
 
   // --- 0. Unified OS (skills + knowledge + OSS + lessons) ---
+  const craftPath = seedCinematicCraft(projectId);
+  log.push(`Cinematic craft (Higgsfield→Venice): ${craftPath}`);
   const unified = prepareUnifiedSystem({
     projectId,
     task: "pack",
@@ -72,9 +77,11 @@ export async function produceFullPack(opts: {
   writeFileSync(join(packDir, "PRIOR-LESSONS.md"), prior.map((l) => `- ${l}`).join("\n") || "(none)");
   paths.unified = unified.paths.contextFile;
 
-  // --- 0b. OSS wire (goldmine + voice/asr/heygen probes) ---
+  // --- 0b. OSS wire (goose vendor + goldmine + voice/asr/heygen probes) ---
   log.push("[0b/11] OSS wire");
   try {
+    const boot = ensureGooseVendorBootstrap();
+    log.push(`Goose root: ${boot.root} · ready=${gooseStackReady()}`);
     const goldminePath = activateGoldmine(projectId);
     paths.goldmine = goldminePath;
     const probes = await probeOssWires();
@@ -138,9 +145,15 @@ export async function produceFullPack(opts: {
 
     if (hasVenice() && env("THRILLER_VIDEO", "1") === "1") {
       try {
-        const t2v = await veniceGenerateVideo(
-          `Cinematic 6-second premium brand film for Magmos. Warm soft light, mustard yellow #E8B84A accents, calm desk or city morning, phone with blurred finance UI, slow push-in, storytelling mood, NO text overlays, NO logos, NO AI faces looking at camera, NO forge/industrial vault, photoreal.`,
-          {
+        const craft = craftVideoPrompt({
+          job: "thriller",
+          productName: project.name,
+          productPromise: "a digital dollar that stays $1 and can earn while you hold it",
+          seconds: 6,
+          aspect: "16:9",
+        });
+        writeFileSync(join(packDir, "thriller-craft.json"), JSON.stringify(craft, null, 2));
+        const t2v = await veniceGenerateVideo(craft.prompt, {
             durationSec: 6,
             aspectRatio: "16:9",
             projectId,
@@ -460,6 +473,42 @@ export async function produceFullPack(opts: {
     }
   }
 
+  // --- 5b2. Diffusion Studio (agent TSX editor compositions) ---
+  if (env("DIFFUSION_STUDIO", "1") === "1") {
+    log.push("[5b2/12] Diffusion Studio composition");
+    try {
+      const { runDiffusionStudio, formatDiffusionStudio } = await import(
+        "../integrations/diffusion-studio.js"
+      );
+      const footage =
+        [
+          join(packDir, "montage-master.mp4"),
+          join(packDir, "ugc-influencer.mp4"),
+          join(packDir, "thriller.mp4"),
+          join(packDir, "thriller-venice.mp4"),
+        ].find((p) => existsSync(p)) || undefined;
+      const dse = await runDiffusionStudio({
+        projectId,
+        productName: project.name,
+        promise: "Still $1. Can earn while you hold it.",
+        siteUrl: url.replace(/^https?:\/\//, ""),
+        footagePath: footage,
+        aspect: "9:16",
+        execute: env("DIFFUSION_STUDIO_EXECUTE", "0") === "1",
+      });
+      writeFileSync(join(packDir, "DIFFUSION-STUDIO.md"), formatDiffusionStudio(dse));
+      paths.diffusionStudio = dse.dir;
+      paths.diffusionComposition = dse.compositionPath;
+      if (dse.outputPath && existsSync(dse.outputPath)) {
+        copyFileSync(dse.outputPath, join(packDir, "diffusion-out.mp4"));
+        paths.diffusionMp4 = join(packDir, "diffusion-out.mp4");
+      }
+      log.push(`Diffusion Studio: ${dse.status} · ${dse.compositionPath}`);
+    } catch (e) {
+      log.push(`Diffusion Studio warn: ${e instanceof Error ? e.message : e}`);
+    }
+  }
+
   // --- 5c. HeyGen presenter (when key + HEYGEN_AUTO) ---
   if (env("HEYGEN_AUTO", "1") === "1" && hasHeyGen()) {
     log.push("[5c/12] HeyGen presenter");
@@ -581,6 +630,23 @@ export async function produceFullPack(opts: {
     );
   } catch {
     /* best-effort */
+  }
+
+  try {
+    const er = await evolveHarness({
+      projectId,
+      trajectory: {
+        feature: "grow",
+        summary: summary.slice(0, 2000),
+        outcome: status === "done" ? "success" : status === "partial" ? "partial" : "fail",
+        errors: log.filter((l) => /fail/i.test(l)).slice(0, 8),
+        log,
+      },
+    });
+    log.push(`Evolve: promoted=${er.promoted} reflect=${er.reflections} pruned=${er.pruned}`);
+    writeFileSync(join(packDir, "EVOLVE.md"), `See ${er.protocolPath}`);
+  } catch (e) {
+    log.push(`Evolve warn: ${e instanceof Error ? e.message : e}`);
   }
 
   return { id, projectId, packDir, status, log, paths };

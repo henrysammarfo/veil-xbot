@@ -10,6 +10,8 @@ import { eddyLaunchSystemSuffix, eddyTrailerJsonSchema } from "../studio/eddy-la
 import { hasVenice, veniceChat, veniceConfig } from "../integrations/venice.js";
 import { brainContextSuffix } from "../brain/memory.js";
 import { learnContextSuffix, type LearnFeature } from "../brain/self-learn.js";
+import { evolveContextSuffix } from "../brain/evolve.js";
+import { craftSystemSuffix } from "../studio/cinematic-craft.js";
 import { skillsContextForTask } from "../skills/catalog.js";
 
 export type LlmProvider = "openai" | "flockai" | "venice" | "vernice";
@@ -258,7 +260,7 @@ export async function chatCompletion(
   const feature = opts?.feature ?? spec.feature ?? "global";
   const projectId = opts?.projectId ?? opts?.context;
 
-  const system = `${spec.system(opts?.context)}${brainContextSuffix(10)}${skillsContextForTask(task, 8)}${learnContextSuffix({ projectId, feature })}`;
+  const system = `${spec.system(opts?.context)}${craftSystemSuffix()}${brainContextSuffix(10)}${skillsContextForTask(task, 8)}${learnContextSuffix({ projectId, feature })}${evolveContextSuffix({ projectId, feature })}`;
   const messages = [
     { role: "system" as const, content: system },
     { role: "user" as const, content: userContent },

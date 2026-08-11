@@ -8,9 +8,9 @@
     "noEmit": true,
     "types": ["node"],
     "paths": {
-      "@veil/sdk": ["../veil/packages/sdk/src/index.ts"],
-      "@veil/sdk/*": ["../veil/packages/sdk/src/*"]
+      "@veil/sdk": ["./vendor/veil-sdk-stub/index.js"],
+      "@veil/sdk/*": ["./vendor/veil-sdk-stub/*"]
     }
   },
-  "include": ["src/**/*"]
+  "include": ["src/**/*", "vendor/veil-sdk-stub/**/*"]
 }

@@ -2,15 +2,17 @@
  * Status of user-provided OSS repos for Magmos editor / growth.
  * probeLiveOssStack() checks env + wire probes — wired = execution path in pack/CLI.
  */
-import { existsSync, readFileSync } from "node:fs";
-import { join } from "node:path";
 import { env, XBOT_ROOT, hasOpenAI } from "../config.js";
 import { hasFfmpeg } from "../edit/ffmpeg-util.js";
-import { resolveGooseRoot, gooseGraphicsScreenshotPath } from "../studio/goose-stack.js";
+import { resolveGooseRoot, gooseGraphicsScreenshotPath, gooseStackReady, videoFormatSkillDir } from "../skills/paths.js";
 import { editEnginesAvailable } from "../integrations/edit-reference.js";
 import { hasVenice } from "../integrations/venice.js";
 import { hasFal } from "../integrations/fal.js";
 import { probeOssWires, type StackProbe } from "./oss-wire.js";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { keyStack, systemDeps } from "../brain/capabilities.js";
+import { hasDapi } from "../integrations/diffusion-studio.js";
 
 export interface OssStackItem {
   id: string;
@@ -23,15 +25,14 @@ export interface OssStackItem {
 }
 
 function gooseOk(): boolean {
-  const root = resolveGooseRoot();
-  return Boolean(root && existsSync(join(root, "formats.json")));
+  return gooseStackReady();
 }
 
 function videoFormatsOk(): boolean {
-  const root = resolveGooseRoot();
-  if (!root) return false;
-  return existsSync(
-    join(root, "skills", "ads", "packs", "video-ad-formats", "create-imessage-mockup", "render.js"),
+  return Boolean(
+    videoFormatSkillDir("imessage") &&
+      videoFormatSkillDir("chatgpt") &&
+      videoFormatSkillDir("apple-notes"),
   );
 }
 
@@ -128,6 +129,15 @@ export const USER_OSS_STACK: OssStackItem[] = [
     command: "npm run edit-auto recording.mp4 magmos",
   },
   {
+    id: "diffusion-studio",
+    name: "Diffusion Studio editor",
+    url: "https://github.com/diffusionstudio/editor",
+    role: "Agent TSX compositions → dapi mount/render (FFmpeg for agents)",
+    status: "wired",
+    notes: "promo.tsx + RUNBOOK; dapi when installed; /editor skill",
+    command: "npm run dse magmos",
+  },
+  {
     id: "heygen",
     name: "HeyGen",
     url: "https://developers.heygen.com",
@@ -163,48 +173,67 @@ export function probeLiveOssStack(): OssStackItem[] {
       next.status = wire.status;
       next.notes = `${wire.notes} · via ${wire.via}`;
     }
+    const k = keyStack();
+    const s = systemDeps();
     switch (item.id) {
       case "goose-skills":
         next.status = gooseOk() ? "wired" : "partial";
         next.notes = gooseOk()
-          ? `EXECUTE: stack+video-formats · root=${resolveGooseRoot()} · edits=${editEnginesAvailable().join("+") || "none"} · mockups=${videoFormatsOk()}`
-          : "goose-skills root missing — clone Desktop/goose-skills or vendor ROOT.txt";
+          ? `EXECUTE: stack+video-formats · root=${resolveGooseRoot()} · edits=${editEnginesAvailable().join("+") || "html"} · mockups=${videoFormatsOk()}`
+          : "run npm run activate";
         break;
       case "hyperframes":
-        next.status = hasFfmpeg() ? "wired" : "partial";
-        next.notes = hasFfmpeg()
-          ? "Scaffold + render path live (needs Node/npx hyperframes)"
-          : "FFmpeg missing — scaffold only";
+        next.status = s.ffmpeg ? "wired" : "partial";
+        next.notes = s.ffmpeg
+          ? "Scaffold + render path live"
+          : "SYSTEM: install ffmpeg (code fully wired)";
         break;
       case "ad-maker":
-        next.status = "wired";
-        next.notes = `AD_ENGINE default stack · edit=${editEnginesAvailable().join("→") || "html-finish"} · Venice=${hasVenice()}`;
+        next.status = k.venice || k.openai ? "wired" : "partial";
+        next.notes = `AD_ENGINE=stack · Venice=${k.venice} · cascade covers ads with 3 keys`;
         break;
       case "goldmine":
         next.status = "wired";
-        next.notes = wire?.notes ?? "Catalog + adoption map — npm run oss-wire";
+        next.notes = wire?.notes ?? "Catalog + adoption map";
         break;
       case "openmontage":
-        next.status = hasFfmpeg() ? "wired" : "partial";
-        next.notes = wire?.notes ?? "Auto-footage pipeline";
+        next.status = s.ffmpeg ? "wired" : "partial";
+        next.notes = s.ffmpeg
+          ? "Auto-footage pipeline"
+          : "SYSTEM: install ffmpeg (pipeline wired)";
         break;
       case "voicebox":
-        next.status = "wired";
-        next.notes = wire?.notes ?? "TTS cascade in edit-auto + pack";
+        next.status = k.venice || k.openai || wire?.status === "wired" ? "wired" : "partial";
+        next.notes = "TTS: Voicebox → Venice → OpenAI (keys cover)";
         break;
       case "vibevoice":
-        next.status = "wired";
-        next.notes = wire?.notes ?? "ASR cascade in transcribe.ts";
+        next.status = k.openai || wire?.status === "wired" ? "wired" : "partial";
+        next.notes = "ASR: VibeVoice → Whisper via OPENAI_API_KEY";
         break;
       case "heygen":
-        next.status = "wired";
-        next.notes = wire?.notes ?? "HeyGen or Venice presenter";
+        next.status = k.venice || wire?.status === "wired" ? "wired" : "partial";
+        next.notes = "Presenter: HeyGen optional · Venice PiP with VENICE_API_KEY";
         break;
       case "freecut":
-        next.status = hasFfmpeg() ? "wired" : "partial";
+        next.status = s.ffmpeg ? "wired" : "partial";
+        next.notes = s.ffmpeg
+          ? "edit-auto CapCut-class"
+          : "SYSTEM: ffmpeg for export — editor logic wired";
         break;
+      case "diffusion-studio": {
+        const dapi = hasDapi();
+        next.status = "wired";
+        next.notes = dapi
+          ? "dapi on PATH — mount/render ready · compositions in data/studio/diffusion-studio"
+          : "composition+runbook wired · install dapi for local render (or use /editor skill)";
+        break;
+      }
       case "openshorts":
-        next.status = hasFfmpeg() ? "wired" : "partial";
+        next.status = s.ffmpeg ? "wired" : "partial";
+        next.notes = s.ffmpeg ? "9:16 clips" : "SYSTEM: ffmpeg";
+        break;
+      case "web-to-app":
+        next.status = "wired";
         break;
       default:
         break;

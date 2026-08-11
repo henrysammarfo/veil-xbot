@@ -27,13 +27,24 @@ npm run serve          # dashboard
 ## Setup
 
 ```bash
-git clone https://github.com/henrysammarfo/veil-xbot.git
-cd veil-xbot
+git clone https://github.com/henrysammarfo/kiln.git
+cd kiln
 cp .env.example .env
-# Add keys (see API-KEYS.md)
+# Add keys (see API-KEYS.md) — Venice + OpenAI + TinyFish for Magmos ship path
 npm install
-npm run serve   # → http://127.0.0.1:3947
+npm run activate   # wire all OSS skills + goldmine + brain
+npm run serve      # → http://127.0.0.1:3947
 ```
+
+**Daily Magmos**
+
+```bash
+npm run ops magmos     # all teams → data/ops/TODAY.md
+npm run ship magmos    # social-max → quality-gated pack
+npm run serve
+```
+
+See **[OSS-STACK.md](./OSS-STACK.md)** — 268 installed skills under `.agents/skills`, fully path-resolved.
 
 ## Human taste (read first)
 

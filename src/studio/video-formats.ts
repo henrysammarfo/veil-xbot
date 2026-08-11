@@ -23,12 +23,12 @@ import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { DATA_DIR, assertDataDir, env } from "../config.js";
 import { newId } from "../store.js";
-import { resolveGooseRoot } from "./goose-stack.js";
 import { scaffoldSimplePrompt, renderHyperframes } from "../integrations/hyperframes.js";
 import { hasFfmpeg, runFfmpeg } from "../edit/ffmpeg-util.js";
 import { learn } from "../brain/self-learn.js";
 import { MAGMOS_BRAND } from "./magmos-brand.js";
 import { launchChromium } from "../qa/playwright-launch.js";
+import { videoFormatSkillDir } from "../skills/paths.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -46,22 +46,7 @@ export interface VideoFormatResult {
 }
 
 function skillDirFor(format: VideoFormatId): string | null {
-  const root = resolveGooseRoot();
-  if (!root) return null;
-  const map: Record<VideoFormatId, string> = {
-    imessage: join(root, "skills", "ads", "packs", "video-ad-formats", "create-imessage-mockup"),
-    chatgpt: join(root, "skills", "ads", "packs", "video-ad-formats", "create-chatgpt-mockup"),
-    "apple-notes": join(
-      root,
-      "skills",
-      "ads",
-      "packs",
-      "video-ad-formats",
-      "create-apple-notes-mockup",
-    ),
-  };
-  const d = map[format];
-  return existsSync(join(d, "render.js")) ? d : null;
+  return videoFormatSkillDir(format);
 }
 
 function magmosImessageThread() {

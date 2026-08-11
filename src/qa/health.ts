@@ -12,6 +12,7 @@ import { playwrightProbe, launchChromium } from "../qa/playwright-launch.js";
 import { hasVoicebox, voiceboxBaseUrl } from "../integrations/voicebox.js";
 import { env } from "../config.js";
 import { hasFfmpeg } from "../edit/ffmpeg-util.js";
+import { gooseStackReady, resolveGooseRoot, videoFormatSkillDir, gooseGraphicsScreenshotPath } from "../skills/paths.js";
 
 export interface HealthCheck {
   id: string;
@@ -26,6 +27,21 @@ export async function runHealthProbe(opts?: { capture?: boolean }): Promise<{
 }> {
   assertDataDir();
   const checks: HealthCheck[] = [];
+
+  const gooseOk = gooseStackReady();
+  checks.push({
+    id: "goose-stack",
+    ok: gooseOk,
+    detail: gooseOk
+      ? `root=${resolveGooseRoot()} · graphics=${Boolean(gooseGraphicsScreenshotPath())} · mockups=${[
+          videoFormatSkillDir("imessage"),
+          videoFormatSkillDir("chatgpt"),
+          videoFormatSkillDir("apple-notes"),
+        ]
+          .filter(Boolean)
+          .length}/3`
+      : "run npm run activate — .agents/skills not resolved",
+  });
 
   const smart = smartStatus();
   checks.push({

@@ -82,6 +82,12 @@ const PINNED: OssCatalog["pinned"] = [
     license: "Unlicense",
   },
   {
+    name: "Diffusion Studio editor",
+    url: "https://github.com/diffusionstudio/editor",
+    use: "Agent TSX compositions → dapi mount/render — npm run dse · FFmpeg for agents",
+    license: "MPL-2.0",
+  },
+  {
     name: "open-source-ai-goldmine",
     url: "https://github.com/Moh4696/open-source-ai-goldmine",
     use: "Curated lab OSS list (Anthropic/OpenAI/Google/Meta…) — agent learning",

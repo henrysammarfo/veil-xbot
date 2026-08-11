@@ -43,6 +43,21 @@ import { hasVenice } from "../integrations/venice.js";
 import { hasOpenAI } from "../config.js";
 import { hasFfmpeg, runFfmpeg } from "../edit/ffmpeg-util.js";
 import { launchChromium } from "../qa/playwright-launch.js";
+import {
+  resolveGooseRoot,
+  loadFormatsMap,
+  gooseGraphicsScreenshotPath,
+  ensureGooseVendorBootstrap,
+  gooseStackReady,
+} from "../skills/paths.js";
+
+export {
+  resolveGooseRoot,
+  loadFormatsMap,
+  gooseGraphicsScreenshotPath,
+  ensureGooseVendorBootstrap,
+  gooseStackReady,
+} from "../skills/paths.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -97,7 +112,8 @@ export interface StackBatchResult {
 const SKILL_ALIASES: Record<string, string> = {
   "meta-ads": "meta-ads-campaign-builder",
   "trending-ad-hook": "trending-ad-hook-spotter",
-  ugc: "ugc-filmloop",
+  ugc: "ugc-formloop",
+  "ugc-filmloop": "ugc-formloop",
   "paid-channel": "paid-channel-prioritizer",
 };
 
@@ -112,52 +128,12 @@ const REF_TO_CONCEPT: Array<{ match: RegExp; conceptId: string }> = [
   { match: /gazette|defi/i, conceptId: "defi-gazette" },
 ];
 
-export function resolveGooseRoot(): string | null {
-  const fromVendor = join(XBOT_ROOT, "vendor", "goose-skills", "ROOT.txt");
-  if (existsSync(fromVendor)) {
-    const root = readFileSync(fromVendor, "utf8").trim();
-    if (root && existsSync(root)) return root;
-  }
-  const desktop = "c:\\Users\\RICHEY_SON\\Desktop\\goose-skills";
-  if (existsSync(desktop)) return desktop;
-  const agents = join(XBOT_ROOT, ".agents", "skills");
-  if (existsSync(agents)) return agents;
-  return null;
-}
-
-export function loadFormatsMap(): Record<string, string> {
-  const root = resolveGooseRoot();
-  const candidates = [
-    root ? join(root, "formats.json") : "",
-    join(XBOT_ROOT, "vendor", "goose-skills", "formats.json"),
-  ].filter(Boolean);
-  for (const p of candidates) {
-    if (existsSync(p)) {
-      try {
-        return JSON.parse(readFileSync(p, "utf8")) as Record<string, string>;
-      } catch {
-        /* skip */
-      }
-    }
-  }
-  return {
-    static: "skills/ads/composites/remix-graphic-ad-from-reference",
-    "brand-research": "skills/ads/composites/brand-research",
-  };
-}
-
 export function resolveSkillSlug(slugOrAlias: string): string {
   return SKILL_ALIASES[slugOrAlias] ?? slugOrAlias;
 }
 
-export function gooseGraphicsScreenshotPath(): string | null {
-  const root = resolveGooseRoot();
-  if (!root) return null;
-  const p = join(root, "skills", "design", "composites", "goose-graphics", "screenshot", "screenshot.js");
-  return existsSync(p) ? p : null;
-}
-
 export function probeStack(): StackProbe {
+  ensureGooseVendorBootstrap();
   const gooseRoot = resolveGooseRoot();
   const formats = loadFormatsMap();
   const skillBodies: Record<string, boolean> = {};
@@ -168,7 +144,7 @@ export function probeStack(): StackProbe {
     "ad-angle-miner",
     "meta-ads-campaign-builder",
     "trending-ad-hook-spotter",
-    "ugc-filmloop",
+    "ugc-formloop",
   ]) {
     skillBodies[slug] = Boolean(readSkillBody(slug, 200) || getSkill(slug));
   }
@@ -177,11 +153,14 @@ export function probeStack(): StackProbe {
     ? readdirSync(refDir).filter((f) => /\.(png|jpg|webp)$/i.test(f))
     : [];
   const ossHonesty = [
-    "goose-skills: EXECUTE via goose-stack (formats → remix) — not prompt-only",
+    "goose-skills: EXECUTE via goose-stack (formats → remix) — .agents/skills flat layout wired",
     "Edit-on-ref cascade: Venice /image/edit → OpenAI images/edits → FAL (FAL optional)",
     "Video formats: create-imessage/chatgpt/apple-notes-mockup + HyperFrames in pack",
-    "goldmine: catalog bookmarks unless a lab is imported",
+    "goldmine: catalog + adoption map activated on pack/activate",
     "ad-maker Branda: pattern + TinyFish + this stack, not their SaaS binary",
+    gooseStackReady()
+      ? "goose stack READY — static skill + formats resolved"
+      : "goose stack partial — run npm run activate",
   ];
   return {
     gooseRoot,

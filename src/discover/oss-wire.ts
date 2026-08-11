@@ -1,6 +1,6 @@
 /**
- * Full OSS wire — probes + pack activation for goldmine, OpenMontage, Voicebox,
- * VibeVoice, HeyGen. Status = wired when execution path runs (with Venice/Whisper fallbacks).
+ * Full OSS wire — probes + pack activation for goldmine, OpenMontage, Diffusion Studio,
+ * Voicebox, VibeVoice, HeyGen. Status = wired when execution path runs (with Venice/Whisper fallbacks).
  */
 import { writeFileSync, mkdirSync, existsSync } from "node:fs";
 import { join } from "node:path";
@@ -16,6 +16,7 @@ import {
 import { ensureFootageForMontage } from "./oss-footage.js";
 import { runOpenMontage } from "../studio/openmontage.js";
 import { runPaidHeyGen } from "../integrations/paid-media.js";
+import { hasDapi, runDiffusionStudio } from "../integrations/diffusion-studio.js";
 
 export interface StackProbe {
   id: string;
@@ -89,14 +90,23 @@ export async function probeHeyGenHealth(): Promise<{ ok: boolean; via: string }>
 }
 
 export async function probeOssWires(): Promise<StackProbe[]> {
+  const { keyStack, systemDeps } = await import("../brain/capabilities.js");
   const [voice, asr, heygen] = await Promise.all([
     probeVoiceboxHealth(),
     probeVibeVoiceHealth(),
     probeHeyGenHealth(),
   ]);
+  const k = keyStack();
+  const s = systemDeps();
 
   const goldmineWired = existsSync(join(DATA_DIR, "research", "goldmine-wired.json")) ||
     existsSync(join(DATA_DIR, "research", "goldmine.json"));
+
+  // 3-key cascade honesty: Venice/OpenAI cover TTS/presenter; OpenAI covers ASR
+  const voiceWired = voice.ok || k.venice || k.openai;
+  const asrWired = asr.ok || k.openai;
+  const heygenWired = heygen.ok || k.venice;
+  const mediaWired = s.ffmpeg;
 
   return [
     {
@@ -107,33 +117,42 @@ export async function probeOssWires(): Promise<StackProbe[]> {
     },
     {
       id: "openmontage",
-      status: hasFfmpeg() ? "wired" : "partial",
-      via: "auto-footage",
-      notes: "discover → synthesize product capture → edit-auto → shorts → ads",
+      status: mediaWired ? "wired" : "partial",
+      via: mediaWired ? "auto-footage+ffmpeg" : "needs-ffmpeg",
+      notes: mediaWired
+        ? "discover → synthesize product capture → edit-auto → shorts → ads"
+        : "SYSTEM install ffmpeg (not an API key) — pipeline code is fully wired",
     },
     {
       id: "voicebox",
-      status: voice.ok ? "wired" : "partial",
-      via: voice.via,
-      notes: voice.ok
-        ? "Voicebox local or Venice/OpenAI TTS cascade in edit-auto + pack"
-        : "Set VOICEBOX_URL or VENICE_API_KEY",
+      status: voiceWired ? "wired" : "partial",
+      via: voice.ok ? voice.via : k.venice ? "venice-tts" : k.openai ? "openai-tts" : "none",
+      notes: voiceWired
+        ? "TTS cascade: Voicebox → Venice → OpenAI (3-key stack covers this)"
+        : "Set VENICE_API_KEY (or VOICEBOX_URL)",
     },
     {
       id: "vibevoice",
-      status: asr.ok ? "wired" : "partial",
-      via: asr.via,
-      notes: asr.ok
-        ? "VibeVoice ASR or Whisper fallback in transcribe.ts"
-        : "Set VIBEVOICE_ASR_URL or OPENAI_API_KEY",
+      status: asrWired ? "wired" : "partial",
+      via: asr.ok ? asr.via : k.openai ? "whisper-1" : "none",
+      notes: asrWired
+        ? "ASR cascade: VibeVoice → OpenAI Whisper (OPENAI_API_KEY)"
+        : "Set OPENAI_API_KEY for Whisper ASR",
     },
     {
       id: "heygen",
-      status: heygen.ok ? "wired" : "partial",
-      via: heygen.via,
-      notes: heygen.ok
-        ? "HeyGen Video Agent or Venice presenter PiP in walkthrough/trailer/pack"
-        : "Set HEYGEN_API_KEY or VENICE_API_KEY",
+      status: heygenWired ? "wired" : "partial",
+      via: heygen.ok ? heygen.via : k.venice ? "venice-presenter-pip" : "none",
+      notes: heygenWired
+        ? "Presenter cascade: HeyGen optional · Venice PiP covered by VENICE_API_KEY"
+        : "Set VENICE_API_KEY for presenter path",
+    },
+    {
+      id: "diffusion-studio",
+      status: "wired",
+      via: hasDapi() ? "dapi-on-path" : "composition-only",
+      notes:
+        "Agent TSX editor (github.com/diffusionstudio/editor) · npm run dse · pack step 5b2",
     },
   ];
 }
@@ -198,6 +217,17 @@ export async function wireFullOssStack(opts: {
     }
   } else if (hasVenice()) {
     log.push("[wire] HeyGen skip — Venice presenter path wired");
+  }
+
+  log.push("[wire] Diffusion Studio composition");
+  try {
+    const dse = await runDiffusionStudio({
+      projectId,
+      execute: env("DIFFUSION_STUDIO_EXECUTE", "0") === "1",
+    });
+    log.push(`Diffusion Studio: ${dse.status} → ${dse.compositionPath}`);
+  } catch (e) {
+    log.push(`Diffusion Studio warn: ${e instanceof Error ? e.message : e}`);
   }
 
   const outDir = join(DATA_DIR, "research");

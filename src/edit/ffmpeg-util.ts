@@ -14,8 +14,50 @@ export function hasFfmpeg(): boolean {
     execSync("ffmpeg -version", { stdio: "ignore" });
     return true;
   } catch {
-    return false;
+    /* try common Windows winget / chocolatey paths */
   }
+  const candidates = [
+    process.env.FFMPEG_PATH,
+    join(process.env.LOCALAPPDATA || "", "Microsoft", "WinGet", "Links", "ffmpeg.exe"),
+    join(process.env.LOCALAPPDATA || "", "Microsoft", "WinGet", "Packages"),
+    "C:\\ffmpeg\\bin\\ffmpeg.exe",
+    "C:\\ProgramData\\chocolatey\\bin\\ffmpeg.exe",
+  ].filter(Boolean) as string[];
+  for (const c of candidates) {
+    if (c && existsSync(c) && c.endsWith("ffmpeg.exe")) return true;
+  }
+  // WinGet Links often creates shim without full path scan — probe PATH-like dirs
+  try {
+    const where = execSync("where.exe ffmpeg", { encoding: "utf8" }).trim().split(/\r?\n/)[0];
+    if (where && existsSync(where)) return true;
+  } catch {
+    /* */
+  }
+  return false;
+}
+
+function resolveFfmpegBin(): string {
+  try {
+    execSync("ffmpeg -version", { stdio: "ignore" });
+    return "ffmpeg";
+  } catch {
+    /* */
+  }
+  try {
+    const where = execSync("where.exe ffmpeg", { encoding: "utf8" }).trim().split(/\r?\n/)[0];
+    if (where && existsSync(where)) return where;
+  } catch {
+    /* */
+  }
+  const fallbacks = [
+    process.env.FFMPEG_PATH,
+    join(process.env.LOCALAPPDATA || "", "Microsoft", "WinGet", "Links", "ffmpeg.exe"),
+    "C:\\ffmpeg\\bin\\ffmpeg.exe",
+  ].filter(Boolean) as string[];
+  for (const f of fallbacks) {
+    if (f && existsSync(f)) return f;
+  }
+  return "ffmpeg";
 }
 
 export function probeDuration(input: string): number {
@@ -54,7 +96,8 @@ export function probeVideo(input: string): VideoProbe {
 }
 
 export function runFfmpeg(args: string[], label = "ffmpeg"): void {
-  const proc = spawnSync("ffmpeg", args, {
+  const bin = resolveFfmpegBin();
+  const proc = spawnSync(bin, args, {
     encoding: "utf8",
     maxBuffer: 32 * 1024 * 1024,
   });

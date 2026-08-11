@@ -17,6 +17,7 @@ import { tinyfishSearch, hasTinyfish } from "./research/tinyfish.js";
 import { discoverOssTools, formatOssCatalog } from "./discover/oss-tools.js";
 import { formatOssStack, probeLiveOssStackAsync } from "./discover/oss-stack.js";
 import { wireFullOssStack, formatOssWire } from "./discover/oss-wire.js";
+import { activateFullStack, formatActivate } from "./discover/activate.js";
 import { runPaidHeyGen } from "./integrations/paid-media.js";
 import { hasHeyGen } from "./integrations/heygen.js";
 import { scaffoldSimplePrompt, renderHyperframes } from "./integrations/hyperframes.js";
@@ -132,6 +133,7 @@ Veil X Bot — Growth OS (marketing · GTM · distribution · Q&A)
   magmos-ad <recording.mp4>                  Magmos paid ad: autonomous edit → 9:16/1:1/16:9 + growth pack
   walkthrough [project]                      HyperFrames + Venice presenter PiP walkthrough
   openmontage [project] [footage]            OpenMontage plan→edit→shorts→ads
+  dse|diffusion [project] [footage.mp4]      Diffusion Studio TSX → dapi (agent editor)
   ad-maker [project] [domain]                Goose stack still ads (formats.static → remix + companions)
   stack [probe|run] [project]                Probe / execute Goose+OSS stack (formats, refs, FAL, skills)
   video-formats [project]                    Goose imessage/chatgpt/apple-notes mockups + HyperFrames
@@ -384,6 +386,15 @@ async function main(): Promise<void> {
         runHeyGen: !noHeygen,
       });
       console.log(formatOssWire(wire));
+      break;
+    }
+    case "activate": {
+      const project = rest.find((a) => !a.startsWith("--")) || "magmos";
+      const full = rest.includes("--full");
+      console.log(`ACTIVATE full OSS stack — ${project}${full ? " (full wire)" : ""}...\n`);
+      const r = await activateFullStack({ projectId: project, fullWire: full });
+      console.log(formatActivate(r));
+      if (!r.gooseReady) process.exitCode = 1;
       break;
     }
     case "social-max": {
@@ -734,14 +745,22 @@ async function main(): Promise<void> {
       console.log(formatWalkthrough(result));
       break;
     }
-    case "grow": {
+    case "grow":
+    case "fleet": {
       const url = rest[0];
-      if (!url) throw new Error("Usage: grow https://magmoslabs.vercel.app [magmos]");
+      if (!url) throw new Error("Usage: fleet https://yoursite.com [magmos]\n   or: grow https://yoursite.com [magmos]");
       const project = rest[1] || "magmos";
-      console.log(`Unified grow — ${url} → ${project}...\n`);
+      console.log(`FLEET grow — link → ads + video + UGC + GTM (${url} → ${project})...\n`);
       const result = await growFromUrl({ url, projectId: project });
       console.log(formatGrow(result));
       console.log(`\n→ ${result.outputPath}`);
+      if (result.packDir) console.log(`Pack → ${result.packDir}`);
+      break;
+    }
+    case "caps":
+    case "capabilities": {
+      const { formatCapabilityReport } = await import("./brain/capabilities.js");
+      console.log(formatCapabilityReport());
       break;
     }
     case "pack":
@@ -883,6 +902,40 @@ async function main(): Promise<void> {
       console.log(`OpenMontage — ${project}...\n`);
       const run = await runOpenMontage({ projectId: project, footagePath: footage });
       console.log(formatOpenMontage(run));
+      break;
+    }
+    case "dse":
+    case "diffusion":
+    case "diffusion-studio": {
+      const project =
+        rest.find((a) => !a.startsWith("-") && !/\.(mp4|webm|mov)$/i.test(a)) || "magmos";
+      const footage = rest.find((a) => /\.(mp4|webm|mov)$/i.test(a));
+      const exec = rest.includes("--exec") || env("DIFFUSION_STUDIO_EXECUTE", "0") === "1";
+      console.log(`Diffusion Studio — agent composition (${project})...\n`);
+      const {
+        runDiffusionStudio,
+        polishFootageWithDiffusionStudio,
+        formatDiffusionStudio,
+        diffusionStudioInstallNotes,
+      } = await import("./integrations/diffusion-studio.js");
+      const p = getProject(project);
+      const job = footage
+        ? await polishFootageWithDiffusionStudio({
+            footagePath: footage,
+            projectId: project,
+          })
+        : await runDiffusionStudio({
+            projectId: project,
+            productName: p.name,
+            siteUrl: p.primaryUrl?.replace(/^https?:\/\//, ""),
+            execute: exec,
+            aspect: rest.includes("--16x9") ? "16:9" : "9:16",
+          });
+      console.log(formatDiffusionStudio(job));
+      if (!job.dapiAvailable) {
+        console.log("\nInstall notes:\n" + diffusionStudioInstallNotes());
+      }
+      console.log(`\n→ ${job.dir}`);
       break;
     }
     case "ad-maker": {

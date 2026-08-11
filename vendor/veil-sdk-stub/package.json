@@ -1,0 +1,11 @@
+{
+  "name": "@veil/sdk",
+  "version": "0.0.0-stub",
+  "private": true,
+  "type": "module",
+  "description": "Local stub so kiln installs without sibling veil repo. Replace with file:../veil/packages/sdk for full sandbox QA.",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js"
+  }
+}
